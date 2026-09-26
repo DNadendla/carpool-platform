@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>My Bookings | Carpool</title>
+
+  <link rel="stylesheet"
+        th:href="@{/css/style.css}">
+
+  <link rel="stylesheet"
+        th:href="@{/css/booking/bookings.css}">
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     GLOBAL NAVBAR
+     ===================================================== -->
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<!-- =====================================================
+     MAIN
+     ===================================================== -->
+
+<main class="bookings-page">
+
+
+  <!-- =================================================
+       PAGE HEADER
+       ================================================= -->
+
+  <section class="bookings-header">
+
+    <div class="bookings-header-content">
+
+      <div>
+
+        <div class="page-eyebrow">
+          YOUR JOURNEYS
+        </div>
+
+        <h1>
+          My Bookings
+        </h1>
+
+        <p>
+          View and manage the rides you have booked.
+        </p>
+
+      </div>
+
+
+      <a href="/rides"
+         class="find-rides-button">
+
+                <span class="find-rides-icon">
+                    +
+                </span>
+
+        Find a Ride
+
+      </a>
+
+    </div>
+
+  </section>
+
+
+  <!-- =================================================
+       CONTENT
+       ================================================= -->
+
+  <section class="bookings-content">
+
+
+    <!-- =============================================
+         LOADING
+         ============================================= -->
+
+    <div id="loading"
+         class="loading-state">
+
+      <div class="spinner"></div>
+
+      <p>
+        Loading your bookings...
+      </p>
+
+    </div>
+
+
+    <!-- =============================================
+         ERROR
+         ============================================= -->
+
+    <div id="errorMessage"
+         class="message error-message hidden">
+    </div>
+
+
+    <!-- =============================================
+         EMPTY STATE
+         ============================================= -->
+
+    <div id="emptyState"
+         class="empty-state hidden">
+
+      <div class="empty-icon">
+        🎫
+      </div>
+
+      <h2>
+        No bookings yet
+      </h2>
+
+      <p>
+        You haven't booked any rides yet.
+        Find a ride and start your journey.
+      </p>
+
+      <a href="/rides"
+         class="empty-button">
+
+        Find a Ride
+
+      </a>
+
+    </div>
+
+
+    <!-- =============================================
+         BOOKINGS
+         ============================================= -->
+
+    <div id="bookingsContainer"
+         class="bookings-container hidden">
+
+      <!-- Booking cards are created by bookings.js -->
+
+    </div>
+
+
+  </section>
+
+</main>
+
+
+<!-- =====================================================
+     FOOTER
+     ===================================================== -->
+
+<footer class="booking-footer-page">
+
+  © 2026 Carpool. Share the ride. Share the journey.
+
+</footer>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+     ===================================================== -->
+
+<script th:src="@{/js/api.js}"></script>
+
+<script th:src="@{/js/booking/bookings.js}"></script>
+
+<script th:src="@{/js/auth-guard.js}"></script>
+
+<script th:src="@{/js/logout.js}"></script>
+
+</body>
+
+</html>

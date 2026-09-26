@@ -1,0 +1,610 @@
+/* =========================================================
+   MY VEHICLES PAGE
+   ========================================================= */
+
+.vehicles-page {
+    min-height: calc(100vh - 145px);
+    background: #f5f7fb;
+    padding: 40px 32px 55px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.vehicles-header {
+    max-width: 1120px;
+    margin: 0 auto 26px;
+}
+
+.vehicles-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.page-eyebrow {
+    margin-bottom: 7px;
+
+    color: #64748b;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 2px;
+}
+
+.vehicles-header h1 {
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 32px;
+    font-weight: 800;
+
+    letter-spacing: -0.8px;
+}
+
+.vehicles-header p {
+    margin: 7px 0 0;
+
+    color: #64748b;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   ADD VEHICLE
+   ========================================================= */
+
+.add-vehicle-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    height: 41px;
+
+    padding: 0 17px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow: 0 5px 14px rgba(37, 99, 235, 0.2);
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.add-vehicle-button:hover {
+    background: #1d4ed8;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 7px 18px rgba(37, 99, 235, 0.25);
+}
+
+.add-icon {
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   VEHICLES GRID
+   ========================================================= */
+
+.vehicles-grid {
+    max-width: 1120px;
+    margin: 0 auto;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   VEHICLE CARD
+   ========================================================= */
+
+.vehicle-card {
+    padding: 18px 20px 16px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    box-shadow:
+        0 4px 14px rgba(15, 23, 42, 0.045);
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.vehicle-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #cbd5e1;
+
+    box-shadow:
+        0 9px 22px rgba(15, 23, 42, 0.08);
+}
+
+
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
+
+.vehicle-card-top {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+}
+
+.vehicle-card-identity {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
+}
+
+.vehicle-icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eff6ff;
+
+    border: 1px solid #dbeafe;
+    border-radius: 11px;
+
+    font-size: 22px;
+}
+
+.vehicle-card-title {
+    min-width: 0;
+}
+
+.vehicle-card-title h2 {
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 17px;
+    font-weight: 800;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vehicle-card-title p {
+    margin: 3px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   VEHICLE TYPE
+   ========================================================= */
+
+.vehicle-type-badge {
+    flex-shrink: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 25px;
+
+    padding: 0 10px;
+
+    background: #f1f5f9;
+
+    border-radius: 999px;
+
+    color: #475569;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+
+.vehicle-card-divider {
+    height: 1px;
+
+    margin: 15px 0 13px;
+
+    background: #eef2f7;
+}
+
+
+/* =========================================================
+   CARD BOTTOM
+   ========================================================= */
+
+.vehicle-card-bottom {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+
+/* =========================================================
+   SEATS
+   ========================================================= */
+
+.vehicle-seats {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
+.seats-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 8px;
+
+    background: #f8fafc;
+
+    font-size: 15px;
+}
+
+.vehicle-seats > div {
+    display: flex;
+    align-items: baseline;
+
+    gap: 6px;
+}
+
+.seats-label {
+    color: #94a3b8;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+}
+
+.seats-value {
+    color: #1e293b;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.vehicle-card-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+}
+
+.vehicle-edit-button,
+.vehicle-delete-button {
+    height: 31px;
+
+    padding: 0 10px;
+
+    border-radius: 7px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* Edit */
+
+.vehicle-edit-button {
+    border: 1px solid #dbeafe;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+}
+
+.vehicle-edit-button:hover {
+    background: #dbeafe;
+}
+
+
+/* Delete */
+
+.vehicle-delete-button {
+    border: 1px solid #fecaca;
+
+    background: #fff5f5;
+
+    color: #dc2626;
+}
+
+.vehicle-delete-button:hover {
+    background: #fee2e2;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.loading-state {
+    max-width: 1120px;
+    margin: 0 auto;
+
+    padding: 45px 20px;
+
+    text-align: center;
+
+    color: #64748b;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.vehicles-empty-state {
+    max-width: 1120px;
+    margin: 0 auto;
+
+    padding: 50px 25px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+}
+
+.empty-icon {
+    width: 56px;
+    height: 56px;
+
+    margin: 0 auto 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #eff6ff;
+
+    font-size: 27px;
+}
+
+.vehicles-empty-state h2 {
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 20px;
+}
+
+.vehicles-empty-state p {
+    margin: 7px 0 18px;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.empty-add-button {
+    height: 37px;
+
+    padding: 0 15px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.error-state {
+    max-width: 600px;
+    margin: 30px auto;
+
+    padding: 24px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    border: 1px solid #fecaca;
+    border-radius: 14px;
+}
+
+.error-state p {
+    margin: 0 0 15px;
+
+    color: #b91c1c;
+
+    font-size: 14px;
+}
+
+.retry-button {
+    height: 36px;
+
+    padding: 0 15px;
+
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+
+    background: #eff6ff;
+    color: #2563eb;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   HIDDEN
+   ========================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.site-footer {
+    padding: 22px 24px;
+
+    border-top: 1px solid #e2e8f0;
+
+    background: #ffffff;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .vehicles-page {
+        padding: 32px 22px 45px;
+    }
+
+    .vehicles-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .vehicles-page {
+        padding: 25px 16px 40px;
+    }
+
+    .vehicles-header-content {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 17px;
+    }
+
+    .add-vehicle-button {
+        width: 100%;
+    }
+
+    .vehicles-header h1 {
+        font-size: 28px;
+    }
+}
+
+
+@media (max-width: 430px) {
+
+    .vehicle-card {
+        padding: 16px;
+    }
+
+    .vehicle-card-title h2 {
+        font-size: 15px;
+    }
+
+    .vehicle-card-title p {
+        font-size: 12px;
+    }
+
+    .vehicle-type-badge {
+        padding: 0 8px;
+
+        font-size: 9px;
+    }
+
+    .vehicle-card-bottom {
+        gap: 8px;
+    }
+
+    .vehicle-edit-button,
+    .vehicle-delete-button {
+        padding: 0 8px;
+    }
+}

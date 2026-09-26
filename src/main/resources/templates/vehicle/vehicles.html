@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Vehicles | Carpool</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/vehicle/vehicles.css}">
+</head>
+
+<body>
+
+<!-- Global Navbar -->
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<main class="vehicles-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <section class="vehicles-header">
+
+        <div class="vehicles-header-content">
+
+            <div>
+
+                <div class="page-eyebrow">
+                    VEHICLE MANAGEMENT
+                </div>
+
+                <h1>
+                    My Vehicles
+                </h1>
+
+                <p>
+                    Manage the vehicles you use for your carpool rides.
+                </p>
+
+            </div>
+
+
+            <button id="addVehicleButton"
+                    class="add-vehicle-button"
+                    type="button">
+
+                <span class="add-icon">
+                    +
+                </span>
+
+                Add Vehicle
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         VEHICLE CONTENT
+         ===================================================== -->
+
+    <section class="vehicles-content">
+
+
+        <!-- =================================================
+             LOADING STATE
+             ================================================= -->
+
+        <div id="loadingState"
+             class="loading-state">
+
+            Loading vehicles...
+
+        </div>
+
+
+        <!-- =================================================
+             ERROR STATE
+             ================================================= -->
+
+        <div id="errorState"
+             class="error-state hidden">
+
+            <p id="errorMessage">
+                Unable to load your vehicles.
+            </p>
+
+            <button id="retryButton"
+                    class="retry-button"
+                    type="button">
+
+                Retry
+
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             VEHICLES LIST
+             ================================================= -->
+
+        <div id="vehiclesList"
+             class="vehicles-grid hidden">
+
+            <!--
+                Vehicle cards are generated dynamically
+                by vehicles.js
+            -->
+
+        </div>
+
+
+        <!-- =================================================
+             EMPTY STATE
+             ================================================= -->
+
+        <div id="emptyState"
+             class="vehicles-empty-state hidden">
+
+            <div class="empty-icon">
+                🚗
+            </div>
+
+            <h2>
+                No vehicles yet
+            </h2>
+
+            <p>
+                Add your first vehicle to start offering
+                carpool rides.
+            </p>
+
+            <button id="emptyAddButton"
+                    class="empty-add-button"
+                    type="button">
+
+                + Add Vehicle
+
+            </button>
+
+        </div>
+
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+
+<footer class="site-footer">
+
+    © 2026 Carpool. Share the ride. Share the journey.
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script th:src="@{/js/auth-guard.js}"></script>
+
+<script th:src="@{/js/logout.js}"></script>
+
+<script th:src="@{/js/api.js}"></script>
+
+<script th:src="@{/js/vehicle/vehicles.js}"></script>
+
+</body>
+</html>

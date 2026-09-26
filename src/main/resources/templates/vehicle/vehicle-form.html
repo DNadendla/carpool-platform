@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Add Vehicle | Carpool</title>
+
+    <!-- GLOBAL STYLES -->
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+    <!-- PAGE STYLES -->
+    <link rel="stylesheet"
+          th:href="@{/css/vehicle/vehicle-form.css}">
+
+</head>
+
+<body>
+
+<!-- =========================
+     GLOBAL NAVBAR
+========================= -->
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<main class="vehicle-form-page">
+
+    <div class="vehicle-form-container">
+
+
+        <!-- =========================
+             BACK
+        ========================= -->
+
+        <a href="/vehicles"
+           class="back-link">
+
+            ← Back to My Vehicles
+
+        </a>
+
+
+        <!-- =========================
+             PAGE HEADER
+        ========================= -->
+
+        <section class="vehicle-page-header">
+
+            <div class="vehicle-header-icon">
+                🚘
+            </div>
+
+            <div>
+
+                <p class="eyebrow">
+                    VEHICLE ONBOARDING
+                </p>
+
+                <h1>
+                    Add Your Vehicle
+                </h1>
+
+                <p class="header-description">
+                    Add your vehicle so you can offer rides to passengers.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             CONTENT GRID
+        ========================= -->
+
+        <div class="vehicle-content-grid">
+
+
+            <!-- =========================
+                 FORM
+            ========================= -->
+
+            <section class="form-card">
+
+                <div class="form-card-header">
+
+                    <h2>
+                        Vehicle Details
+                    </h2>
+
+                    <p>
+                        Enter the details of the vehicle you'll use for your rides.
+                    </p>
+
+                </div>
+
+
+                <form id="vehicleForm">
+
+
+                    <!-- VEHICLE NUMBER -->
+
+                    <div class="form-group">
+
+                        <label for="vehicleNumber">
+
+                            Vehicle Number
+
+                            <span>*</span>
+
+                        </label>
+
+                        <input
+                                type="text"
+                                id="vehicleNumber"
+                                name="vehicleNumber"
+                                placeholder="e.g. TS09AB1234"
+                                maxlength="20"
+                                required
+                        >
+
+                        <small>
+                            Enter your vehicle registration number.
+                        </small>
+
+                    </div>
+
+
+                    <!-- VEHICLE MODEL -->
+
+                    <div class="form-group">
+
+                        <label for="model">
+
+                            Vehicle Model
+
+                            <span>*</span>
+
+                        </label>
+
+                        <input
+                                type="text"
+                                id="model"
+                                name="model"
+                                placeholder="e.g. Honda City"
+                                maxlength="100"
+                                required
+                        >
+
+                    </div>
+
+
+                    <!-- TYPE + SEATS -->
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="type">
+
+                                Vehicle Type
+
+                                <span>*</span>
+
+                            </label>
+
+                            <select
+                                    id="type"
+                                    name="type"
+                                    required>
+
+                                <option value="">
+                                    Select type
+                                </option>
+
+                                <option value="SEDAN">
+                                    Sedan
+                                </option>
+
+                                <option value="SUV">
+                                    SUV
+                                </option>
+
+                                <option value="HATCHBACK">
+                                    Hatchback
+                                </option>
+
+                                <option value="MPV">
+                                    MPV
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="totalSeats">
+
+                                Total Seats
+
+                                <span>*</span>
+
+                            </label>
+
+                            <input
+                                    type="number"
+                                    id="totalSeats"
+                                    name="totalSeats"
+                                    min="1"
+                                    max="10"
+                                    placeholder="e.g. 5"
+                                    required
+                            >
+
+                            <small>
+                                Maximum 10 seats.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- MESSAGE -->
+
+                    <div
+                            id="formMessage"
+                            class="form-message hidden">
+                    </div>
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="form-actions">
+
+                        <button
+                                type="button"
+                                id="cancelButton"
+                                class="cancel-button">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                                type="submit"
+                                id="saveVehicleButton"
+                                class="submit-button">
+
+                            Add Vehicle
+                            <span>→</span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- =========================
+                 INFORMATION PANEL
+            ========================= -->
+
+            <aside class="vehicle-info-panel">
+
+                <div class="info-car-icon">
+                    🚗
+                </div>
+
+                <p class="info-eyebrow">
+                    READY TO RIDE?
+                </p>
+
+                <h2>
+                    Your vehicle,
+                    <span>your journey.</span>
+                </h2>
+
+                <p class="info-description">
+                    Add your vehicle once and it will be available
+                    whenever you create a new ride.
+                </p>
+
+
+                <div class="info-features">
+
+                    <div class="info-feature">
+
+                        <div class="feature-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Easy ride creation
+                            </strong>
+
+                            <p>
+                                Select your vehicle when offering a ride.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-feature">
+
+                        <div class="feature-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Manage anytime
+                            </strong>
+
+                            <p>
+                                Update or remove your vehicles from My Vehicles.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-feature">
+
+                        <div class="feature-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Share the journey
+                            </strong>
+
+                            <p>
+                                Make your available seats useful to fellow travelers.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="footer">
+
+    <p>
+        © 2026 Carpool. Share the ride. Share the journey.
+    </p>
+
+</footer>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script th:src="@{/js/api.js}"></script>
+
+<script th:src="@{/js/vehicle/vehicle-form.js}"></script>
+
+<script th:src="@{/js/auth-guard.js}"></script>
+
+<script th:src="@{/js/logout.js}"></script>
+
+</body>
+
+</html>

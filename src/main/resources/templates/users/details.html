@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>User Details - Carpool</title>
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
+</head>
+
+
+<body>
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<main class="container">
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>User Details</h1>
+
+            <p>
+                View user information
+            </p>
+
+        </div>
+
+        <a href="/users"
+           class="btn">
+
+            Back to Users
+
+        </a>
+
+    </div>
+
+
+    <div id="userDetails"
+         class="details-container">
+
+
+        <div class="detail-row">
+
+            <span class="detail-label">
+                ID
+            </span>
+
+            <span id="userId">
+                Loading...
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <span class="detail-label">
+                Name
+            </span>
+
+            <span id="userName">
+                Loading...
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <span class="detail-label">
+                Email
+            </span>
+
+            <span id="userEmail">
+                Loading...
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <span class="detail-label">
+                Phone
+            </span>
+
+            <span id="userPhone">
+                Loading...
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <span class="detail-label">
+                Roles
+            </span>
+
+            <span id="userRoles">
+                Loading...
+            </span>
+
+        </div>
+
+
+        <div class="detail-actions">
+
+            <a id="editUserButton"
+               class="btn btn-primary">
+
+                Edit User
+
+            </a>
+
+
+            <button
+                    id="deleteUserButton"
+                    class="btn btn-danger">
+
+                Delete User
+
+            </button>
+
+        </div>
+
+    </div>
+
+</main>
+
+<script src="/js/api.js"></script>
+<script src="/js/user-details.js"></script>
+<script src="/js/logout.js"></script>
+
+</body>
+
+</html>

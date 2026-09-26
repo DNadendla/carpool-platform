@@ -1,0 +1,1019 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+
+    background: #f5f7fb;
+
+    color: #1f2937;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.ride-form-page {
+    min-height: calc(100vh - 72px);
+
+    padding: 25px 24px 40px;
+}
+
+.ride-form-container {
+    width: min(100%, 1180px);
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   BACK
+========================================================= */
+
+.back-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    margin-bottom: 16px;
+
+    color: #64748b;
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: #2563eb;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.ride-page-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 22px;
+}
+
+.ride-header-icon {
+    width: 54px;
+    height: 54px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #dbeafe
+        );
+
+    border: 1px solid #dbeafe;
+
+    border-radius: 14px;
+
+    font-size: 26px;
+}
+
+.eyebrow {
+    color: #2563eb;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+
+    margin-bottom: 4px;
+}
+
+.ride-page-header h1 {
+    color: #111827;
+
+    font-size: 29px;
+
+    line-height: 1.2;
+
+    margin-bottom: 4px;
+}
+
+.header-description {
+    color: #64748b;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   MAIN FORM
+========================================================= */
+
+.ride-form-card {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    column-gap: 0;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 18px;
+
+    overflow: visible;
+
+    box-shadow:
+        0 10px 30px
+        rgba(15, 23, 42, 0.055);
+}
+
+
+/* =========================================================
+   TWO MAIN SECTIONS
+========================================================= */
+
+.ride-form-section {
+    padding: 25px 28px 22px;
+
+    min-width: 0;
+}
+
+.ride-form-section:first-child {
+    border-right:
+        1px solid #eef2f7;
+}
+
+.ride-form-section:last-of-type {
+    position: relative;
+}
+
+
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
+.section-heading {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 11px;
+
+    margin-bottom: 21px;
+}
+
+.section-icon {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #f8fbff
+        );
+
+    border:
+        1px solid #dbeafe;
+
+    border-radius: 10px;
+
+    font-size: 17px;
+}
+
+.section-eyebrow {
+    color: #2563eb;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+
+    margin-bottom: 3px;
+}
+
+.section-heading h2 {
+    color: #111827;
+
+    font-size: 17px;
+
+    line-height: 1.25;
+
+    margin-bottom: 3px;
+}
+
+.section-heading p:last-child {
+    color: #94a3b8;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   FORM GROUP
+========================================================= */
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+
+    color: #374151;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    margin-bottom: 6px;
+}
+
+.form-group label span {
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    height: 42px;
+
+    padding:
+        0 12px;
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #1f2937;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-group input::placeholder {
+    color: #94a3b8;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.09);
+}
+
+.form-group small {
+    display: block;
+
+    margin-top: 4px;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   LOCATION AUTOCOMPLETE
+========================================================= */
+
+.location-autocomplete {
+    position: relative;
+
+    width: 100%;
+}
+
+.location-suggestions {
+    position: absolute;
+
+    top: calc(100% + 5px);
+
+    left: 0;
+
+    right: 0;
+
+    z-index: 2000;
+
+    display: none;
+
+    max-height: 240px;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border:
+        1px solid #dbe3ef;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 12px 28px
+        rgba(15, 23, 42, 0.12);
+}
+
+.location-suggestion {
+    padding:
+        10px
+        12px;
+
+    cursor: pointer;
+
+    border-bottom:
+        1px solid #f1f5f9;
+}
+
+.location-suggestion:last-child {
+    border-bottom: none;
+}
+
+.location-suggestion:hover {
+    background: #eff6ff;
+}
+
+.location-suggestion-title {
+    color: #1e3a8a;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.location-suggestion-subtitle {
+    margin-top: 2px;
+
+    color: #64748b;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   RIDE DETAILS
+========================================================= */
+
+.ride-details-grid {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 13px;
+}
+
+
+/* =========================================================
+   PRICE
+========================================================= */
+
+.price-input {
+    position: relative;
+}
+
+.currency-symbol {
+    position: absolute;
+
+    left: 12px;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    pointer-events: none;
+}
+
+.price-input input {
+    padding-left: 29px;
+}
+
+
+/* =========================================================
+   CUSTOM VEHICLE DROPDOWN
+========================================================= */
+
+.custom-vehicle-dropdown {
+    position: relative;
+
+    width: 100%;
+}
+
+.vehicle-dropdown-trigger {
+    width: 100%;
+
+    min-height: 56px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding:
+        7px 11px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius: 9px;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    text-align: left;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.vehicle-dropdown-trigger:hover {
+    border-color: #93c5fd;
+}
+
+.custom-vehicle-dropdown.open
+.vehicle-dropdown-trigger {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.09);
+}
+
+.vehicle-selected-content {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.vehicle-selected-icon {
+    width: 36px;
+    height: 36px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #eff6ff;
+
+    border:
+        1px solid #dbeafe;
+
+    border-radius: 9px;
+
+    font-size: 17px;
+}
+
+.vehicle-selected-text {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.vehicle-selected-title {
+    color: #334155;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.vehicle-selected-subtitle {
+    margin-top: 2px;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+}
+
+.vehicle-dropdown-arrow {
+    color: #64748b;
+
+    font-size: 17px;
+
+    transition:
+        transform 0.2s ease;
+}
+
+.custom-vehicle-dropdown.open
+.vehicle-dropdown-arrow {
+    transform: rotate(180deg);
+
+    color: #2563eb;
+}
+
+.vehicle-dropdown-menu {
+    position: absolute;
+
+    top: calc(100% + 6px);
+
+    left: 0;
+
+    right: 0;
+
+    z-index: 3000;
+
+    display: none;
+
+    max-height: 250px;
+
+    overflow-y: auto;
+
+    padding: 5px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #dbe3ef;
+
+    border-radius: 11px;
+
+    box-shadow:
+        0 15px 30px
+        rgba(15, 23, 42, 0.14);
+}
+
+.custom-vehicle-dropdown.open
+.vehicle-dropdown-menu {
+    display: block;
+}
+
+.vehicle-dropdown-option {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding:
+        9px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    cursor: pointer;
+
+    text-align: left;
+
+    font-family: inherit;
+}
+
+.vehicle-dropdown-option:hover,
+.vehicle-dropdown-option.selected {
+    background: #eff6ff;
+}
+
+.vehicle-option-left {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    min-width: 0;
+}
+
+.vehicle-option-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #f8fafc;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+}
+
+.vehicle-option-details {
+    min-width: 0;
+}
+
+.vehicle-option-model {
+    display: block;
+
+    color: #1e293b;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.vehicle-option-number {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #64748b;
+
+    font-size: 10px;
+}
+
+.vehicle-option-seats {
+    flex-shrink: 0;
+
+    padding:
+        4px 7px;
+
+    background: #f8fafc;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius: 20px;
+
+    color: #475569;
+
+    font-size: 9px;
+
+    font-weight: 700;
+}
+
+.vehicle-option-check {
+    display: none;
+
+    color: #2563eb;
+
+    font-size: 14px;
+}
+
+.vehicle-dropdown-option.selected
+.vehicle-option-check {
+    display: block;
+}
+
+.vehicle-dropdown-loading,
+.vehicle-dropdown-empty {
+    padding: 18px;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+}
+
+.native-vehicle-select {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.form-message {
+    grid-column: 1 / -1;
+
+    margin:
+        0 28px 10px;
+
+    padding:
+        9px 12px;
+
+    border-radius: 8px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.form-message.error {
+    background: #fef2f2;
+
+    border:
+        1px solid #fecaca;
+
+    color: #b91c1c;
+}
+
+.form-message.success {
+    background: #f0fdf4;
+
+    border:
+        1px solid #bbf7d0;
+
+    color: #15803d;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.ride-form-actions {
+    grid-column: 1 / -1;
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding:
+        15px 28px;
+
+    background: #fafbfc;
+
+    border-top:
+        1px solid #eef2f7;
+
+    border-radius:
+        0 0 18px 18px;
+}
+
+.cancel-button,
+.submit-button {
+    height: 40px;
+
+    min-width: 105px;
+
+    padding:
+        0 18px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.cancel-button {
+    background: #ffffff;
+
+    border:
+        1px solid #d1d5db;
+
+    color: #475569;
+}
+
+.cancel-button:hover {
+    background: #f8fafc;
+
+    transform: translateY(-1px);
+}
+
+.submit-button {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    background: #2563eb;
+
+    border: none;
+
+    color: #ffffff;
+
+    box-shadow:
+        0 4px 12px
+        rgba(37, 99, 235, 0.20);
+}
+
+.submit-button span {
+    font-size: 15px;
+}
+
+.submit-button:hover {
+    background: #1d4ed8;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 7px 16px
+        rgba(37, 99, 235, 0.24);
+}
+
+.submit-button:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footer {
+    text-align: center;
+
+    padding: 22px;
+
+    background: #ffffff;
+
+    border-top:
+        1px solid #e5e7eb;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+
+    .ride-form-page {
+        padding:
+            22px
+            18px
+            35px;
+    }
+
+    .ride-form-card {
+        grid-template-columns: 1fr;
+    }
+
+    .ride-form-section:first-child {
+        border-right: none;
+
+        border-bottom:
+            1px solid #eef2f7;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 550px) {
+
+    .ride-form-page {
+        padding:
+            18px
+            12px
+            30px;
+    }
+
+    .ride-page-header {
+        align-items: flex-start;
+    }
+
+    .ride-header-icon {
+        width: 48px;
+        height: 48px;
+
+        font-size: 23px;
+    }
+
+    .ride-page-header h1 {
+        font-size: 25px;
+    }
+
+    .ride-form-section {
+        padding:
+            20px 18px;
+    }
+
+    .ride-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ride-form-actions {
+        flex-direction: column-reverse;
+
+        align-items: stretch;
+
+        padding:
+            14px 18px;
+    }
+
+    .cancel-button,
+    .submit-button {
+        width: 100%;
+    }
+
+}

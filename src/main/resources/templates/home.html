@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Carpool - Share the Journey</title>
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     Navigation
+     ========================================================= -->
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<!-- =========================================================
+     Hero Section
+     ========================================================= -->
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <div class="hero-text">
+
+            <div class="hero-badge">
+                🚗 Smart. Simple. Shared.
+            </div>
+
+
+            <h1>
+                Share the ride.<br>
+                <span>Share the journey.</span>
+            </h1>
+
+
+            <p>
+                Find people heading your way,
+                share a ride, save money and
+                make every journey better.
+            </p>
+
+
+            <div class="hero-buttons">
+
+                <a href="/rides"
+                   class="btn btn-primary hero-button">
+
+                    🔍 Find a Ride
+
+                </a>
+
+
+                <a href="/rides/create"
+                   class="btn hero-button secondary-button">
+
+                    + Offer a Ride
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Hero visual -->
+
+        <div class="hero-visual">
+
+            <div class="road">
+
+                <div class="car">
+
+                    🚗
+
+                </div>
+
+            </div>
+
+
+            <div class="location-card location-start">
+
+                <span>📍</span>
+
+                <div>
+
+                    <small>From</small>
+
+                    <strong>Your Location</strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="location-card location-end">
+
+                <span>📍</span>
+
+                <div>
+
+                    <small>To</small>
+
+                    <strong>Your Destination</strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     Stats
+     ========================================================= -->
+
+<section class="stats-section">
+
+    <div class="stats-container">
+
+        <div class="stat">
+
+            <strong>Easy</strong>
+
+            <span>Ride Booking</span>
+
+        </div>
+
+
+        <div class="stat">
+
+            <strong>Flexible</strong>
+
+            <span>Ride Sharing</span>
+
+        </div>
+
+
+        <div class="stat">
+
+            <strong>Secure</strong>
+
+            <span>User Management</span>
+
+        </div>
+
+
+        <div class="stat">
+
+            <strong>Smart</strong>
+
+            <span>Travel Together</span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     Why Carpool
+     ========================================================= -->
+
+<section class="features-section">
+
+    <div class="section-heading">
+
+        <span>WHY CARPOOL?</span>
+
+        <h2>
+            Make every journey better
+        </h2>
+
+        <p>
+            Carpooling makes travelling more
+            convenient, affordable and social.
+        </p>
+
+    </div>
+
+
+    <div class="feature-grid">
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                👥
+            </div>
+
+            <h3>
+                Meet People
+            </h3>
+
+            <p>
+                Connect with people travelling
+                along the same route.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                💰
+            </div>
+
+            <h3>
+                Save Money
+            </h3>
+
+            <p>
+                Share travel costs and make
+                your everyday journeys affordable.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🌱
+            </div>
+
+            <h3>
+                Travel Better
+            </h3>
+
+            <p>
+                Fewer cars on the road means
+                a more efficient way to travel.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     How It Works
+     ========================================================= -->
+
+<section class="how-section">
+
+    <div class="section-heading">
+
+        <span>HOW IT WORKS</span>
+
+        <h2>
+            Your journey in three steps
+        </h2>
+
+    </div>
+
+
+    <div class="steps">
+
+
+        <div class="step">
+
+            <div class="step-number">
+                01
+            </div>
+
+            <h3>
+                Find a Ride
+            </h3>
+
+            <p>
+                Search for a ride that matches
+                your route and schedule.
+            </p>
+
+        </div>
+
+
+        <div class="step">
+
+            <div class="step-number">
+                02
+            </div>
+
+            <h3>
+                Book a Seat
+            </h3>
+
+            <p>
+                Choose your ride and reserve
+                the number of seats you need.
+            </p>
+
+        </div>
+
+
+        <div class="step">
+
+            <div class="step-number">
+                03
+            </div>
+
+            <h3>
+                Enjoy the Journey
+            </h3>
+
+            <p>
+                Meet your driver, hop in and
+                enjoy the journey together.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     CTA
+     ========================================================= -->
+
+<section class="cta-section">
+
+    <div>
+
+        <h2>
+            Ready to share your next journey?
+        </h2>
+
+        <p>
+            Find a ride or offer a seat today.
+        </p>
+
+    </div>
+
+
+    <a href="/rides"
+       class="btn cta-button">
+
+        Explore Rides →
+
+    </a>
+
+</section>
+
+
+<!-- =========================================================
+     Footer
+     ========================================================= -->
+
+<footer class="footer">
+
+    <div>
+        🚗 <strong>Carpool</strong>
+    </div>
+
+    <span>
+        Share the journey.
+    </span>
+
+</footer>
+
+
+<script src="/js/api.js"></script>
+<script src="/js/logout.js"></script>
+<script src="/js/auth-guard.js"></script>
+
+</body>
+</html>

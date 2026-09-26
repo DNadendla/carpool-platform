@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Rides | Carpool</title>
+  <link rel="stylesheet"
+        th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/ride/rides.css}">
+</head>
+
+<body>
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+<!-- =========================
+     MAIN CONTENT
+========================= -->
+
+<main class="rides-container">
+
+  <!-- Page Header -->
+
+  <section class="page-header">
+
+    <div>
+      <p class="eyebrow">CARPOOL RIDES</p>
+
+      <h1>Find your next ride</h1>
+
+      <p class="page-description">
+        Search available rides or manage the rides you offer.
+      </p>
+    </div>
+
+    <button id="offerRideButton" class="primary-button">
+      + Offer a Ride
+    </button>
+
+  </section>
+
+
+  <!-- =========================
+       SEARCH CARD
+  ========================= -->
+
+  <section class="search-card">
+
+    <div class="search-title">
+
+      <div class="search-icon">
+        🔍
+      </div>
+
+      <div>
+        <h2>Find a Ride</h2>
+
+        <p>
+          Enter your starting point and destination.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="search-form">
+
+      <div class="input-group">
+
+        <label for="source">
+          From
+        </label>
+
+        <input
+                type="text"
+                id="source"
+                placeholder="e.g. Hyderabad"
+        >
+
+      </div>
+
+
+      <div class="route-arrow">
+        →
+      </div>
+
+
+      <div class="input-group">
+
+        <label for="destination">
+          To
+        </label>
+
+        <input
+                type="text"
+                id="destination"
+                placeholder="e.g. Vijayawada"
+        >
+
+      </div>
+
+
+      <button
+              id="searchButton"
+              class="search-button">
+
+        Search
+
+      </button>
+
+
+      <button
+              id="clearSearchButton"
+              class="clear-button">
+
+        Clear
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       RIDE TABS
+  ========================= -->
+
+  <section class="ride-section">
+
+    <div class="section-header">
+
+      <div class="tabs">
+
+        <button
+                id="allRidesTab"
+                class="tab active">
+
+          All Rides
+
+        </button>
+
+        <button
+                id="myRidesTab"
+                class="tab">
+
+          My Rides
+
+        </button>
+
+      </div>
+
+      <span id="rideCount" class="ride-count">
+                0 rides
+            </span>
+
+    </div>
+
+
+    <!-- Loading -->
+
+    <div id="loadingState" class="state-container">
+
+      <div class="spinner"></div>
+
+      <p>
+        Loading rides...
+      </p>
+
+    </div>
+
+
+    <!-- Error -->
+
+    <div
+            id="errorState"
+            class="state-container error-state hidden">
+
+      <div class="state-icon">
+        ⚠️
+      </div>
+
+      <h3>Unable to load rides</h3>
+
+      <p id="errorMessage">
+        Something went wrong while loading rides.
+      </p>
+
+      <button
+              id="retryButton"
+              class="secondary-button">
+
+        Try Again
+
+      </button>
+
+    </div>
+
+
+    <!-- Empty -->
+
+    <div
+            id="emptyState"
+            class="state-container empty-state hidden">
+
+      <div class="state-icon">
+        🚗
+      </div>
+
+      <h3>No rides found</h3>
+
+      <p>
+        There are no rides matching your search.
+      </p>
+
+      <button
+              id="emptyOfferButton"
+              class="primary-button">
+
+        Offer a Ride
+
+      </button>
+
+    </div>
+
+
+    <!-- Ride Cards -->
+
+    <div
+            id="ridesList"
+            class="rides-list hidden">
+    </div>
+
+  </section>
+
+</main>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="footer">
+
+  <p>
+    © 2026 Carpool. Share the ride. Share the journey.
+  </p>
+
+</footer>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script th:src="@{/js/api.js}"></script>
+
+<script th:src="@{/js/ride/rides.js}"></script>
+
+<script th:src="@{/js/auth-guard.js}"></script>
+
+<script th:src="@{/js/logout.js}"></script>
+
+</body>
+
+</html>

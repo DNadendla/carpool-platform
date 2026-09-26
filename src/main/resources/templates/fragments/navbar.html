@@ -1,0 +1,205 @@
+<!--<nav th:fragment="nav" class="navbar">
+
+    <div class="brand">
+        🚗 <span>Carpool</span>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/home">Home</a>
+
+        <a href="/users">Users</a>
+        <a href="/vehicles">Vehicles</a>
+        <a href="/rides" class="active">Rides</a>
+
+        <a href="/bookings">Bookings</a>
+
+        <a href="#" id="logoutButton" class="logout-link">
+            Logout
+        </a>
+
+    </div>
+
+</nav>-->
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<nav class="cp-navbar"
+     th:fragment="nav">
+
+    <!-- =========================
+         BRAND
+    ========================= -->
+
+    <a href="/home"
+       class="cp-brand">
+
+        <span class="cp-brand-icon">
+            🚗
+        </span>
+
+        <span class="cp-brand-text">
+            Carpool
+        </span>
+
+    </a>
+
+
+    <!-- =========================
+         NAVIGATION
+    ========================= -->
+
+    <div class="cp-nav-links">
+
+        <a href="/home"
+           class="cp-nav-link"
+           data-page="/home">
+
+            <span class="cp-nav-icon">
+                🏠
+            </span>
+
+            <span>
+                Home
+            </span>
+
+        </a>
+
+
+        <a href="/users"
+           class="cp-nav-link"
+           data-page="/users">
+
+            <span class="cp-nav-icon">
+                👥
+            </span>
+
+            <span>
+                Users
+            </span>
+
+        </a>
+
+
+        <a href="/vehicles"
+           class="cp-nav-link"
+           data-page="/vehicles">
+
+            <span class="cp-nav-icon">
+                🚙
+            </span>
+
+            <span>
+                Vehicles
+            </span>
+
+        </a>
+
+
+        <a href="/rides"
+           class="cp-nav-link"
+           data-page="/rides">
+
+            <span class="cp-nav-icon">
+                🛣️
+            </span>
+
+            <span>
+                Rides
+            </span>
+
+        </a>
+
+
+        <a href="/bookings"
+           class="cp-nav-link"
+           data-page="/bookings">
+
+            <span class="cp-nav-icon">
+                🎫
+            </span>
+
+            <span>
+                Bookings
+            </span>
+
+        </a>
+
+
+        <!-- =====================
+             LOGOUT
+        ====================== -->
+
+        <a href="/login"
+           id="logoutButton"
+           class="cp-nav-link cp-logout-link">
+
+            <span class="cp-nav-icon">
+                ↪
+            </span>
+
+            <span>
+                Logout
+            </span>
+
+        </a>
+
+    </div>
+
+</nav>
+
+
+<script>
+
+    /*
+     * Highlight current page
+     */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const currentPath =
+                window.location.pathname;
+
+
+            const navLinks =
+                document.querySelectorAll(
+                    ".cp-nav-link[data-page]"
+                );
+
+
+            navLinks.forEach(function (link) {
+
+                const page =
+                    link.getAttribute(
+                        "data-page"
+                    );
+
+
+                if (
+                    currentPath === page ||
+                    currentPath.startsWith(
+                        page + "/"
+                    )
+                ) {
+
+                    link.classList.add(
+                        "active"
+                    );
+                }
+
+            });
+
+        }
+    );
+
+</script>
+
+</body>
+
+</html>

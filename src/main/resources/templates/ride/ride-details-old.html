@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Ride Details | Carpool</title>
+
+  <link rel="stylesheet"
+        th:href="@{/css/ride/ride-details.css}">
+
+  <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<main class="details-container">
+
+  <!-- BACK -->
+  <a href="/rides"
+     class="back-link">
+
+    ← Back to Rides
+
+  </a>
+
+
+  <!-- LOADING -->
+  <div id="loading"
+       class="loading">
+
+    Loading ride details...
+
+  </div>
+
+
+  <!-- ERROR -->
+  <div id="errorMessage"
+       class="error-message hidden">
+  </div>
+
+
+  <!-- RIDE DETAILS -->
+  <section id="rideDetails"
+           class="ride-details hidden">
+
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <div class="ride-header">
+
+      <div>
+
+        <p class="eyebrow">
+          RIDE DETAILS
+        </p>
+
+        <h1 id="routeTitle">
+          Source → Destination
+        </h1>
+
+        <span id="statusBadge"
+              class="status-badge">
+
+                    SCHEDULED
+
+                </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         ROUTE
+    ========================== -->
+
+    <div class="route-card">
+
+      <div class="location">
+
+        <div class="location-dot">
+          ●
+        </div>
+
+        <div>
+
+                    <span>
+                        FROM
+                    </span>
+
+          <strong id="source">
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="route-line">
+      </div>
+
+
+      <div class="location">
+
+        <div class="location-dot destination">
+          ●
+        </div>
+
+        <div>
+
+                    <span>
+                        TO
+                    </span>
+
+          <strong id="destination">
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         INFORMATION
+    ========================== -->
+
+    <div class="info-grid">
+
+
+      <!-- DEPARTURE -->
+
+      <div class="info-card">
+
+        <div class="info-icon">
+          📅
+        </div>
+
+        <div>
+
+                    <span>
+                        DEPARTURE
+                    </span>
+
+          <strong id="departureTime">
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- AVAILABLE SEATS -->
+
+      <div class="info-card">
+
+        <div class="info-icon">
+          💺
+        </div>
+
+        <div>
+
+                    <span>
+                        AVAILABLE SEATS
+                    </span>
+
+          <strong id="availableSeats">
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- PRICE -->
+
+      <div class="info-card">
+
+        <div class="info-icon">
+          💰
+        </div>
+
+        <div>
+
+                    <span>
+                        PRICE / SEAT
+                    </span>
+
+          <strong id="pricePerSeat">
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- VEHICLE -->
+
+      <div class="info-card">
+
+        <div class="info-icon">
+          🚘
+        </div>
+
+        <div>
+
+                    <span>
+                        VEHICLE
+                    </span>
+
+          <strong id="vehicle">
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         DRIVER
+    ========================== -->
+
+    <div class="driver-card">
+
+      <div class="driver-avatar">
+        👤
+      </div>
+
+      <div>
+
+                <span>
+                    DRIVER
+                </span>
+
+        <h3 id="driverName">
+        </h3>
+
+      </div>
+
+    </div>
+
+    <!-- =========================
+     MAP
+    ========================= -->
+
+    <!-- =========================
+     MAP
+========================= -->
+
+    <section class="ride-map-section">
+
+      <div class="ride-map-header">
+
+        <div class="ride-map-title">
+
+          <div class="ride-map-icon">
+            🗺️
+          </div>
+
+          <div>
+
+            <h2>Trip Route</h2>
+
+            <p>
+              Pickup and destination locations
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div id="rideMap"></div>
+
+
+      <div class="map-legend">
+
+        <div class="map-legend-item">
+
+          <span class="legend-dot source"></span>
+
+          <span>Pickup</span>
+
+        </div>
+
+
+        <div class="map-legend-item">
+
+          <span class="legend-dot destination"></span>
+
+          <span>Destination</span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!--<section class="ride-map-section">
+
+      <div class="section-title">
+        <span class="section-icon">🗺️</span>
+
+        <div>
+          <h2>Route Map</h2>
+          <p>Pickup and destination locations</p>
+        </div>
+      </div>
+
+      <div id="rideMap"></div>
+
+    </section>-->
+
+    <!-- =========================
+         BOOKING SECTION
+    ========================== -->
+
+    <div id="bookingSection"
+         class="booking-section">
+
+
+      <div class="booking-header">
+
+        <div>
+
+          <p class="booking-eyebrow">
+            RESERVE YOUR SEAT
+          </p>
+
+          <h2>
+            Book This Ride
+          </h2>
+
+          <p>
+            Choose how many seats you need for this journey.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- BOOKING INFORMATION -->
+
+      <div class="booking-info">
+
+
+        <div class="booking-info-item">
+
+          <div class="booking-info-icon">
+            💺
+          </div>
+
+          <div>
+
+                        <span class="booking-label">
+                            AVAILABLE SEATS
+                        </span>
+
+            <strong id="bookingAvailableSeats">
+              -
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="booking-info-item">
+
+          <div class="booking-info-icon">
+            💰
+          </div>
+
+          <div>
+
+                        <span class="booking-label">
+                            PRICE PER SEAT
+                        </span>
+
+            <strong id="bookingPrice">
+              -
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- BOOKING FORM -->
+
+      <div class="booking-form">
+
+
+        <!--<div class="form-group">
+
+          <label for="bookingSeats">
+            Number of Seats
+          </label>
+
+
+          <select id="bookingSeats">
+
+            <option value="">
+              Select seats
+            </option>
+
+          </select>
+
+
+          <small id="bookingSeatsError"
+                 class="booking-field-error">
+          </small>
+
+        </div>-->
+
+        <div class="form-group">
+
+          <label>
+            Number of Seats
+          </label>
+
+          <div class="seat-selector">
+
+            <button
+                    type="button"
+                    id="decreaseSeatsButton"
+                    class="seat-control"
+                    aria-label="Decrease seats">
+
+              −
+
+            </button>
+
+
+            <div class="seat-count-wrapper">
+
+            <span id="bookingSeats">
+                1
+            </span>
+
+              <small>
+                seats
+              </small>
+
+            </div>
+
+
+            <button
+                    type="button"
+                    id="increaseSeatsButton"
+                    class="seat-control"
+                    aria-label="Increase seats">
+
+              +
+
+            </button>
+
+          </div>
+
+
+          <small id="bookingSeatsError"
+                 class="booking-field-error">
+          </small>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div class="booking-total">
+
+                    <span>
+                        Total Amount
+                    </span>
+
+          <strong id="bookingTotal">
+            ₹0.00
+          </strong>
+
+        </div>
+
+
+        <!-- BOOK BUTTON -->
+
+        <button type="button"
+                id="bookRideButton"
+                class="btn-book">
+
+          Book This Ride
+
+        </button>
+
+
+        <!-- BOOKING MESSAGE -->
+
+        <div id="bookingMessage"
+             class="booking-message">
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         ACTIONS
+    ========================== -->
+
+    <div class="actions">
+
+      <button
+              id="cancelRideButton"
+              class="cancel-ride-button hidden">
+
+        Cancel Ride
+
+      </button>
+
+    </div>
+
+
+  </section>
+
+</main>
+
+
+<!-- =========================
+     FOOTER
+========================== -->
+
+<footer class="footer">
+
+  <p>
+    © 2026 Carpool. Share the ride. Share the journey.
+  </p>
+
+</footer>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================== -->
+
+<script th:src="@{/js/api.js}"></script>
+
+<script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+<script th:src="@{/js/ride/ride-details-old.js}"></script>
+
+<script th:src="@{/js/auth-guard.js}"></script>
+
+<script th:src="@{/js/logout.js}"></script>
+
+</body>
+
+</html>

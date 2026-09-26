@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Offer a Ride | Carpool</title>
+
+    <!-- GLOBAL STYLES -->
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+    <!-- PAGE STYLES -->
+    <link rel="stylesheet"
+          th:href="@{/css/ride/ride-form.css}">
+
+</head>
+
+<body>
+
+
+<!-- =========================================================
+     GLOBAL NAVBAR
+========================================================= -->
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="ride-form-page">
+
+    <div class="ride-form-container">
+
+
+        <!-- =================================================
+             BACK
+        ================================================== -->
+
+        <a href="/rides"
+           class="back-link">
+
+            ← Back to Rides
+
+        </a>
+
+
+        <!-- =================================================
+             PAGE HEADER
+        ================================================== -->
+
+        <section class="ride-page-header">
+
+            <div class="ride-header-icon">
+                🚗
+            </div>
+
+            <div>
+
+                <p class="eyebrow">
+                    OFFER A RIDE
+                </p>
+
+                <h1>
+                    Share your journey
+                </h1>
+
+                <p class="header-description">
+                    Add your trip details and let passengers join your ride.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MAIN FORM
+        ================================================== -->
+
+        <form id="rideForm"
+              class="ride-form-card">
+
+
+            <!-- =================================================
+                 LEFT SECTION
+                 ROUTE & DEPARTURE
+            ================================================== -->
+
+            <section class="ride-form-section">
+
+                <div class="section-heading">
+
+                    <div class="section-icon">
+                        📍
+                    </div>
+
+                    <div>
+
+                        <p class="section-eyebrow">
+                            TRIP INFORMATION
+                        </p>
+
+                        <h2>
+                            Route & Departure
+                        </h2>
+
+                        <p>
+                            Tell passengers where and when you're travelling.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SOURCE -->
+
+                <div class="form-group">
+
+                    <label for="source">
+
+                        Source
+
+                        <span>*</span>
+
+                    </label>
+
+                    <div class="location-autocomplete">
+
+                        <input
+                                type="text"
+                                id="source"
+                                name="source"
+                                placeholder="Enter starting location"
+                                autocomplete="off"
+                                required
+                        >
+
+                        <div
+                                id="sourceSuggestions"
+                                class="location-suggestions">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DESTINATION -->
+
+                <div class="form-group">
+
+                    <label for="destination">
+
+                        Destination
+
+                        <span>*</span>
+
+                    </label>
+
+                    <div class="location-autocomplete">
+
+                        <input
+                                type="text"
+                                id="destination"
+                                name="destination"
+                                placeholder="Enter destination"
+                                autocomplete="off"
+                                required
+                        >
+
+                        <div
+                                id="destinationSuggestions"
+                                class="location-suggestions">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DEPARTURE -->
+
+                <div class="form-group">
+
+                    <label for="departureTime">
+
+                        Departure Date & Time
+
+                        <span>*</span>
+
+                    </label>
+
+                    <input
+                            type="datetime-local"
+                            id="departureTime"
+                            name="departureTime"
+                            required
+                    >
+
+                </div>
+
+
+                <!-- COORDINATES -->
+
+                <input
+                        type="hidden"
+                        id="sourceLatitude"
+                >
+
+                <input
+                        type="hidden"
+                        id="sourceLongitude"
+                >
+
+                <input
+                        type="hidden"
+                        id="destinationLatitude"
+                >
+
+                <input
+                        type="hidden"
+                        id="destinationLongitude"
+                >
+
+            </section>
+
+
+            <!-- =================================================
+                 RIGHT SECTION
+                 VEHICLE & RIDE DETAILS
+            ================================================== -->
+
+            <section class="ride-form-section">
+
+                <div class="section-heading">
+
+                    <div class="section-icon">
+                        🚘
+                    </div>
+
+                    <div>
+
+                        <p class="section-eyebrow">
+                            RIDE SETTINGS
+                        </p>
+
+                        <h2>
+                            Vehicle & Ride Details
+                        </h2>
+
+                        <p>
+                            Choose your vehicle and set your ride capacity.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- VEHICLE -->
+
+                <div class="form-group">
+
+                    <label for="vehicle">
+
+                        Vehicle
+
+                        <span>*</span>
+
+                    </label>
+
+
+                    <!-- CUSTOM VEHICLE DROPDOWN -->
+
+                    <div class="custom-vehicle-dropdown"
+                         id="vehicleDropdown">
+
+
+                        <button
+                                type="button"
+                                class="vehicle-dropdown-trigger"
+                                id="vehicleDropdownTrigger">
+
+                            <div class="vehicle-selected-content">
+
+                                <div class="vehicle-selected-icon">
+                                    🚗
+                                </div>
+
+                                <div class="vehicle-selected-text">
+
+                                    <span
+                                            id="vehicleSelectedTitle"
+                                            class="vehicle-selected-title">
+
+                                        Select your vehicle
+
+                                    </span>
+
+                                    <span
+                                            id="vehicleSelectedSubtitle"
+                                            class="vehicle-selected-subtitle">
+
+                                        Choose one of your registered vehicles
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <span class="vehicle-dropdown-arrow">
+                                ▾
+                            </span>
+
+                        </button>
+
+
+                        <div
+                                id="vehicleDropdownMenu"
+                                class="vehicle-dropdown-menu">
+
+                            <div class="vehicle-dropdown-loading">
+                                Loading your vehicles...
+                            </div>
+
+                        </div>
+
+
+                        <!-- Existing select retained for JS -->
+
+                        <select
+                                id="vehicle"
+                                name="vehicleId"
+                                class="native-vehicle-select"
+                                required>
+
+                            <option value="">
+                                Loading vehicles...
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <small id="vehicleHelp">
+                        Only your vehicles are shown here.
+                    </small>
+
+                </div>
+
+
+                <!-- SEATS + PRICE -->
+
+                <div class="ride-details-grid">
+
+
+                    <!-- AVAILABLE SEATS -->
+
+                    <div class="form-group">
+
+                        <label for="availableSeats">
+
+                            Available Seats
+
+                            <span>*</span>
+
+                        </label>
+
+                        <input
+                                type="number"
+                                id="availableSeats"
+                                name="availableSeats"
+                                min="1"
+                                placeholder="e.g. 3"
+                                required
+                        >
+
+                        <small>
+                            Seats available for passengers.
+                        </small>
+
+                    </div>
+
+
+                    <!-- PRICE -->
+
+                    <div class="form-group">
+
+                        <label for="pricePerSeat">
+
+                            Price Per Seat
+
+                            <span>*</span>
+
+                        </label>
+
+                        <div class="price-input">
+
+                            <span class="currency-symbol">
+                                ₹
+                            </span>
+
+                            <input
+                                    type="number"
+                                    id="pricePerSeat"
+                                    name="pricePerSeat"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="e.g. 500"
+                                    required
+                            >
+
+                        </div>
+
+                        <small>
+                            Price charged per passenger.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MESSAGE -->
+
+                <div
+                        id="formMessage"
+                        class="form-message hidden">
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 ACTIONS
+            ================================================== -->
+
+            <div class="ride-form-actions">
+
+                <button
+                        type="button"
+                        id="cancelButton"
+                        class="cancel-button">
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                        type="submit"
+                        id="createRideButton"
+                        class="submit-button">
+
+                    Create Ride
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="footer">
+
+    <p>
+        © 2026 Carpool. Share the ride. Share the journey.
+    </p>
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script th:src="@{/js/api.js}"></script>
+
+<script th:src="@{/js/ride/ride-form.js}"></script>
+
+<script th:src="@{/js/ride/vehicle-dropdown.js}"></script>
+
+<script th:src="@{/js/auth-guard.js}"></script>
+
+<script th:src="@{/js/logout.js}"></script>
+
+</body>
+
+</html>
