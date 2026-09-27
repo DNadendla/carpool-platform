@@ -11,14 +11,29 @@
 
     <title>Offer a Ride | Carpool</title>
 
+    <link rel="icon"
+          type="image/svg+xml"
+          th:href="@{/images/favicon.svg}">
+
     <!-- GLOBAL STYLES -->
+
     <link rel="stylesheet"
           th:href="@{/css/style.css}">
 
     <!-- PAGE STYLES -->
+
     <link rel="stylesheet"
           th:href="@{/css/ride/ride-form.css}">
 
+    <link rel="stylesheet"
+          th:href="@{/css/vehicle/vehicle-dropdown.css}">
+
+    <!-- THEME -->
+
+    <link rel="stylesheet"
+          th:href="@{/css/theme.css}">
+
+    <script th:src="@{/js/theme.js}"></script>
 </head>
 
 <body>
@@ -292,7 +307,11 @@
 
                             <div class="vehicle-selected-content">
 
-                                <div class="vehicle-selected-icon">
+                                <!--<div class="vehicle-selected-icon">
+                                    🚗
+                                </div>-->
+                                <div id="vehicleSelectedIcon"
+                                     class="vehicle-selected-icon">
                                     🚗
                                 </div>
 

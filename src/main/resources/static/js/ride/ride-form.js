@@ -588,11 +588,32 @@ document.addEventListener("DOMContentLoaded", function () {
             vehicles.forEach(
                 function (vehicle) {
 
+                    /*const option =
+                        document.createElement("option");
+
+                    option.value =
+                        vehicle.id;
+
+                    option.textContent =
+                        vehicle.vehicleNumber
+                        + " • "
+                        + vehicle.model
+                        + " • "
+                        + vehicle.totalSeats
+                        + " seats";
+
+                    vehicleSelect.appendChild(
+                        option
+                    );*/
+
                     const option =
                         document.createElement("option");
 
                     option.value =
                         vehicle.id;
+
+                    option.dataset.vehicleType =
+                        vehicle.type;
 
                     option.textContent =
                         vehicle.vehicleNumber

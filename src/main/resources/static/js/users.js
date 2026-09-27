@@ -72,45 +72,99 @@ async function loadUsers() {
 function displayUsers(users) {
 
     const tableBody =
-        document.getElementById(
-            "usersTableBody"
-        );
+        document.getElementById("usersTableBody");
+
+    const usersCount =
+        document.getElementById("usersCount");
+
+    const emptyState =
+        document.getElementById("usersEmptyState");
 
 
     tableBody.innerHTML = "";
 
 
-    users.forEach(
-        function (user) {
-
-            const row =
-                document.createElement("tr");
+    usersCount.textContent =
+        users.length;
 
 
-            row.innerHTML =
-                `
-                <td>
-                    ${user.id}
-                </td>
+    if (!users || users.length === 0) {
 
-                <td>
-                    ${user.name}
-                </td>
+        emptyState.classList.remove("hidden");
 
-                <td>
+        return;
+    }
+
+
+    emptyState.classList.add("hidden");
+
+
+    users.forEach(function (user) {
+
+        const row =
+            document.createElement("tr");
+
+
+        const initials =
+            getUserInitials(user.name);
+
+
+        row.innerHTML = `
+            <td>
+                <span class="user-id-badge">
+                    #${user.id}
+                </span>
+            </td>
+
+            <td>
+
+                <div class="user-cell">
+
+                    <div class="user-avatar">
+                        ${initials}
+                    </div>
+
+                    <div>
+
+                        <span class="user-name">
+                            ${user.name}
+                        </span>
+
+                        <span class="user-role-hint">
+                            Carpool member
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </td>
+
+            <td>
+
+                <span class="user-email">
                     ${user.email}
-                </td>
+                </span>
 
-                <td>
+            </td>
+
+            <td>
+
+                <span class="user-phone">
                     ${user.phone || "-"}
-                </td>
+                </span>
 
-                <td>
+            </td>
+
+            <td>
+
+                <div class="users-actions">
 
                     <button
-                        class="action-button view-roles-button"
+                        class="users-action-button users-view-button"
                         onclick="viewRoles(${user.id})"
-                        title="View Roles">
+                        title="View Roles"
+                        aria-label="View Roles">
 
                         👁
 
@@ -119,8 +173,9 @@ function displayUsers(users) {
 
                     <a
                         href="/users/${user.id}/edit"
-                        class="action-button edit-button"
-                        title="Edit User">
+                        class="users-action-button users-edit-button"
+                        title="Edit User"
+                        aria-label="Edit User">
 
                         ✏
 
@@ -128,22 +183,51 @@ function displayUsers(users) {
 
 
                     <button
-                        class="action-button delete-button"
+                        class="users-action-button users-delete-button"
                         onclick="deleteUser(${user.id})"
-                        title="Delete User">
+                        title="Delete User"
+                        aria-label="Delete User">
 
                         🗑
 
                     </button>
 
-                </td>
-                `;
+                </div>
+
+            </td>
+        `;
 
 
-            tableBody.appendChild(row);
+        tableBody.appendChild(row);
 
-        }
-    );
+    });
+
+}
+
+function getUserInitials(name) {
+
+    if (!name) {
+        return "U";
+    }
+
+
+    const parts =
+        name.trim().split(/\s+/);
+
+
+    if (parts.length === 1) {
+
+        return parts[0]
+            .substring(0, 2)
+            .toUpperCase();
+
+    }
+
+
+    return (
+        parts[0].charAt(0)
+        + parts[parts.length - 1].charAt(0)
+    ).toUpperCase();
 
 }
 
@@ -214,7 +298,7 @@ async function viewRoles(userId) {
 
             rolesContainer.innerHTML =
                 `
-                <p class="no-roles">
+                <p class="users-no-roles">
                     No roles assigned
                 </p>
                 `;
@@ -238,7 +322,7 @@ async function viewRoles(userId) {
 
 
                     roleChip.className =
-                        "role-chip";
+                        "users-role-chip";
 
 
                     roleChip.textContent =

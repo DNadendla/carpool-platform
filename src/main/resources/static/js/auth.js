@@ -11,10 +11,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
+    const passwordToggle = document.getElementById("passwordToggle");
 
     const errorMessage = document.getElementById("errorMessage");
     const successMessage = document.getElementById("successMessage");
 
+
+    // =========================================================
+    // PASSWORD SHOW / HIDE
+    // =========================================================
+
+    if (passwordToggle && passwordInput) {
+
+        passwordToggle.addEventListener("click", function () {
+
+            if (passwordInput.type === "password") {
+
+                // Show password
+                passwordInput.type = "text";
+
+                passwordToggle.classList.remove("fa-eye");
+                passwordToggle.classList.add("fa-eye-slash");
+
+                passwordToggle.setAttribute(
+                    "aria-label",
+                    "Hide password"
+                );
+
+                passwordToggle.setAttribute(
+                    "title",
+                    "Hide password"
+                );
+
+            } else {
+
+                // Hide password
+                passwordInput.type = "password";
+
+                passwordToggle.classList.remove("fa-eye-slash");
+                passwordToggle.classList.add("fa-eye");
+
+                passwordToggle.setAttribute(
+                    "aria-label",
+                    "Show password"
+                );
+
+                passwordToggle.setAttribute(
+                    "title",
+                    "Show password"
+                );
+            }
+
+        });
+    }
+
+
+    // =========================================================
+    // LOGIN
+    // =========================================================
 
     loginForm.addEventListener("submit", async function (event) {
 
@@ -46,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
 
-        const response = await fetch("/api/auth/login", {
+            const response = await fetch("/api/auth/login", {
 
                 method: "POST",
 
@@ -65,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             if (response.ok) {
-            debugger;
 
                 // Store JWT
                 localStorage.setItem(
@@ -92,7 +145,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 successMessage.textContent =
                     "Login successful. Redirecting...";
 
-                debugger;
 
                 // Navigate to Home
                 setTimeout(function () {

@@ -1,524 +1,436 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Login | Carpool</title>
+
+
+    <!-- =====================================================
+         FONT AWESOME
+    ====================================================== -->
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    <style>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <!-- =====================================================
+         FAVICON
+    ====================================================== -->
 
-        body {
-            min-height: 100vh;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #eef6ff, #f8fbff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    <link rel="icon"
+          type="image/svg+xml"
+          th:href="@{/images/favicon.svg}">
 
-        .login-container {
-            width: 100%;
-            max-width: 1100px;
-            min-height: 650px;
-            margin: 30px;
-            display: flex;
-            background: #ffffff;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.12);
-        }
 
-        /* LEFT SIDE */
+    <!-- =====================================================
+         GLOBAL THEME
+    ====================================================== -->
 
-        .brand-section {
-            flex: 1;
-            padding: 60px;
-            background: linear-gradient(145deg, #2563eb, #1d4ed8);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
+    <link rel="stylesheet"
+          th:href="@{/css/theme.css}">
 
-        .brand-section::before {
-            content: "";
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            top: -170px;
-            right: -130px;
-        }
 
-        .brand-section::after {
-            content: "";
-            position: absolute;
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.06);
-            bottom: -130px;
-            left: -100px;
-        }
+    <!-- =====================================================
+         AUTH PAGE CSS
+    ====================================================== -->
 
-        .logo {
-            position: relative;
-            z-index: 1;
-            font-size: 34px;
-            font-weight: 800;
-            margin-bottom: 30px;
-        }
+    <link rel="stylesheet"
+          th:href="@{/css/auth/auth.css}">
 
-        .logo i {
-            margin-right: 10px;
-        }
 
-        .brand-title {
-            position: relative;
-            z-index: 1;
-            font-size: 42px;
-            line-height: 1.15;
-            margin-bottom: 20px;
-        }
+    <!-- =====================================================
+         THEME SCRIPT
 
-        .brand-description {
-            position: relative;
-            z-index: 1;
-            max-width: 450px;
-            font-size: 17px;
-            line-height: 1.7;
-            opacity: 0.92;
-        }
+         Loaded early so saved theme is applied
+         before the page is displayed.
+    ====================================================== -->
 
-        .features {
-            position: relative;
-            z-index: 1;
-            margin-top: 35px;
-        }
-
-        .feature {
-            display: flex;
-            align-items: center;
-            margin-bottom: 18px;
-            font-size: 15px;
-        }
-
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 14px;
-        }
-
-        /* RIGHT SIDE */
-
-        .form-section {
-            flex: 0.85;
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .form-header {
-            margin-bottom: 30px;
-        }
-
-        .form-header h2 {
-            font-size: 32px;
-            color: #111827;
-            margin-bottom: 10px;
-        }
-
-        .form-header p {
-            color: #6b7280;
-            font-size: 15px;
-        }
-
-        /* MESSAGE */
-
-        .message {
-            display: none;
-            padding: 12px 14px;
-            border-radius: 9px;
-            margin-bottom: 18px;
-            font-size: 14px;
-        }
-
-        .error-message {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #b91c1c;
-        }
-
-        .success-message {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #15803d;
-        }
-
-        /* INPUT */
-
-        .form-group {
-            margin-bottom: 22px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
-
-        .input-wrapper input {
-            width: 100%;
-            padding: 14px 45px;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
-            outline: none;
-            font-size: 15px;
-            transition: 0.2s;
-        }
-
-        .input-wrapper input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-            cursor: pointer;
-        }
-
-        .password-toggle:hover {
-            color: #2563eb;
-        }
-
-        /* LOGIN BUTTON */
-
-        .login-button {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .login-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 22px rgba(37, 99, 235, 0.30);
-        }
-
-        .login-button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* SIGN UP */
-
-        .signup-section {
-            text-align: center;
-            margin-top: 28px;
-            color: #6b7280;
-            font-size: 14px;
-        }
-
-        .signup-section a {
-            color: #2563eb;
-            font-weight: 700;
-            text-decoration: none;
-        }
-
-        .signup-section a:hover {
-            text-decoration: underline;
-        }
-
-        /* RESPONSIVE */
-
-        @media (max-width: 850px) {
-
-            .login-container {
-                max-width: 500px;
-            }
-
-            .brand-section {
-                display: none;
-            }
-
-            .form-section {
-                padding: 45px 35px;
-            }
-        }
-
-        @media (max-width: 500px) {
-
-            body {
-                background: #ffffff;
-            }
-
-            .login-container {
-                min-height: 100vh;
-                margin: 0;
-                border-radius: 0;
-                box-shadow: none;
-            }
-
-            .form-section {
-                padding: 35px 25px;
-            }
-
-            .form-header h2 {
-                font-size: 28px;
-            }
-        }
-
-    </style>
+    <script th:src="@{/js/theme.js}"></script>
 
 </head>
 
-<body>
-<script>
-    const accessToken = localStorage.getItem("accessToken");
 
-    if (accessToken) {
-        window.location.replace("/home");
-    }
-</script>
-<div class="login-container">
+<body class="auth-body">
 
-    <!-- ========================= -->
-    <!-- LEFT BRAND SECTION -->
-    <!-- ========================= -->
 
-    <div class="brand-section">
+<!-- =========================================================
+     THEME TOGGLE
+========================================================== -->
 
-        <div class="logo">
-            <i class="fa-solid fa-car-side"></i>
-            Carpool
-        </div>
+<button
+        type="button"
+        id="themeToggle"
+        class="auth-theme-toggle"
+        aria-label="Toggle theme"
+        title="Toggle theme">
 
-        <h1 class="brand-title">
-            Share the ride.<br>
-            Share the journey.
-        </h1>
+    <span id="themeIcon">
+        ☀️
+    </span>
 
-        <p class="brand-description">
-            Connect with people going your way.
-            Find a ride, offer a seat and make every
-            journey more affordable and meaningful.
-        </p>
+</button>
 
-        <div class="features">
 
-            <div class="feature">
+<!-- =========================================================
+     AUTH PAGE
+========================================================== -->
 
-                <div class="feature-icon">
-                    <i class="fa-solid fa-users"></i>
+<main class="auth-page">
+
+
+    <!-- =====================================================
+         AUTH CARD
+    ====================================================== -->
+
+    <div class="auth-shell">
+
+
+        <!-- =================================================
+             LEFT / BRAND SECTION
+        ================================================== -->
+
+        <section class="auth-brand">
+
+
+            <div class="auth-brand-content">
+
+
+                <!-- BRAND -->
+
+                <div class="auth-brand-logo">
+
+                    <span class="auth-brand-logo-icon">
+                        <i class="fa-solid fa-car-side"></i>
+                    </span>
+
+                    <span>
+                        Carpool
+                    </span>
+
                 </div>
 
-                <span>
-                    Connect with fellow travelers
-                </span>
+
+                <!-- EYEBROW -->
+
+                <p class="auth-brand-eyebrow">
+                    SMARTER SHARED TRAVEL
+                </p>
+
+
+                <!-- MAIN TITLE -->
+
+                <h1 class="auth-brand-title">
+
+                    Share the ride.<br>
+
+                    <span>
+                        Share the journey.
+                    </span>
+
+                </h1>
+
+
+                <!-- DESCRIPTION -->
+
+                <p class="auth-brand-description">
+
+                    Connect with people going your way.
+                    Find rides, offer seats and make every
+                    journey simpler and more affordable.
+
+                </p>
+
+
+                <!-- =================================================
+                     FEATURES
+                ================================================== -->
+
+                <div class="auth-features">
+
+
+                    <!-- FEATURE 1 -->
+
+                    <div class="auth-feature">
+
+                        <span class="auth-feature-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </span>
+
+                        <span class="auth-feature-text">
+                            Connect with fellow travelers
+                        </span>
+
+                    </div>
+
+
+                    <!-- FEATURE 2 -->
+
+                    <div class="auth-feature">
+
+                        <span class="auth-feature-icon">
+                            <i class="fa-solid fa-route"></i>
+                        </span>
+
+                        <span class="auth-feature-text">
+                            Find rides along your route
+                        </span>
+
+                    </div>
+
+
+                    <!-- FEATURE 3 -->
+
+                    <div class="auth-feature">
+
+                        <span class="auth-feature-icon">
+                            <i class="fa-solid fa-wallet"></i>
+                        </span>
+
+                        <span class="auth-feature-text">
+                            Share travel costs
+                        </span>
+
+                    </div>
+
+
+                </div>
+
 
             </div>
 
-            <div class="feature">
 
-                <div class="feature-icon">
-                    <i class="fa-solid fa-route"></i>
+        </section>
+
+
+        <!-- =================================================
+             RIGHT / LOGIN SECTION
+        ================================================== -->
+
+        <section class="auth-form-panel">
+
+
+            <div class="auth-form-content">
+
+
+                <!-- FORM HEADER -->
+
+                <p class="auth-form-eyebrow">
+                    CARPOOL ACCOUNT
+                </p>
+
+
+                <h2 class="auth-form-title">
+                    Welcome back 👋
+                </h2>
+
+
+                <p class="auth-form-subtitle">
+                    Sign in to continue your Carpool journey.
+                </p>
+
+
+                <!-- =================================================
+                     ERROR MESSAGE
+                ================================================== -->
+
+                <div
+                        id="errorMessage"
+                        class="message error-message"
+                        role="alert">
                 </div>
 
-                <span>
-                    Find rides along your route
-                </span>
+
+                <!-- =================================================
+                     SUCCESS MESSAGE
+                ================================================== -->
+
+                <div
+                        id="successMessage"
+                        class="message success-message"
+                        role="status">
+                </div>
+
+
+                <!-- =================================================
+                     LOGIN FORM
+                ================================================== -->
+
+                <form
+                        id="loginForm"
+                        class="auth-form">
+
+
+                    <!-- =================================================
+                         EMAIL
+                    ================================================== -->
+
+                    <div class="auth-field">
+
+                        <label
+                                for="email"
+                                class="auth-label">
+
+                            Email Address
+
+                        </label>
+
+
+                        <div class="auth-input-wrapper">
+
+
+                            <i
+                                    class="fa-solid fa-envelope auth-input-icon">
+                            </i>
+
+
+                            <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    class="auth-input"
+                                    placeholder="Enter your email"
+                                    autocomplete="email"
+                                    required>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         PASSWORD
+                    ================================================== -->
+
+                    <div class="auth-field">
+
+                        <label
+                                for="password"
+                                class="auth-label">
+
+                            Password
+
+                        </label>
+
+
+                        <div class="auth-input-wrapper">
+
+
+                            <i
+                                    class="fa-solid fa-lock auth-input-icon">
+                            </i>
+
+
+                            <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    class="auth-input"
+                                    placeholder="Enter your password"
+                                    autocomplete="current-password"
+                                    required>
+
+
+                            <!--
+                                IMPORTANT:
+                                Keep this ID because the existing
+                                auth.js uses passwordToggle.
+                            -->
+
+                            <i
+                                    id="passwordToggle"
+                                    class="fa-solid fa-eye password-toggle"
+                                    role="button"
+                                    tabindex="0"
+                                    aria-label="Show password"
+                                    title="Show password">
+                            </i>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         LOGIN BUTTON
+                    ================================================== -->
+
+                    <button
+                            type="submit"
+                            id="loginButton"
+                            class="login-button">
+
+                        <span id="loginButtonText">
+                            Login
+                        </span>
+
+                    </button>
+
+
+                </form>
+
+
+                <!-- =================================================
+                     REGISTER
+                ================================================== -->
+
+                <div class="signup-section">
+
+                    <span>
+                        Don't have an account?
+                    </span>
+
+                    <a th:href="@{/register}">
+                        Create an account
+                    </a>
+
+                </div>
+
+
+                <!-- =================================================
+                     SECURITY NOTE
+                ================================================== -->
+
+                <div class="auth-security-note">
+
+                    <i class="fa-solid fa-shield-halved"></i>
+
+                    <span>
+                        Secure sign-in to your Carpool account
+                    </span>
+
+                </div>
+
 
             </div>
 
-            <div class="feature">
 
-                <div class="feature-icon">
-                    <i class="fa-solid fa-wallet"></i>
-                </div>
+        </section>
 
-                <span>
-                    Share travel costs
-                </span>
-
-            </div>
-
-        </div>
 
     </div>
 
 
-    <!-- ========================= -->
-    <!-- LOGIN FORM SECTION -->
-    <!-- ========================= -->
-
-    <div class="form-section">
-
-        <div class="form-header">
-
-            <h2>
-                Welcome Back 👋
-            </h2>
-
-            <p>
-                Login to continue your Carpool journey.
-            </p>
-
-        </div>
+</main>
 
 
-        <!-- ERROR MESSAGE -->
-
-        <div id="errorMessage"
-             class="message error-message">
-        </div>
-
-
-        <!-- SUCCESS MESSAGE -->
-
-        <div id="successMessage"
-             class="message success-message">
-        </div>
-
-
-        <!-- LOGIN FORM -->
-
-        <form id="loginForm">
-
-            <!-- EMAIL -->
-
-            <div class="form-group">
-
-                <label for="email">
-                    Email Address
-                </label>
-
-                <div class="input-wrapper">
-
-                    <i class="fa-solid fa-envelope input-icon"></i>
-
-                    <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="Enter your email"
-                            autocomplete="email"
-                            required>
-
-                </div>
-
-            </div>
-
-
-            <!-- PASSWORD -->
-
-            <div class="form-group">
-
-                <label for="password">
-                    Password
-                </label>
-
-                <div class="input-wrapper">
-
-                    <i class="fa-solid fa-lock input-icon"></i>
-
-                    <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            autocomplete="current-password"
-                            required>
-
-                    <i
-                            id="passwordToggle"
-                            class="fa-solid fa-eye password-toggle">
-                    </i>
-
-                </div>
-
-            </div>
-
-
-            <!-- LOGIN BUTTON -->
-
-            <button
-                    type="submit"
-                    id="loginButton"
-                    class="login-button">
-
-                <span id="loginButtonText">
-                    Login
-                </span>
-
-            </button>
-
-        </form>
-
-
-        <!-- REGISTER LINK -->
-
-        <div class="signup-section">
-
-            Don't have an account?
-
-            <a th:href="@{/register}">
-                Sign Up
-            </a>
-
-        </div>
-
-    </div>
-
-</div>
-
+<!-- =========================================================
+     JAVASCRIPT
+========================================================== -->
 
 <script src="/js/auth.js"></script>
+
 <script src="/js/logout.js"></script>
+
+
 </body>
 
 </html>

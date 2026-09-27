@@ -1,31 +1,6 @@
-<!--<nav th:fragment="nav" class="navbar">
-
-    <div class="brand">
-        🚗 <span>Carpool</span>
-    </div>
-
-    <div class="nav-links">
-
-        <a href="/home">Home</a>
-
-        <a href="/users">Users</a>
-        <a href="/vehicles">Vehicles</a>
-        <a href="/rides" class="active">Rides</a>
-
-        <a href="/bookings">Bookings</a>
-
-        <a href="#" id="logoutButton" class="logout-link">
-            Logout
-        </a>
-
-    </div>
-
-</nav>-->
-
 <!DOCTYPE html>
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
-
 <body>
 
 <nav class="cp-navbar"
@@ -129,6 +104,18 @@
 
         </a>
 
+        <button
+                type="button"
+                id="themeToggle"
+                class="theme-toggle"
+                aria-label="Toggle theme"
+                title="Toggle theme">
+
+            <span id="themeIcon">
+                ☀️
+            </span>
+
+        </button>
 
         <!-- =====================
              LOGOUT

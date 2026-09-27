@@ -14,8 +14,18 @@
 
     <title>Carpool - Share the Journey</title>
 
+    <link rel="icon"
+          type="image/svg+xml"
+          th:href="@{/images/favicon.svg}">
+
     <link rel="stylesheet"
           href="/css/style.css">
+
+    <link rel="stylesheet"
+          th:href="@{/css/theme.css}">
+
+    <script th:src="@{/js/theme.js}"></script>
+
 
 </head>
 
@@ -386,9 +396,9 @@
 </footer>
 
 
-<script src="/js/api.js"></script>
-<script src="/js/logout.js"></script>
-<script src="/js/auth-guard.js"></script>
+<script th:src="@{/js/api.js}"></script>
+<script th:src="@{/js/auth-guard.js}"></script>
+<script th:src="@{/js/logout.js}"></script>
 
 </body>
 </html>

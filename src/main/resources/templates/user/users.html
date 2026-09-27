@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Users | Carpool</title>
+
+    <link rel="icon"
+          type="image/svg+xml"
+          th:href="@{/images/favicon.svg}">
+
+    <!-- GLOBAL -->
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+    <!-- USERS -->
+    <link rel="stylesheet"
+          th:href="@{/css/user/users.css}">
+
+    <!-- THEME -->
+    <link rel="stylesheet"
+          th:href="@{/css/theme.css}">
+
+    <script th:src="@{/js/theme.js}"></script>
+
+</head>
+
+
+<body>
+
+<!-- =========================================================
+     GLOBAL NAVBAR
+     ========================================================= -->
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<!-- =========================================================
+     USERS PAGE
+     ========================================================= -->
+
+<main class="users-page">
+
+    <div class="users-container">
+
+
+        <!-- =================================================
+             PAGE HEADER
+             ================================================= -->
+
+        <section class="users-header">
+
+            <div class="users-header-content">
+
+                <div>
+
+                    <div class="users-eyebrow">
+                        USER MANAGEMENT
+                    </div>
+
+                    <h1>
+                        Users
+                    </h1>
+
+                    <p>
+                        Manage registered Carpool users
+                        and their assigned roles.
+                    </p>
+
+                </div>
+
+
+                <a href="/users/new"
+                   class="users-add-button">
+
+                    <span class="users-add-icon">
+                        +
+                    </span>
+
+                    Add User
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MESSAGE
+             ================================================= -->
+
+        <div id="message"
+             class="users-message hidden">
+        </div>
+
+
+        <!-- =================================================
+             USERS CARD
+             ================================================= -->
+
+        <section class="users-card">
+
+
+            <!-- =============================================
+                 CARD HEADER
+                 ============================================= -->
+
+            <div class="users-card-header">
+
+                <div class="users-card-title">
+
+                    <div class="users-card-icon">
+                        👥
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Registered Users
+                        </h2>
+
+                        <p>
+                            All users currently registered
+                            in Carpool.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="users-count-badge">
+
+                    <span id="usersCount">
+                        0
+                    </span>
+
+                    <span>
+                        users
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 TABLE
+                 ============================================= -->
+
+            <div class="users-table-wrapper">
+
+                <table class="users-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            User
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Phone
+                        </th>
+
+                        <th class="users-actions-header">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody id="usersTableBody">
+
+                    <!--
+                        JavaScript will populate users
+                    -->
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- =============================================
+                 EMPTY STATE
+                 ============================================= -->
+
+            <div id="usersEmptyState"
+                 class="users-empty-state hidden">
+
+                <div class="users-empty-icon">
+                    👥
+                </div>
+
+                <h3>
+                    No users found
+                </h3>
+
+                <p>
+                    There are currently no registered
+                    users in Carpool.
+                </p>
+
+                <a href="/users/new"
+                   class="users-empty-button">
+
+                    + Add User
+
+                </a>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     ROLES MODAL
+     ========================================================= -->
+
+<div id="rolesModal"
+     class="users-modal-overlay">
+
+
+    <div class="users-modal">
+
+
+        <!-- =================================================
+             MODAL HEADER
+             ================================================= -->
+
+        <div class="users-modal-header">
+
+            <div class="users-modal-title">
+
+                <div class="users-modal-icon">
+                    🔐
+                </div>
+
+                <div>
+
+                    <div class="users-modal-eyebrow">
+                        ACCESS CONTROL
+                    </div>
+
+                    <h2>
+                        User Roles
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <button
+                    id="closeModal"
+                    type="button"
+                    class="users-modal-close"
+                    aria-label="Close">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             MODAL BODY
+             ================================================= -->
+
+        <div class="users-modal-body">
+
+
+            <div class="users-modal-user">
+
+                <div class="users-modal-avatar">
+                    👤
+                </div>
+
+                <div>
+
+                    <span>
+                        USER
+                    </span>
+
+                    <strong id="modalUserName">
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="users-roles-heading">
+
+                Assigned Roles
+
+            </div>
+
+
+            <div id="modalRoles"
+                 class="users-modal-roles">
+
+                <!-- Roles inserted by JavaScript -->
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             MODAL FOOTER
+             ================================================= -->
+
+        <div class="users-modal-footer">
+
+            <button
+                    id="closeModalButton"
+                    type="button"
+                    class="users-modal-close-button">
+
+                Close
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script th:src="@{/js/api.js}"></script>
+<script th:src="@{/js/users.js}"></script>
+<script th:src="@{/js/auth-guard.js}"></script>
+<script th:src="@{/js/logout.js}"></script>
+
+</body>
+
+</html>

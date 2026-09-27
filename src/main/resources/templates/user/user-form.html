@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>User | Carpool</title>
+
+    <link rel="icon"
+          type="image/svg+xml"
+          th:href="@{/images/favicon.svg}">
+
+    <!-- GLOBAL -->
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+    <!-- USER FORM -->
+    <link rel="stylesheet"
+          th:href="@{/css/user/user-form.css}">
+
+    <!-- THEME -->
+    <link rel="stylesheet"
+          th:href="@{/css/theme.css}">
+
+    <script th:src="@{/js/theme.js}"></script>
+
+</head>
+
+
+<body>
+
+<!-- =========================================================
+     GLOBAL NAVBAR
+     ========================================================= -->
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<!-- =========================================================
+     USER FORM PAGE
+     ========================================================= -->
+
+<main class="user-form-page">
+
+    <div class="user-form-container">
+
+
+        <!-- =================================================
+             BACK
+             ================================================= -->
+
+        <a href="/users"
+           class="user-back-link">
+
+            ← Back to Users
+
+        </a>
+
+
+        <!-- =================================================
+             PAGE HEADER
+             ================================================= -->
+
+        <section class="user-page-header">
+
+            <div class="user-header-icon">
+                👤
+            </div>
+
+            <div>
+
+                <div class="user-eyebrow">
+                    USER MANAGEMENT
+                </div>
+
+                <h1 id="formTitle">
+                    Create User
+                </h1>
+
+                <p>
+                    Add a new Carpool user and assign
+                    the appropriate roles.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FORM CARD
+             ================================================= -->
+
+        <section class="user-form-card">
+
+
+            <!-- =================================================
+                 CARD HEADER
+                 ================================================= -->
+
+            <div class="user-form-card-header">
+
+                <div>
+
+                    <div class="user-section-eyebrow">
+                        ACCOUNT INFORMATION
+                    </div>
+
+                    <h2>
+                        User Details
+                    </h2>
+
+                    <p>
+                        Enter the user's account and contact details.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 FORM
+                 ================================================= -->
+
+            <form id="userForm">
+
+
+                <input type="hidden"
+                       id="userId">
+
+
+                <!-- =================================================
+                     NAME + EMAIL
+                     ================================================= -->
+
+                <div class="user-form-grid">
+
+
+                    <!-- NAME -->
+
+                    <div class="user-form-group">
+
+                        <label for="name">
+                            Full Name
+                            <span>*</span>
+                        </label>
+
+                        <input
+                                type="text"
+                                id="name"
+                                placeholder="e.g. Datta Sai"
+                                required
+                                minlength="2"
+                                maxlength="100">
+
+                        <small>
+                            Enter the user's full name.
+                        </small>
+
+                        <span id="nameError"
+                              class="field-error">
+                        </span>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="user-form-group">
+
+                        <label for="email">
+                            Email Address
+                            <span>*</span>
+                        </label>
+
+                        <input
+                                type="email"
+                                id="email"
+                                placeholder="e.g. user@example.com"
+                                required>
+
+                        <small>
+                            This email will be used for login.
+                        </small>
+
+                        <span id="emailError"
+                              class="field-error">
+                        </span>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="user-form-group">
+
+                        <label for="password">
+                            Password
+                            <span>*</span>
+                        </label>
+
+                        <input
+                                type="password"
+                                id="password"
+                                placeholder="Minimum 8 characters"
+                                required
+                                minlength="8">
+
+                        <small>
+                            Password must contain at least 8 characters.
+                        </small>
+
+                        <span id="passwordError"
+                              class="field-error">
+                        </span>
+
+                    </div>
+
+
+                    <!-- PHONE -->
+
+                    <div class="user-form-group">
+
+                        <label for="phone">
+                            Phone Number
+                        </label>
+
+                        <input
+                                type="text"
+                                id="phone"
+                                placeholder="e.g. 9876543210"
+                                maxlength="10">
+
+                        <small>
+                            Enter a 10-digit phone number.
+                        </small>
+
+                        <span id="phoneError"
+                              class="field-error">
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================================
+                     ROLES
+                     ================================================= -->
+
+                <div class="user-role-section">
+
+                    <div class="user-role-heading">
+
+                        <div class="user-role-icon">
+                            🔐
+                        </div>
+
+                        <div>
+
+                            <div class="user-section-eyebrow">
+                                ACCESS CONTROL
+                            </div>
+
+                            <h2>
+                                Roles
+                            </h2>
+
+                            <p>
+                                Select one or more roles for this user.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="user-form-group">
+
+
+                        <label for="roleSelectBox">
+                            Assigned Roles
+                            <span>*</span>
+                        </label>
+
+
+                        <div class="user-role-dropdown"
+                             id="roleDropdown">
+
+
+                            <!-- =================================================
+                                 SELECT BOX
+                                 ================================================= -->
+
+                            <div class="user-role-select-box"
+                                 id="roleSelectBox">
+
+
+                                <div class="user-selected-roles"
+                                     id="selectedRoles">
+
+                                    <span class="user-role-placeholder">
+                                        Select roles
+                                    </span>
+
+                                </div>
+
+
+                                <span class="user-role-arrow">
+                                    ▾
+                                </span>
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 OPTIONS
+                                 ================================================= -->
+
+                            <div class="user-role-options"
+                                 id="roleOptions">
+
+
+                                <label class="user-role-option">
+
+                                    <input
+                                            type="checkbox"
+                                            value="DRIVER">
+
+                                    <span class="user-role-option-content">
+
+                                        <span class="user-role-option-icon">
+                                            🚗
+                                        </span>
+
+                                        <span>
+
+                                            <strong>
+                                                DRIVER
+                                            </strong>
+
+                                            <small>
+                                                Can offer rides
+                                            </small>
+
+                                        </span>
+
+                                    </span>
+
+                                </label>
+
+
+                                <label class="user-role-option">
+
+                                    <input
+                                            type="checkbox"
+                                            value="PASSENGER">
+
+                                    <span class="user-role-option-content">
+
+                                        <span class="user-role-option-icon">
+                                            🎫
+                                        </span>
+
+                                        <span>
+
+                                            <strong>
+                                                PASSENGER
+                                            </strong>
+
+                                            <small>
+                                                Can book rides
+                                            </small>
+
+                                        </span>
+
+                                    </span>
+
+                                </label>
+
+
+                                <label class="user-role-option">
+
+                                    <input
+                                            type="checkbox"
+                                            value="ADMIN">
+
+                                    <span class="user-role-option-content">
+
+                                        <span class="user-role-option-icon">
+                                            🛡
+                                        </span>
+
+                                        <span>
+
+                                            <strong>
+                                                ADMIN
+                                            </strong>
+
+                                            <small>
+                                                Can manage the platform
+                                            </small>
+
+                                        </span>
+
+                                    </span>
+
+                                </label>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <span id="rolesError"
+                              class="field-error">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ACTIONS
+                     ================================================= -->
+
+                <div class="user-form-actions">
+
+                    <a href="/users"
+                       class="user-cancel-button">
+
+                        Cancel
+
+                    </a>
+
+
+                    <button
+                            type="submit"
+                            class="user-submit-button">
+
+                        <span>
+                            Save User
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </section>
+
+
+        <!-- =================================================
+             INFORMATION PANEL
+             ================================================= -->
+
+        <aside class="user-info-panel">
+
+            <div class="user-info-icon">
+                👥
+            </div>
+
+            <div class="user-info-eyebrow">
+                CARPOOL ACCESS
+            </div>
+
+            <h2>
+                One account.
+                <span>Multiple journeys.</span>
+            </h2>
+
+            <p>
+                Assign the right roles so users can access
+                the features they need across the Carpool platform.
+            </p>
+
+
+            <div class="user-info-items">
+
+
+                <div class="user-info-item">
+
+                    <div class="user-info-check">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Driver access
+                        </strong>
+
+                        <p>
+                            Offer rides and manage your vehicles.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="user-info-item">
+
+                    <div class="user-info-check">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Passenger access
+                        </strong>
+
+                        <p>
+                            Search and book available rides.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="user-info-item">
+
+                    <div class="user-info-check">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Administrator access
+                        </strong>
+
+                        <p>
+                            Manage users and platform operations.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </aside>
+
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+
+<footer class="user-form-footer">
+
+    © 2026 Carpool. Share the ride. Share the journey.
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script th:src="@{/js/api.js}"></script>
+
+<script th:src="@{/js/user-form.js}"></script>
+
+<script th:src="@{/js/auth-guard.js}"></script>
+
+<script th:src="@{/js/logout.js}"></script>
+
+</body>
+
+</html>

@@ -10,21 +10,21 @@ public class UserViewController {
 
     @GetMapping
     public String usersPage() {
-        return "users/list";
+        return "user/users";
     }
 
     @GetMapping("/new")
     public String createUserPage() {
-        return "users/form";
+        return "user/user-form";
     }
 
     @GetMapping("/{id}")
     public String userDetailsPage() {
-        return "users/details";
+        return "user/details";
     }
 
     @GetMapping("/{id}/edit")
     public String editUserPage() {
-        return "users/form";
+        return "user/user-form";
     }
 }

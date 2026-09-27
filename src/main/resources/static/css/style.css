@@ -9,32 +9,6 @@ body {
     color: #1f2937;
 }
 
-.navbar {
-    height: 64px;
-    background: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 40px;
-}
-
-.brand {
-    font-size: 22px;
-    font-weight: bold;
-}
-
-.nav-links {
-    display: flex;
-    gap: 25px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: #374151;
-}
 
 .container {
     max-width: 1100px;
@@ -279,107 +253,6 @@ th {
     font-size: 14px;
 }
 
-.multi-select {
-    position: relative;
-    width: 100%;
-}
-
-.multi-select-box {
-    min-height: 44px;
-    padding: 6px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    background: white;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    cursor: pointer;
-}
-
-.selected-roles {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    flex: 1;
-}
-
-.placeholder {
-    color: #9ca3af;
-    padding: 5px 0;
-}
-
-.role-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-
-    padding: 5px 9px;
-
-    border-radius: 15px;
-
-    background: #eff6ff;
-    color: #1d4ed8;
-
-    font-size: 13px;
-    font-weight: 500;
-}
-
-.remove-role {
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.dropdown-arrow {
-    margin-left: 10px;
-    color: #6b7280;
-}
-
-.multi-select-options {
-    display: none;
-
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
-
-    background: white;
-
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-
-    z-index: 1000;
-
-    padding: 6px 0;
-}
-
-.multi-select-options.open {
-    display: block;
-}
-
-.role-option {
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    padding: 10px 14px;
-
-    cursor: pointer;
-}
-
-.role-option:hover {
-    background: #f3f4f6;
-}
-
-.role-option input {
-    width: auto;
-    cursor: pointer;
-}
-
 .details-container {
     max-width: 700px;
     margin: auto;
@@ -592,7 +465,7 @@ th {
 }
 
 
-.role-chip {
+.modal-roles .role-chip {
 
     display: inline-flex;
 
@@ -636,7 +509,7 @@ th {
 
 }
 
-/*Home page*/
+
 /* ============================================================
    HOME PAGE
    ============================================================ */
@@ -1329,6 +1202,7 @@ th {
     }
 
 }
+
 
 /* =========================================================
    GLOBAL CARPOOL NAVBAR
