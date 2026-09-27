@@ -1,0 +1,53 @@
+services:
+  # =======================================================
+  # MYSQL
+  # =======================================================
+  mysql:
+    image: mysql:8.0
+    container_name: carpool-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uroot",
+          "-p${DB_PASSWORD}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # =======================================================
+  # CARPOOL APPLICATION
+  # =======================================================
+  carpool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: carpool-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+
+# =========================================================
+# VOLUMES
+# =========================================================
+volumes:
+  mysql-data:

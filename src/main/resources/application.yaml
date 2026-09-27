@@ -4,29 +4,28 @@
 #  refresh-expiration: ${JWT_REFRESH_EXPIRATION}
 
 jwt:
-  secret: YOUR_VERY_LONG_RANDOM_SECRET_KEY
-  expiration: 3600000
-  refresh-expiration: 3600000
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:3600000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:3600000}
 
 geoapify:
   api-key: ${GEOAPIFY_API_KEY}
-  base-url: ${GEOAPIFY_BASE_URL}
-  url-path: ${GEOAPIFY_URL_PATH}
+  base-url: ${GEOAPIFY_BASE_URL:https://api.geoapify.com}
+  url-path: ${GEOAPIFY_URL_PATH:/v1/geocode/autocomplete}
 
 spring:
   application:
     name: carpool
 
   datasource:
-#    url: jdbc:mysql://localhost:3306/carpool_db?createDatabaseIfNotExist=true
-    url: jdbc:mysql://localhost:3306/carpool_db2?createDatabaseIfNotExist=true
-    username: root
-    password: root
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?createDatabaseIfNotExist=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        format_sql: true
+        format_sql: ${JPA_FORMAT_SQL:false}
