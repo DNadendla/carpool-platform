@@ -17,29 +17,67 @@ public class JwtService {
 
     private final SecretKey secretKey;
     private final long jwtExpiration;
+    private final long refreshExpiration;
 
     public JwtService(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration}") long jwtExpiration) {
+            @Value("${jwt.expiration}") long jwtExpiration,
+            @Value("${jwt.refresh-expiration}") long refreshExpiration) {
 
         this.secretKey = Keys.hmacShaKeyFor(
                 secret.getBytes(StandardCharsets.UTF_8)
         );
 
         this.jwtExpiration = jwtExpiration;
+        this.refreshExpiration = refreshExpiration;
     }
+
+
+    // =========================================================
+    // ACCESS TOKEN
+    // =========================================================
 
     public String generateToken(UserDetails userDetails) {
 
         return Jwts.builder()
                 .subject(userDetails.getUsername())
+                .claim("type", "access")
                 .issuedAt(new Date())
                 .expiration(
-                        new Date(System.currentTimeMillis() + jwtExpiration)
+                        new Date(
+                                System.currentTimeMillis()
+                                        + jwtExpiration
+                        )
                 )
                 .signWith(secretKey)
                 .compact();
     }
+
+
+    // =========================================================
+    // REFRESH TOKEN
+    // =========================================================
+
+    public String generateRefreshToken(UserDetails userDetails) {
+
+        return Jwts.builder()
+                .subject(userDetails.getUsername())
+                .claim("type", "refresh")
+                .issuedAt(new Date())
+                .expiration(
+                        new Date(
+                                System.currentTimeMillis()
+                                        + refreshExpiration
+                        )
+                )
+                .signWith(secretKey)
+                .compact();
+    }
+
+
+    // =========================================================
+    // CLAIMS
+    // =========================================================
 
     public String extractUsername(String token) {
 
@@ -49,6 +87,7 @@ public class JwtService {
         );
     }
 
+
     public Date extractExpiration(String token) {
 
         return extractClaim(
@@ -57,11 +96,26 @@ public class JwtService {
         );
     }
 
+
+    public String extractTokenType(String token) {
+
+        return extractClaim(
+                token,
+                claims -> claims.get("type", String.class)
+        );
+    }
+
+
+    // =========================================================
+    // VALIDATION
+    // =========================================================
+
     public boolean isTokenExpired(String token) {
 
         return extractExpiration(token)
                 .before(new Date());
     }
+
 
     public boolean isTokenValid(
             String token,
@@ -73,17 +127,37 @@ public class JwtService {
                 && !isTokenExpired(token);
     }
 
-    private <T> T extractClaim(
-            String token,
-            Function<Claims, T> claimsResolver) {
 
+    public boolean isRefreshToken(String token) {
+        String tokenType = extractTokenType(token);
+        return "refresh".equals(tokenType);
+    }
+
+
+    // =========================================================
+    // TOKEN EXPIRATION VALUES
+    // =========================================================
+
+    public long getJwtExpiration() {
+        return jwtExpiration;
+    }
+
+    public long getRefreshExpiration() {
+        return refreshExpiration;
+    }
+
+
+    // =========================================================
+    // INTERNAL CLAIM EXTRACTION
+    // =========================================================
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         Claims claims = extractAllClaims(token);
-
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
 
+    private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()

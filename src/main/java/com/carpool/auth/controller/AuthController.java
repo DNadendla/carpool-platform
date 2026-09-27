@@ -2,6 +2,7 @@ package com.carpool.auth.controller;
 
 import com.carpool.auth.dto.LoginRequest;
 import com.carpool.auth.dto.LoginResponse;
+import com.carpool.auth.dto.RefreshRequest;
 import com.carpool.auth.service.AuthService;
 import com.carpool.user.dto.UserRequest;
 import com.carpool.user.dto.UserResponse;
@@ -33,14 +34,18 @@ public class AuthController {
         );
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshRequest request) {
+        try {
+            return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(java.util.Map.of("message", ex.getMessage()));
+        }
+    }
+
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(
-            @Valid @RequestBody UserRequest request) {
-
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {
         UserResponse response = userService.createUser(request);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

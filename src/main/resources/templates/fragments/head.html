@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="common-head">
+
+    <!-- CHARACTER SET -->
+    <meta charset="UTF-8">
+
+    <!-- VIEWPORT -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <!-- FONT AWESOME -->
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- FAVICON -->
+    <link
+            rel="icon"
+            type="image/svg+xml"
+            th:href="@{/images/favicon.svg}">
+
+
+    <!-- GLOBAL CSS -->
+    <link
+            rel="stylesheet"
+            th:href="@{/css/style.css}">
+
+</th:block>
+
+
+<th:block th:fragment="theme-resources">
+    <!-- THEME CSS -->
+    <link
+            rel="stylesheet"
+            th:href="@{/css/theme.css}">
+
+    <!-- THEME JS -->
+    <script
+            th:src="@{/js/theme.js}">
+    </script>
+</th:block>
+
+</html>

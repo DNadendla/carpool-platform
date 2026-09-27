@@ -1,6 +1,12 @@
-jwt.secret: YOUR_VERY_LONG_RANDOM_SECRET_KEY
-jwt.expiration: 3600000
-#jwt.expiration: 20000
+#jwt:
+#  secret: ${JWT_SECRET}
+#  expiration: ${JWT_EXPIRATION}
+#  refresh-expiration: ${JWT_REFRESH_EXPIRATION}
+
+jwt:
+  secret: YOUR_VERY_LONG_RANDOM_SECRET_KEY
+  expiration: 3600000
+  refresh-expiration: 3600000
 
 geoapify:
   api-key: ${GEOAPIFY_API_KEY}

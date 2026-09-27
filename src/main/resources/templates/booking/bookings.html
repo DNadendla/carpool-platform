@@ -3,28 +3,18 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+  <th:block th:replace="~{fragments/head :: common-head}">
+  </th:block>
 
-  <meta charset="UTF-8">
+  <title>
+    My Bookings | Carpool
+  </title>
 
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+  <!-- BOOKINGS -->
+  <link rel="stylesheet" th:href="@{/css/booking/bookings.css}">
 
-  <title>My Bookings | Carpool</title>
-  <link rel="icon"
-        type="image/svg+xml"
-        th:href="@{/images/favicon.svg}">
-
-  <link rel="stylesheet"
-        th:href="@{/css/style.css}">
-
-  <link rel="stylesheet"
-        th:href="@{/css/booking/bookings.css}">
-
-  <link rel="stylesheet"
-        th:href="@{/css/theme.css}">
-
-  <script th:src="@{/js/theme.js}"></script>
-
+  <th:block th:replace="~{fragments/head :: theme-resources}">
+  </th:block>
 </head>
 
 <body>
@@ -177,14 +167,11 @@
 <!-- =====================================================
      JAVASCRIPT
      ===================================================== -->
+<th:block th:replace="~{fragments/scripts :: common-scripts}">
+</th:block>
 
-<script th:src="@{/js/api.js}"></script>
-
-<script th:src="@{/js/booking/bookings.js}"></script>
-
-<script th:src="@{/js/auth-guard.js}"></script>
-
-<script th:src="@{/js/logout.js}"></script>
+<script th:src="@{/js/booking/bookings.js}">
+</script>
 
 </body>
 

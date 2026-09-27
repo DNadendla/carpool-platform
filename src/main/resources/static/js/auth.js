@@ -141,6 +141,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     data.expiresIn
                 );
 
+                localStorage.setItem(
+                    "tokenExpiresAt",
+                    Date.now() + Number(data.expiresIn)
+                );
+
+                localStorage.setItem(
+                    "refreshToken",
+                    data.refreshToken
+                );
+
 
                 successMessage.textContent =
                     "Login successful. Redirecting...";
@@ -148,9 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 // Navigate to Home
                 setTimeout(function () {
-
                     window.location.href = "/home";
-
                 }, 500);
 
                 return;

@@ -3,37 +3,25 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+  <th:block th:replace="~{fragments/head :: common-head}">
+  </th:block>
 
-  <meta charset="UTF-8">
+  <title>
+    Ride Details | Carpool
+  </title>
 
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+  <!-- RIDE DETAILS -->
+  <link rel="stylesheet" th:href="@{/css/ride/ride-details.css}">
 
-  <title>Ride Details | Carpool</title>
+  <!-- LEAFLET -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          crossorigin="">
 
-  <link rel="icon"
-        type="image/svg+xml"
-        th:href="@{/images/favicon.svg}">
+  <th:block th:replace="~{fragments/head :: theme-resources}">
+  </th:block>
 
-
-  <link rel="stylesheet"
-        th:href="@{/css/theme.css}">
-
-  <script th:src="@{/js/theme.js}"></script>
-
-  <!-- Common Carpool styles -->
-  <link rel="stylesheet"
-        th:href="@{/css/style.css}">
-
-  <!-- Ride Details styles -->
-  <link rel="stylesheet"
-        th:href="@{/css/ride/ride-details.css}">
-
-  <!-- Leaflet -->
-  <link rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        crossorigin="">
 </head>
+
 <body>
 
 <!-- =========================
@@ -700,19 +688,18 @@
 <!-- =========================
      SCRIPTS
 ========================= -->
+<th:block th:replace="~{fragments/scripts :: common-scripts}">
+</th:block>
 
-<script src="/js/api.js"></script>
-
-<script src="/js/auth-guard.js"></script>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+<!-- LEAFLET -->
+<script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin="">
 </script>
 
-<script src="/js/logout.js"></script>
-
-<script src="/js/ride/ride-details.js"></script>
+<script th:src="@{/js/ride/ride-details.js}">
+</script>
 
 </body>
 

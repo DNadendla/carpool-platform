@@ -3,31 +3,21 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <!-- COMMON HEAD RESOURCES -->
+    <th:block th:replace="~{fragments/head :: common-head}">
+    </th:block>
 
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Add Vehicle | Carpool</title>
-
-    <link rel="icon"
-          type="image/svg+xml"
-          th:href="@{/images/favicon.svg}">
-
-    <!-- GLOBAL STYLES -->
-    <link rel="stylesheet"
-          th:href="@{/css/style.css}">
+    <!-- PAGE TITLE -->
+    <title>
+        Add Vehicle | Carpool
+    </title>
 
     <!-- PAGE STYLES -->
-    <link rel="stylesheet"
-          th:href="@{/css/vehicle/vehicle-form.css}">
+    <link rel="stylesheet" th:href="@{/css/vehicle/vehicle-form.css}">
 
-    <link rel="stylesheet"
-          th:href="@{/css/theme.css}">
-
-    <script th:src="@{/js/theme.js}"></script>
-
+    <!-- THEME -->
+    <th:block th:replace="~{fragments/head :: theme-resources}">
+    </th:block>
 </head>
 
 <body>
@@ -397,14 +387,10 @@
 <!-- =========================
      JAVASCRIPT
 ========================= -->
-
-<script th:src="@{/js/api.js}"></script>
+<th:block th:replace="~{fragments/scripts :: common-scripts}">
+</th:block>
 
 <script th:src="@{/js/vehicle/vehicle-form.js}"></script>
-
-<script th:src="@{/js/auth-guard.js}"></script>
-
-<script th:src="@{/js/logout.js}"></script>
 
 </body>
 
