@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-//@Component
+@Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 

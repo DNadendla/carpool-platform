@@ -1,53 +1,54 @@
 services:
-  # =======================================================
-  # MYSQL
-  # =======================================================
+  springapp:
+    image: dattunadendla/carpool-platform-image:1.0
+    ports:
+      - "8081:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - carpool-network
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION}
+
+      - GEOAPIFY_API_KEY=${GEOAPIFY_API_KEY}
+      - GEOAPIFY_BASE_URL=${GEOAPIFY_BASE_URL}
+      - GEOAPIFY_URL_PATH=${GEOAPIFY_URL_PATH}
+
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+
+      - JPA_DDL_AUTO=${JPA_DDL_AUTO}
+      - JPA_SHOW_SQL=${JPA_SHOW_SQL}
+      - JPA_FORMAT_SQL=${JPA_FORMAT_SQL}
+
   mysql:
     image: mysql:8.0
-    container_name: carpool-mysql
-    restart: unless-stopped
+    networks:
+      - carpool-network
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-    ports:
-      - "3306:3306"
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     volumes:
-      - mysql-data:/var/lib/mysql
+      - carpooldbvolume:/var/lib/mysql
     healthcheck:
       test:
         [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-uroot",
-          "-p${DB_PASSWORD}"
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD"
         ]
       interval: 10s
       timeout: 5s
       retries: 10
 
-  # =======================================================
-  # CARPOOL APPLICATION
-  # =======================================================
-  carpool:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: carpool-app
-    restart: unless-stopped
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
-    depends_on:
-      mysql:
-        condition: service_healthy
+networks:
+  carpool-network:
+    driver: bridge
 
-
-# =========================================================
-# VOLUMES
-# =========================================================
 volumes:
-  mysql-data:
+  carpooldbvolume:
