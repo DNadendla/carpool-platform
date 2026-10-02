@@ -9,29 +9,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticatedUserService {
 
-    public User getCurrentUser() {
+  public User getCurrentUser() {
 
-        Authentication authentication =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null ||
-                !(authentication.getPrincipal()
-                        instanceof CustomUserDetails)) {
+    if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
 
-            throw new IllegalStateException(
-                    "No authenticated user found"
-            );
-        }
-
-        CustomUserDetails userDetails =
-                (CustomUserDetails) authentication.getPrincipal();
-
-        return userDetails.getUser();
+      throw new IllegalStateException("No authenticated user found");
     }
 
-    public Long getCurrentUserId() {
-        return getCurrentUser().getId();
-    }
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+    return userDetails.getUser();
+  }
+
+  public Long getCurrentUserId() {
+    return getCurrentUser().getId();
+  }
 }

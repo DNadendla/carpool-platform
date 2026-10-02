@@ -4,6 +4,8 @@ import com.carpool.exception.BusinessValidationException;
 import com.carpool.exception.ConflictException;
 import com.carpool.exception.OperationNotAllowedException;
 import com.carpool.exception.ResourceNotFoundException;
+import com.carpool.ride.dto.RideCountsResponse;
+import com.carpool.ride.dto.RidePageResponse;
 import com.carpool.ride.dto.RideRequest;
 import com.carpool.ride.dto.RideResponse;
 import com.carpool.ride.entity.Ride;
@@ -12,246 +14,338 @@ import com.carpool.security.service.AuthenticatedUserService;
 import com.carpool.user.entity.User;
 import com.carpool.vehicle.entity.Vehicle;
 import com.carpool.vehicle.repository.VehicleRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
 public class RideService {
 
-    private final RideRepository rideRepository;
-    private final VehicleRepository vehicleRepository;
-    private final AuthenticatedUserService authenticatedUserService;
+  private final RideRepository rideRepository;
 
-    public RideService(
-            RideRepository rideRepository,
-            VehicleRepository vehicleRepository,
-            AuthenticatedUserService authenticatedUserService) {
+  private final VehicleRepository vehicleRepository;
 
-        this.rideRepository = rideRepository;
-        this.vehicleRepository = vehicleRepository;
-        this.authenticatedUserService = authenticatedUserService;
+  private final AuthenticatedUserService authenticatedUserService;
+
+  public RideService(
+      RideRepository rideRepository,
+      VehicleRepository vehicleRepository,
+      AuthenticatedUserService authenticatedUserService) {
+
+    this.rideRepository = rideRepository;
+
+    this.vehicleRepository = vehicleRepository;
+
+    this.authenticatedUserService = authenticatedUserService;
+  }
+
+  // =====================================================
+  // CREATE RIDE
+  // =====================================================
+
+  public RideResponse createRide(RideRequest request) {
+
+    User driver = authenticatedUserService.getCurrentUser();
+
+    Vehicle vehicle =
+        vehicleRepository
+            .findById(request.getVehicleId())
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        "Vehicle not found with id: " + request.getVehicleId()));
+
+    // Verify vehicle ownership
+
+    if (!vehicle.getOwner().getId().equals(driver.getId())) {
+
+      throw new OperationNotAllowedException("Vehicle does not belong to the authenticated user");
     }
 
-    // =========================
-    // CREATE RIDE
-    // =========================
+    // Validate available seats
 
-    public RideResponse createRide(RideRequest request) {
+    if (request.getAvailableSeats() > vehicle.getTotalSeats()) {
 
-        // Get driver from JWT
-        User driver = authenticatedUserService.getCurrentUser();
-
-        // Find vehicle
-        Vehicle vehicle = vehicleRepository.findById(
-                request.getVehicleId()
-        ).orElseThrow(() ->
-                new ResourceNotFoundException(
-                        "Vehicle not found with id: "
-                                + request.getVehicleId()
-                )
-        );
-
-        // Verify vehicle belongs to logged-in driver
-        if (!vehicle.getOwner().getId().equals(driver.getId())) {
-
-            throw new OperationNotAllowedException(
-                    "Vehicle does not belong to the authenticated user"
-            );
-        }
-
-        // Validate available seats
-        if (request.getAvailableSeats() > vehicle.getTotalSeats()) {
-
-            throw new BusinessValidationException(
-                    "Available seats cannot exceed vehicle capacity"
-            );
-        }
-
-        // Validate source and destination
-        if (request.getSource()
-                .equalsIgnoreCase(request.getDestination())) {
-
-            throw new BusinessValidationException(
-                    "Source and destination cannot be the same"
-            );
-        }
-
-        // Create ride
-        Ride ride = Ride.builder()
-                .driver(driver)
-                .vehicle(vehicle)
-                .source(request.getSource())
-                .destination(request.getDestination())
-                .departureTime(request.getDepartureTime())
-                .availableSeats(request.getAvailableSeats())
-                .sourceLatitude(request.getSourceLatitude())
-                .sourceLongitude(request.getSourceLongitude())
-                .destinationLatitude(request.getDestinationLatitude())
-                .destinationLongitude(request.getDestinationLongitude())
-                .pricePerSeat(request.getPricePerSeat())
-                .status(Ride.RideStatus.SCHEDULED)
-                .build();
-
-        // Save
-        Ride savedRide = rideRepository.save(ride);
-
-        return mapToResponse(savedRide);
+      throw new BusinessValidationException("Available seats cannot exceed vehicle capacity");
     }
 
+    // Validate route
 
-    // =========================
-    // GET RIDE BY ID
-    // =========================
+    if (request.getSource().equalsIgnoreCase(request.getDestination())) {
 
-    @Transactional(readOnly = true)
-    public RideResponse getRideById(Long id) {
-
-        Ride ride = rideRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Ride not found with id: " + id
-                        )
-                );
-
-        return mapToResponse(ride);
+      throw new BusinessValidationException("Source and destination cannot be the same");
     }
 
+    Ride ride =
+        Ride.builder()
+            .driver(driver)
+            .vehicle(vehicle)
+            .source(request.getSource())
+            .destination(request.getDestination())
+            .departureTime(request.getDepartureTime())
+            .availableSeats(request.getAvailableSeats())
+            .sourceLatitude(request.getSourceLatitude())
+            .sourceLongitude(request.getSourceLongitude())
+            .destinationLatitude(request.getDestinationLatitude())
+            .destinationLongitude(request.getDestinationLongitude())
+            .pricePerSeat(request.getPricePerSeat())
+            .status(Ride.RideStatus.SCHEDULED)
+            .build();
 
-    // =========================
-    // GET ALL RIDES
-    // =========================
+    Ride savedRide = rideRepository.save(ride);
 
-    @Transactional(readOnly = true)
-    public List<RideResponse> getAllRides() {
+    return mapToResponse(savedRide);
+  }
 
-        return rideRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+  // =====================================================
+  // GET RIDE BY ID
+  // =====================================================
+
+  @Transactional(readOnly = true)
+  public RideResponse getRideById(Long id) {
+
+    Ride ride =
+        rideRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: " + id));
+
+    return mapToResponse(ride);
+  }
+
+  // =====================================================
+  // GET ALL RIDES
+  // =====================================================
+
+  @Transactional(readOnly = true)
+  public List<RideResponse> getAllRides() {
+
+    return rideRepository.findAll().stream().map(this::mapToResponse).toList();
+  }
+
+  // =====================================================
+  // GET AVAILABLE RIDES - PAGINATED
+  // =====================================================
+
+  @Transactional(readOnly = true)
+  public RidePageResponse getAvailableRides(Pageable pageable) {
+
+    Pageable sortedPageable = buildRidePageable(pageable);
+
+    Page<Ride> ridePage =
+        rideRepository
+            .findByStatusAndDepartureTimeAfterAndAvailableSeatsGreaterThanOrderByDepartureTimeAsc(
+                Ride.RideStatus.SCHEDULED, LocalDateTime.now(), 0, sortedPageable);
+
+    return mapToPageResponse(ridePage);
+  }
+
+  // =====================================================
+  // GET MY RIDES - PAGINATED
+  // =====================================================
+
+  @Transactional(readOnly = true)
+  public RidePageResponse getMyRides(Ride.RideStatus status, Pageable pageable) {
+
+    Long driverId = authenticatedUserService.getCurrentUserId();
+
+    Pageable sortedPageable = buildRidePageable(pageable);
+
+    Page<Ride> ridePage;
+
+    if (status == null) {
+
+      ridePage = rideRepository.findByDriverId(driverId, sortedPageable);
+
+    } else {
+
+      ridePage = rideRepository.findByDriverIdAndStatus(driverId, status, sortedPageable);
     }
 
+    RideCountsResponse counts = buildRideCounts(driverId);
 
-    // =========================
-    // GET MY RIDES
-    // =========================
+    return mapToPageResponse(ridePage, counts);
+  }
 
-    @Transactional(readOnly = true)
-    public List<RideResponse> getMyRides() {
+  // =====================================================
+  // SEARCH AVAILABLE RIDES - PAGINATED
+  // =====================================================
 
-        Long driverId =
-                authenticatedUserService.getCurrentUserId();
+  @Transactional(readOnly = true)
+  public RidePageResponse searchRides(String source, String destination, Pageable pageable) {
 
-        return rideRepository.findByDriverId(driverId)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+    String normalizedSource = source == null ? "" : source.trim();
+
+    String normalizedDestination = destination == null ? "" : destination.trim();
+
+    if (normalizedSource.isBlank() || normalizedDestination.isBlank()) {
+
+      throw new BusinessValidationException("Source and destination are required");
     }
 
+    Pageable sortedPageable = buildRidePageable(pageable);
 
-    // =========================
-    // SEARCH RIDES
-    // =========================
+    Page<Ride> ridePage =
+        rideRepository
+            .findByStatusAndDepartureTimeAfterAndAvailableSeatsGreaterThanAndSourceIgnoreCaseAndDestinationIgnoreCaseOrderByDepartureTimeAsc(
+                Ride.RideStatus.SCHEDULED,
+                LocalDateTime.now(),
+                0,
+                normalizedSource,
+                normalizedDestination,
+                sortedPageable);
 
-    @Transactional(readOnly = true)
-    public List<RideResponse> searchRides(
-            String source,
-            String destination) {
+    return mapToPageResponse(ridePage);
+  }
 
-        return rideRepository
-                .findBySourceIgnoreCaseAndDestinationIgnoreCase(
-                        source,
-                        destination
-                )
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+  // =====================================================
+  // CANCEL RIDE
+  // =====================================================
+
+  public RideResponse cancelRide(Long id) {
+
+    User currentUser = authenticatedUserService.getCurrentUser();
+
+    Ride ride =
+        rideRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: " + id));
+
+    // Ownership check
+
+    if (!ride.getDriver().getId().equals(currentUser.getId())) {
+
+      throw new OperationNotAllowedException("You can only cancel your own rides");
     }
 
+    // Status check
 
-    // =========================
-    // CANCEL RIDE
-    // =========================
+    if (ride.getStatus() != Ride.RideStatus.SCHEDULED) {
 
-    public RideResponse cancelRide(Long id) {
-
-        User currentUser =
-                authenticatedUserService.getCurrentUser();
-
-        Ride ride = rideRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Ride not found with id: " + id
-                        )
-                );
-
-        // Ownership check
-        if (!ride.getDriver().getId()
-                .equals(currentUser.getId())) {
-
-            throw new OperationNotAllowedException(
-                    "You can only cancel your own rides"
-            );
-        }
-
-        // Status check
-        if (ride.getStatus() != Ride.RideStatus.SCHEDULED) {
-
-            throw new ConflictException(
-                    "Only scheduled rides can be cancelled"
-            );
-        }
-
-        ride.setStatus(Ride.RideStatus.CANCELLED);
-
-        return mapToResponse(
-                rideRepository.save(ride)
-        );
+      throw new ConflictException("Only scheduled rides can be cancelled");
     }
 
+    ride.setStatus(Ride.RideStatus.CANCELLED);
 
-    // =========================
-    // ENTITY -> RESPONSE
-    // =========================
+    return mapToResponse(rideRepository.save(ride));
+  }
 
-    private RideResponse mapToResponse(Ride ride) {
+  // =====================================================
+  // BUILD PAGEABLE
+  // =====================================================
 
-        return RideResponse.builder()
-                .id(ride.getId())
+  private Pageable buildRidePageable(Pageable pageable) {
 
-                .driverId(ride.getDriver().getId())
-                .driverName(ride.getDriver().getName())
+    int pageNumber = Math.max(pageable.getPageNumber(), 0);
 
-                .vehicleId(ride.getVehicle().getId())
-                .vehicleNumber(
-                        ride.getVehicle().getVehicleNumber()
-                )
-                .vehicleModel(
-                        ride.getVehicle().getModel()
-                )
+    int pageSize = Math.min(Math.max(pageable.getPageSize(), 1), 50);
 
-                .source(ride.getSource())
-                .sourceLatitude(ride.getSourceLatitude())
-                .sourceLongitude(ride.getSourceLongitude())
+    return PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, "departureTime"));
+  }
 
-                .destination(ride.getDestination())
-                .destinationLatitude(ride.getDestinationLatitude())
-                .destinationLongitude(ride.getDestinationLongitude())
+  // =====================================================
+  // BUILD MY RIDE COUNTS
+  // =====================================================
 
-                .departureTime(ride.getDepartureTime())
+  private RideCountsResponse buildRideCounts(Long driverId) {
 
-                .availableSeats(
-                        ride.getAvailableSeats()
-                )
+    long scheduled = 0;
 
-                .pricePerSeat(
-                        ride.getPricePerSeat()
-                )
+    long started = 0;
 
-                .status(ride.getStatus())
+    long completed = 0;
 
-                .build();
+    long cancelled = 0;
+
+    List<Object[]> results = rideRepository.countByDriverIdGroupedByStatus(driverId);
+
+    for (Object[] result : results) {
+
+      Ride.RideStatus status = (Ride.RideStatus) result[0];
+
+      long count = ((Number) result[1]).longValue();
+
+      switch (status) {
+        case SCHEDULED -> scheduled = count;
+
+        case STARTED -> started = count;
+
+        case COMPLETED -> completed = count;
+
+        case CANCELLED -> cancelled = count;
+      }
     }
+
+    long all = scheduled + started + completed + cancelled;
+
+    return RideCountsResponse.builder()
+        .all(all)
+        .scheduled(scheduled)
+        .started(started)
+        .completed(completed)
+        .cancelled(cancelled)
+        .build();
+  }
+
+  // =====================================================
+  // PAGE -> RESPONSE
+  // =====================================================
+
+  private RidePageResponse mapToPageResponse(Page<Ride> ridePage) {
+
+    return mapToPageResponse(ridePage, null);
+  }
+
+  // =====================================================
+  // PAGE -> RESPONSE WITH COUNTS
+  // =====================================================
+
+  private RidePageResponse mapToPageResponse(Page<Ride> ridePage, RideCountsResponse counts) {
+
+    List<RideResponse> content = ridePage.getContent().stream().map(this::mapToResponse).toList();
+
+    return RidePageResponse.builder()
+        .content(content)
+        .page(ridePage.getNumber())
+        .size(ridePage.getSize())
+        .totalElements(ridePage.getTotalElements())
+        .totalPages(ridePage.getTotalPages())
+        .first(ridePage.isFirst())
+        .last(ridePage.isLast())
+        .counts(counts)
+        .build();
+  }
+
+  // =====================================================
+  // ENTITY -> RESPONSE
+  // =====================================================
+
+  private RideResponse mapToResponse(Ride ride) {
+
+    return RideResponse.builder()
+        .id(ride.getId())
+        .driverId(ride.getDriver().getId())
+        .driverName(ride.getDriver().getName())
+        .vehicleId(ride.getVehicle().getId())
+        .vehicleNumber(ride.getVehicle().getVehicleNumber())
+        .vehicleModel(ride.getVehicle().getModel())
+        .source(ride.getSource())
+        .sourceLatitude(ride.getSourceLatitude())
+        .sourceLongitude(ride.getSourceLongitude())
+        .destination(ride.getDestination())
+        .destinationLatitude(ride.getDestinationLatitude())
+        .destinationLongitude(ride.getDestinationLongitude())
+        .departureTime(ride.getDepartureTime())
+        .availableSeats(ride.getAvailableSeats())
+        .pricePerSeat(ride.getPricePerSeat())
+        .status(ride.getStatus())
+        .cancelledBy(ride.getCancelledBy())
+        .cancelledAt(ride.getCancelledAt())
+        .build();
+  }
 }

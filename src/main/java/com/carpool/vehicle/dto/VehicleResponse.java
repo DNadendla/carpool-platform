@@ -10,17 +10,17 @@ import lombok.*;
 @Builder
 public class VehicleResponse {
 
-    private Long id;
+  private Long id;
 
-    private String vehicleNumber;
+  private String vehicleNumber;
 
-    private String model;
+  private String model;
 
-    private VehicleType type;
+  private VehicleType type;
 
-    private Integer totalSeats;
+  private Integer totalSeats;
 
-    private Long ownerId;
+  private Long ownerId;
 
-    private String ownerName;
+  private String ownerName;
 }

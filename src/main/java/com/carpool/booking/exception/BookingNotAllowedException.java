@@ -2,7 +2,7 @@ package com.carpool.booking.exception;
 
 public class BookingNotAllowedException extends RuntimeException {
 
-    public BookingNotAllowedException(String message) {
-        super(message);
-    }
+  public BookingNotAllowedException(String message) {
+    super(message);
+  }
 }

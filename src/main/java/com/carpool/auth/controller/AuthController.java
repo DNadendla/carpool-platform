@@ -16,36 +16,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthService authService;
-    private final UserService userService;
+  private final AuthService authService;
+  private final UserService userService;
 
+  public AuthController(AuthService authService, UserService userService) {
+    this.authService = authService;
+    this.userService = userService;
+  }
 
-    public AuthController(AuthService authService, UserService userService) {
-        this.authService = authService;
-        this.userService = userService;
+  @PostMapping("/login")
+  public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+
+    return ResponseEntity.ok(authService.login(request));
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<?> refresh(@RequestBody RefreshRequest request) {
+    try {
+      return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
+    } catch (IllegalArgumentException ex) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(java.util.Map.of("message", ex.getMessage()));
     }
+  }
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody LoginRequest request) {
-
-        return ResponseEntity.ok(
-                authService.login(request)
-        );
-    }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody RefreshRequest request) {
-        try {
-            return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(java.util.Map.of("message", ex.getMessage()));
-        }
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {
-        UserResponse response = userService.createUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+  @PostMapping("/register")
+  public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {
+    UserResponse response = userService.createUser(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
 }

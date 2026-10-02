@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 public class DriverSummaryResponse {
 
-    private Long id;
+  private Long id;
 
-    private String name;
+  private String name;
 }

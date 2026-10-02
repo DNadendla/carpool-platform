@@ -13,31 +13,31 @@ import lombok.*;
 @Builder
 public class Vehicle {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String vehicleNumber;
+  @Column(nullable = false, unique = true)
+  private String vehicleNumber;
 
-    @Column(nullable = false)
-    private String model;
+  @Column(nullable = false)
+  private String model;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VehicleType type;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private VehicleType type;
 
-    @Column(nullable = false)
-    private Integer totalSeats;
+  @Column(nullable = false)
+  private Integer totalSeats;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User owner;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User owner;
 
-    public enum VehicleType {
-        SEDAN,
-        SUV,
-        HATCHBACK,
-        MPV
-    }
+  public enum VehicleType {
+    SEDAN,
+    SUV,
+    HATCHBACK,
+    MPV
+  }
 }

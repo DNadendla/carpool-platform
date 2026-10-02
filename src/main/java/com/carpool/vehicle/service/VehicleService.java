@@ -9,167 +9,131 @@ import com.carpool.vehicle.dto.VehicleRequest;
 import com.carpool.vehicle.dto.VehicleResponse;
 import com.carpool.vehicle.entity.Vehicle;
 import com.carpool.vehicle.repository.VehicleRepository;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
 public class VehicleService {
 
-    private final VehicleRepository vehicleRepository;
-    private final UserRepository userRepository;
+  private final VehicleRepository vehicleRepository;
+  private final UserRepository userRepository;
 
-    private final AuthenticatedUserService authenticatedUserService;
+  private final AuthenticatedUserService authenticatedUserService;
 
-    public VehicleService(
-            VehicleRepository vehicleRepository,
-            UserRepository userRepository,
-            AuthenticatedUserService authenticatedUserService) {
+  public VehicleService(
+      VehicleRepository vehicleRepository,
+      UserRepository userRepository,
+      AuthenticatedUserService authenticatedUserService) {
 
-        this.vehicleRepository = vehicleRepository;
-        this.userRepository = userRepository;
-        this.authenticatedUserService = authenticatedUserService;
+    this.vehicleRepository = vehicleRepository;
+    this.userRepository = userRepository;
+    this.authenticatedUserService = authenticatedUserService;
+  }
+
+  @Transactional(readOnly = true)
+  public List<VehicleResponse> getMyVehicles() {
+
+    Long ownerId = authenticatedUserService.getCurrentUserId();
+
+    return vehicleRepository.findByOwnerId(ownerId).stream().map(this::mapToResponse).toList();
+  }
+
+  public VehicleResponse createVehicle(VehicleRequest request) {
+
+    if (vehicleRepository.existsByVehicleNumber(request.getVehicleNumber())) {
+
+      throw new DuplicateResourceException("Vehicle already exists: " + request.getVehicleNumber());
     }
 
-    @Transactional(readOnly = true)
-    public List<VehicleResponse> getMyVehicles() {
+    User owner = authenticatedUserService.getCurrentUser();
 
-        Long ownerId =
-                authenticatedUserService.getCurrentUserId();
+    Vehicle vehicle =
+        Vehicle.builder()
+            .vehicleNumber(request.getVehicleNumber())
+            .model(request.getModel())
+            .type(request.getType())
+            .totalSeats(request.getTotalSeats())
+            .owner(owner)
+            .build();
 
-        return vehicleRepository.findByOwnerId(ownerId)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+    Vehicle savedVehicle = vehicleRepository.save(vehicle);
+
+    return mapToResponse(savedVehicle);
+  }
+
+  @Transactional(readOnly = true)
+  public List<VehicleResponse> getAllVehicles() {
+
+    return vehicleRepository.findAll().stream().map(this::mapToResponse).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public VehicleResponse getVehicleById(Long id) {
+
+    Vehicle vehicle =
+        vehicleRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
+
+    return mapToResponse(vehicle);
+  }
+
+  @Transactional(readOnly = true)
+  public List<VehicleResponse> getVehiclesByOwner(Long ownerId) {
+
+    if (!userRepository.existsById(ownerId)) {
+      throw new ResourceNotFoundException("User not found with id: " + ownerId);
     }
 
-    public VehicleResponse createVehicle(VehicleRequest request) {
+    return vehicleRepository.findByOwnerId(ownerId).stream().map(this::mapToResponse).toList();
+  }
 
-        if (vehicleRepository
-                .existsByVehicleNumber(request.getVehicleNumber())) {
+  public VehicleResponse updateVehicle(Long id, VehicleRequest request) {
 
-            throw new DuplicateResourceException(
-                    "Vehicle already exists: "
-                            + request.getVehicleNumber()
-            );
-        }
+    Vehicle existingVehicle =
+        vehicleRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
 
-        User owner = authenticatedUserService.getCurrentUser();
+    User owner = authenticatedUserService.getCurrentUser();
 
-        Vehicle vehicle = Vehicle.builder()
-                .vehicleNumber(request.getVehicleNumber())
-                .model(request.getModel())
-                .type(request.getType())
-                .totalSeats(request.getTotalSeats())
-                .owner(owner)
-                .build();
+    existingVehicle.setVehicleNumber(request.getVehicleNumber());
 
-        Vehicle savedVehicle =
-                vehicleRepository.save(vehicle);
+    existingVehicle.setModel(request.getModel());
 
-        return mapToResponse(savedVehicle);
+    existingVehicle.setType(request.getType());
+
+    existingVehicle.setTotalSeats(request.getTotalSeats());
+
+    existingVehicle.setOwner(owner);
+
+    Vehicle updatedVehicle = vehicleRepository.save(existingVehicle);
+
+    return mapToResponse(updatedVehicle);
+  }
+
+  public void deleteVehicle(Long id) {
+
+    if (!vehicleRepository.existsById(id)) {
+
+      throw new ResourceNotFoundException("Vehicle not found with id: " + id);
     }
 
-    @Transactional(readOnly = true)
-    public List<VehicleResponse> getAllVehicles() {
+    vehicleRepository.deleteById(id);
+  }
 
-        return vehicleRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
+  private VehicleResponse mapToResponse(Vehicle vehicle) {
 
-    @Transactional(readOnly = true)
-    public VehicleResponse getVehicleById(Long id) {
-
-        Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Vehicle not found with id: " + id
-                        )
-                );
-
-        return mapToResponse(vehicle);
-    }
-
-    @Transactional(readOnly = true)
-    public List<VehicleResponse> getVehiclesByOwner(Long ownerId) {
-
-        if (!userRepository.existsById(ownerId)) {
-            throw new ResourceNotFoundException(
-                    "User not found with id: " + ownerId
-            );
-        }
-
-        return vehicleRepository.findByOwnerId(ownerId)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
-
-    public VehicleResponse updateVehicle(
-            Long id,
-            VehicleRequest request) {
-
-        Vehicle existingVehicle =
-                vehicleRepository.findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Vehicle not found with id: " + id
-                                )
-                        );
-
-        User owner = authenticatedUserService.getCurrentUser();
-
-        existingVehicle.setVehicleNumber(
-                request.getVehicleNumber()
-        );
-
-        existingVehicle.setModel(
-                request.getModel()
-        );
-
-        existingVehicle.setType(
-                request.getType()
-        );
-
-        existingVehicle.setTotalSeats(
-                request.getTotalSeats()
-        );
-
-        existingVehicle.setOwner(owner);
-
-        Vehicle updatedVehicle =
-                vehicleRepository.save(existingVehicle);
-
-        return mapToResponse(updatedVehicle);
-    }
-
-    public void deleteVehicle(Long id) {
-
-        if (!vehicleRepository.existsById(id)) {
-
-            throw new ResourceNotFoundException(
-                    "Vehicle not found with id: " + id
-            );
-        }
-
-        vehicleRepository.deleteById(id);
-    }
-
-    private VehicleResponse mapToResponse(
-            Vehicle vehicle) {
-
-        return VehicleResponse.builder()
-                .id(vehicle.getId())
-                .vehicleNumber(vehicle.getVehicleNumber())
-                .model(vehicle.getModel())
-                .type(vehicle.getType())
-                .totalSeats(vehicle.getTotalSeats())
-                .ownerId(vehicle.getOwner().getId())
-                .ownerName(vehicle.getOwner().getName())
-                .build();
-    }
+    return VehicleResponse.builder()
+        .id(vehicle.getId())
+        .vehicleNumber(vehicle.getVehicleNumber())
+        .model(vehicle.getModel())
+        .type(vehicle.getType())
+        .totalSeats(vehicle.getTotalSeats())
+        .ownerId(vehicle.getOwner().getId())
+        .ownerName(vehicle.getOwner().getName())
+        .build();
+  }
 }

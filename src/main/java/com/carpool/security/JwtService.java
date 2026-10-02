@@ -3,165 +3,124 @@ package com.carpool.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.function.Function;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.function.Function;
-
 @Service
 public class JwtService {
 
-    private final SecretKey secretKey;
-    private final long jwtExpiration;
-    private final long refreshExpiration;
+  private final SecretKey secretKey;
+  private final long jwtExpiration;
+  private final long refreshExpiration;
 
-    public JwtService(
-            @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration}") long jwtExpiration,
-            @Value("${jwt.refresh-expiration}") long refreshExpiration) {
+  public JwtService(
+      @Value("${jwt.secret}") String secret,
+      @Value("${jwt.expiration}") long jwtExpiration,
+      @Value("${jwt.refresh-expiration}") long refreshExpiration) {
 
-        this.secretKey = Keys.hmacShaKeyFor(
-                secret.getBytes(StandardCharsets.UTF_8)
-        );
+    this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
-        this.jwtExpiration = jwtExpiration;
-        this.refreshExpiration = refreshExpiration;
-    }
+    this.jwtExpiration = jwtExpiration;
+    this.refreshExpiration = refreshExpiration;
+  }
 
+  // =========================================================
+  // ACCESS TOKEN
+  // =========================================================
 
-    // =========================================================
-    // ACCESS TOKEN
-    // =========================================================
+  public String generateToken(UserDetails userDetails) {
 
-    public String generateToken(UserDetails userDetails) {
+    return Jwts.builder()
+        .subject(userDetails.getUsername())
+        .claim("type", "access")
+        .issuedAt(new Date())
+        .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+        .signWith(secretKey)
+        .compact();
+  }
 
-        return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .claim("type", "access")
-                .issuedAt(new Date())
-                .expiration(
-                        new Date(
-                                System.currentTimeMillis()
-                                        + jwtExpiration
-                        )
-                )
-                .signWith(secretKey)
-                .compact();
-    }
+  // =========================================================
+  // REFRESH TOKEN
+  // =========================================================
 
+  public String generateRefreshToken(UserDetails userDetails) {
 
-    // =========================================================
-    // REFRESH TOKEN
-    // =========================================================
+    return Jwts.builder()
+        .subject(userDetails.getUsername())
+        .claim("type", "refresh")
+        .issuedAt(new Date())
+        .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
+        .signWith(secretKey)
+        .compact();
+  }
 
-    public String generateRefreshToken(UserDetails userDetails) {
+  // =========================================================
+  // CLAIMS
+  // =========================================================
 
-        return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .claim("type", "refresh")
-                .issuedAt(new Date())
-                .expiration(
-                        new Date(
-                                System.currentTimeMillis()
-                                        + refreshExpiration
-                        )
-                )
-                .signWith(secretKey)
-                .compact();
-    }
+  public String extractUsername(String token) {
 
+    return extractClaim(token, Claims::getSubject);
+  }
 
-    // =========================================================
-    // CLAIMS
-    // =========================================================
+  public Date extractExpiration(String token) {
 
-    public String extractUsername(String token) {
+    return extractClaim(token, Claims::getExpiration);
+  }
 
-        return extractClaim(
-                token,
-                Claims::getSubject
-        );
-    }
+  public String extractTokenType(String token) {
 
+    return extractClaim(token, claims -> claims.get("type", String.class));
+  }
 
-    public Date extractExpiration(String token) {
+  // =========================================================
+  // VALIDATION
+  // =========================================================
 
-        return extractClaim(
-                token,
-                Claims::getExpiration
-        );
-    }
+  public boolean isTokenExpired(String token) {
 
+    return extractExpiration(token).before(new Date());
+  }
 
-    public String extractTokenType(String token) {
+  public boolean isTokenValid(String token, UserDetails userDetails) {
 
-        return extractClaim(
-                token,
-                claims -> claims.get("type", String.class)
-        );
-    }
+    String username = extractUsername(token);
 
+    return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+  }
 
-    // =========================================================
-    // VALIDATION
-    // =========================================================
+  public boolean isRefreshToken(String token) {
+    String tokenType = extractTokenType(token);
+    return "refresh".equals(tokenType);
+  }
 
-    public boolean isTokenExpired(String token) {
+  // =========================================================
+  // TOKEN EXPIRATION VALUES
+  // =========================================================
 
-        return extractExpiration(token)
-                .before(new Date());
-    }
+  public long getJwtExpiration() {
+    return jwtExpiration;
+  }
 
+  public long getRefreshExpiration() {
+    return refreshExpiration;
+  }
 
-    public boolean isTokenValid(
-            String token,
-            UserDetails userDetails) {
+  // =========================================================
+  // INTERNAL CLAIM EXTRACTION
+  // =========================================================
 
-        String username = extractUsername(token);
+  private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    Claims claims = extractAllClaims(token);
+    return claimsResolver.apply(claims);
+  }
 
-        return username.equals(userDetails.getUsername())
-                && !isTokenExpired(token);
-    }
-
-
-    public boolean isRefreshToken(String token) {
-        String tokenType = extractTokenType(token);
-        return "refresh".equals(tokenType);
-    }
-
-
-    // =========================================================
-    // TOKEN EXPIRATION VALUES
-    // =========================================================
-
-    public long getJwtExpiration() {
-        return jwtExpiration;
-    }
-
-    public long getRefreshExpiration() {
-        return refreshExpiration;
-    }
-
-
-    // =========================================================
-    // INTERNAL CLAIM EXTRACTION
-    // =========================================================
-
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-
-    private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-    }
+  private Claims extractAllClaims(String token) {
+    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+  }
 }

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <th:block th:replace="~{fragments/head :: common-head}"></th:block>
+
+    <title>My Rides | Carpool</title>
+
+    <!-- Cache-busted page CSS -->
+    <link rel="stylesheet"
+          th:href="@{/css/ride/my-rides.css(v=20261002)}">
+
+    <th:block th:replace="~{fragments/head :: theme-resources}"></th:block>
+
+</head>
+
+<body>
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+
+<!-- =========================================================
+     MAIN PAGE
+========================================================= -->
+
+<main class="my-rides-page">
+
+    <div class="my-rides-container">
+
+
+        <!-- =====================================================
+             PAGE HEADER
+        ====================================================== -->
+
+        <section class="my-rides-header">
+
+            <div class="my-rides-header-copy">
+
+                <span class="page-eyebrow">
+                    YOUR RIDES
+                </span>
+
+                <h1>
+                    My Rides
+                </h1>
+
+                <p>
+                    View and manage the rides you have offered.
+                </p>
+
+            </div>
+
+
+            <!-- IMPORTANT:
+                 Backend page is /rides/create
+            -->
+
+            <a href="/rides/create"
+               class="create-ride-button">
+
+                <span class="create-ride-icon">
+                    <i class="fa-solid fa-plus"></i>
+                </span>
+
+                <span>
+                    Create Ride
+                </span>
+
+            </a>
+
+        </section>
+
+
+        <!-- =====================================================
+             LOADING
+        ====================================================== -->
+
+        <section id="loading"
+                 class="state-card loading-card">
+
+            <div class="loading-spinner"></div>
+
+            <div>
+
+                <strong>
+                    Loading your rides
+                </strong>
+
+                <p id="loadingText">
+                    Please wait while we fetch your rides.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             ERROR
+        ====================================================== -->
+
+        <section id="errorMessage"
+                 class="state-card error-card hidden"
+                 role="alert">
+
+            <div class="state-icon error-state-icon">
+
+                <i class="fa-solid fa-circle-exclamation"></i>
+
+            </div>
+
+            <div class="state-content">
+
+                <strong>
+                    Unable to load your rides
+                </strong>
+
+                <p id="errorText">
+                    Something went wrong. Please try again.
+                </p>
+
+            </div>
+
+            <button type="button"
+                    id="retryButton"
+                    class="state-action-button">
+
+                Retry
+
+            </button>
+
+        </section>
+
+
+        <!-- =====================================================
+             SUCCESS MESSAGE
+        ====================================================== -->
+
+        <div id="successMessage"
+             class="inline-message success-message hidden"
+             role="status">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                Ride cancelled successfully.
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             FILTERS
+        ====================================================== -->
+
+        <section class="ride-filters-card">
+
+            <div class="filters-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        RIDE STATUS
+                    </span>
+
+                    <h2>
+                        Your rides
+                    </h2>
+
+                </div>
+
+                <span class="filters-heading-note">
+                    Filter by current status
+                </span>
+
+            </div>
+
+
+            <div id="rideFilters"
+                 class="ride-filters"
+                 role="tablist"
+                 aria-label="Ride status filters">
+
+
+                <!-- ALL -->
+
+                <button type="button"
+                        class="ride-filter-button active"
+                        data-status="ALL"
+                        role="tab"
+                        aria-selected="true">
+
+                    <span class="filter-button-label">
+                        All
+                    </span>
+
+                    <span id="countAll"
+                          class="filter-count">
+                        0
+                    </span>
+
+                </button>
+
+
+                <!-- SCHEDULED -->
+
+                <button type="button"
+                        class="ride-filter-button"
+                        data-status="SCHEDULED"
+                        role="tab"
+                        aria-selected="false">
+
+                    <span class="filter-button-label">
+                        Scheduled
+                    </span>
+
+                    <span id="countScheduled"
+                          class="filter-count">
+                        0
+                    </span>
+
+                </button>
+
+
+                <!-- STARTED -->
+
+                <button type="button"
+                        class="ride-filter-button"
+                        data-status="STARTED"
+                        role="tab"
+                        aria-selected="false">
+
+                    <span class="filter-button-label">
+                        Started
+                    </span>
+
+                    <span id="countStarted"
+                          class="filter-count">
+                        0
+                    </span>
+
+                </button>
+
+
+                <!-- COMPLETED -->
+
+                <button type="button"
+                        class="ride-filter-button"
+                        data-status="COMPLETED"
+                        role="tab"
+                        aria-selected="false">
+
+                    <span class="filter-button-label">
+                        Completed
+                    </span>
+
+                    <span id="countCompleted"
+                          class="filter-count">
+                        0
+                    </span>
+
+                </button>
+
+
+                <!-- CANCELLED -->
+
+                <button type="button"
+                        class="ride-filter-button"
+                        data-status="CANCELLED"
+                        role="tab"
+                        aria-selected="false">
+
+                    <span class="filter-button-label">
+                        Cancelled
+                    </span>
+
+                    <span id="countCancelled"
+                          class="filter-count">
+                        0
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             EMPTY STATE
+        ====================================================== -->
+
+        <section id="emptyState"
+                 class="empty-state-card hidden">
+
+            <div class="empty-state-icon">
+
+                <i class="fa-solid fa-route"></i>
+
+            </div>
+
+            <span class="empty-state-eyebrow">
+                NO RIDES
+            </span>
+
+            <h2 id="emptyStateTitle">
+                No rides yet
+            </h2>
+
+            <p id="emptyStateDescription">
+                You haven't offered any rides yet.
+                Create a ride and start sharing your journey.
+            </p>
+
+            <a href="/rides/create"
+               id="emptyStateAction"
+               class="empty-state-button">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Create Your First Ride
+
+            </a>
+
+        </section>
+
+
+        <!-- =====================================================
+             RIDES LIST
+        ====================================================== -->
+
+        <section id="myRidesContainer"
+                 class="my-rides-list hidden"
+                 aria-live="polite">
+
+        </section>
+
+
+        <!-- =====================================================
+             PAGINATION
+             SAME PATTERN AS BOOKINGS PAGE
+        ====================================================== -->
+
+        <div id="myRidesPagination"
+             class="pagination-container hidden">
+
+            <span id="myRidesPaginationInfo"
+                  class="pagination-info">
+
+                Showing 0–0 of 0
+
+            </span>
+
+
+            <div class="pagination-controls">
+
+                <!-- PREVIOUS -->
+
+                <button type="button"
+                        id="myRidesPreviousPageButton"
+                        class="pagination-button pagination-nav-button"
+                        aria-label="Previous page">
+
+                    <i class="fa-solid fa-chevron-left"></i>
+
+                    <span>
+                        Previous
+                    </span>
+
+                </button>
+
+
+                <!-- PAGE NUMBERS -->
+
+                <div id="myRidesPageNumbers"
+                     class="page-numbers"
+                     aria-label="Page numbers">
+
+                </div>
+
+
+                <!-- NEXT -->
+
+                <button type="button"
+                        id="myRidesNextPageButton"
+                        class="pagination-button pagination-nav-button"
+                        aria-label="Next page">
+
+                    <span>
+                        Next
+                    </span>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     CANCEL RIDE MODAL
+========================================================= -->
+
+<div id="cancelRideModal"
+     class="modal-backdrop hidden"
+     data-modal-close="true">
+
+    <div class="modal-card"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="cancelRideModalTitle">
+
+
+        <div class="modal-icon">
+
+            <i class="fa-solid fa-ban"></i>
+
+        </div>
+
+
+        <div class="modal-content">
+
+            <span class="modal-eyebrow">
+                CONFIRM ACTION
+            </span>
+
+            <h2 id="cancelRideModalTitle">
+                Cancel this ride?
+            </h2>
+
+            <p>
+                Cancelling the ride will make it unavailable
+                for booking. Confirm only if you want to
+                cancel this trip.
+            </p>
+
+
+            <div id="cancelRideSummary"
+                 class="cancel-ride-summary">
+
+                <div class="cancel-summary-route">
+
+                    <strong id="cancelRideSource">
+                        -
+                    </strong>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                    <strong id="cancelRideDestination">
+                        -
+                    </strong>
+
+                </div>
+
+                <span id="cancelRideDeparture">
+                    -
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button type="button"
+                    id="closeCancelRideModalButton"
+                    class="modal-button secondary">
+
+                Keep Ride
+
+            </button>
+
+
+            <button type="button"
+                    id="confirmCancelRideButton"
+                    class="modal-button danger">
+
+                <i class="fa-solid fa-ban"></i>
+
+                Cancel Ride
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="my-rides-footer">
+
+    <div>
+
+        <strong>
+            <i class="fa-solid fa-car-side"></i>
+            Carpool
+        </strong>
+
+        <span>
+            Share the ride. Share the journey.
+        </span>
+
+    </div>
+
+</footer>
+
+
+<!-- =========================================================
+     COMMON SCRIPTS
+========================================================= -->
+
+<th:block th:replace="~{fragments/scripts :: common-scripts}"></th:block>
+
+
+<!-- =========================================================
+     MY RIDES JS
+     Cache-busted intentionally so browser does not keep the
+     previous my-rides.js version.
+========================================================= -->
+
+<script th:src="@{/js/ride/my-rides.js(v=20261002)}"></script>
+
+</body>
+
+</html>

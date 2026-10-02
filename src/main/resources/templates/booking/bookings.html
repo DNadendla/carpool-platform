@@ -3,6 +3,7 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
   <th:block th:replace="~{fragments/head :: common-head}">
   </th:block>
 
@@ -10,11 +11,12 @@
     My Bookings | Carpool
   </title>
 
-  <!-- BOOKINGS -->
-  <link rel="stylesheet" th:href="@{/css/booking/bookings.css}">
+  <link rel="stylesheet"
+        th:href="@{/css/booking/bookings.css}">
 
   <th:block th:replace="~{fragments/head :: theme-resources}">
   </th:block>
+
 </head>
 
 <body>
@@ -62,7 +64,7 @@
          class="find-rides-button">
 
                 <span class="find-rides-icon">
-                    +
+                    <i class="fa-solid fa-plus"></i>
                 </span>
 
         Find a Ride
@@ -82,18 +84,105 @@
 
 
     <!-- =============================================
-         LOADING
+         FILTERS
          ============================================= -->
 
-    <div id="loading"
-         class="loading-state">
+    <div class="booking-filters"
+         id="bookingFilters">
 
-      <div class="spinner"></div>
+      <button type="button"
+              class="booking-filter-button active"
+              data-status="ALL"
+              aria-selected="true">
 
-      <p>
-        Loading your bookings...
-      </p>
+                <span class="filter-label">
+                    All
+                </span>
 
+        <span class="filter-count"
+              id="countAll">
+                    0
+                </span>
+
+      </button>
+
+
+      <button type="button"
+              class="booking-filter-button"
+              data-status="CONFIRMED"
+              aria-selected="false">
+
+                <span class="filter-label">
+                    Confirmed
+                </span>
+
+        <span class="filter-count"
+              id="countConfirmed">
+                    0
+                </span>
+
+      </button>
+
+
+      <button type="button"
+              class="booking-filter-button"
+              data-status="PENDING"
+              aria-selected="false">
+
+                <span class="filter-label">
+                    Pending
+                </span>
+
+        <span class="filter-count"
+              id="countPending">
+                    0
+                </span>
+
+      </button>
+
+
+      <button type="button"
+              class="booking-filter-button"
+              data-status="CANCELLED"
+              aria-selected="false">
+
+                <span class="filter-label">
+                    Cancelled
+                </span>
+
+        <span class="filter-count"
+              id="countCancelled">
+                    0
+                </span>
+
+      </button>
+
+
+      <button type="button"
+              class="booking-filter-button"
+              data-status="REJECTED"
+              aria-selected="false">
+
+                <span class="filter-label">
+                    Rejected
+                </span>
+
+        <span class="filter-count"
+              id="countRejected">
+                    0
+                </span>
+
+      </button>
+
+    </div>
+
+
+    <!-- =============================================
+         SUCCESS MESSAGE
+         ============================================= -->
+
+    <div id="successMessage"
+         class="message success-message hidden">
     </div>
 
 
@@ -107,6 +196,22 @@
 
 
     <!-- =============================================
+         LOADING
+         ============================================= -->
+
+    <div id="loading"
+         class="loading-state">
+
+      <div class="spinner"></div>
+
+      <p id="loadingText">
+        Loading your bookings...
+      </p>
+
+    </div>
+
+
+    <!-- =============================================
          EMPTY STATE
          ============================================= -->
 
@@ -114,24 +219,17 @@
          class="empty-state hidden">
 
       <div class="empty-icon">
-        🎫
+        <i class="fa-regular fa-calendar-xmark"></i>
       </div>
 
-      <h2>
+      <h2 id="emptyStateTitle">
         No bookings yet
       </h2>
 
-      <p>
+      <p id="emptyStateDescription">
         You haven't booked any rides yet.
         Find a ride and start your journey.
       </p>
-
-      <a href="/rides"
-         class="empty-button">
-
-        Find a Ride
-
-      </a>
 
     </div>
 
@@ -143,14 +241,132 @@
     <div id="bookingsContainer"
          class="bookings-container hidden">
 
-      <!-- Booking cards are created by bookings.js -->
+      <!-- Booking cards are rendered by bookings.js -->
 
     </div>
 
 
+    <!-- =============================================
+         PAGINATION
+         ============================================= -->
+
+    <div id="pagination"
+         class="pagination-container hidden">
+
+      <div class="pagination-info"
+           id="paginationInfo">
+        Showing 0–0 of 0
+      </div>
+
+
+      <div class="pagination-controls">
+
+        <button type="button"
+                id="previousPageButton"
+                class="pagination-button pagination-nav-button">
+
+          <i class="fa-solid fa-chevron-left"></i>
+
+          <span>
+                        Previous
+                    </span>
+
+        </button>
+
+
+        <div id="pageNumbers"
+             class="page-numbers">
+        </div>
+
+
+        <button type="button"
+                id="nextPageButton"
+                class="pagination-button pagination-nav-button">
+
+                    <span>
+                        Next
+                    </span>
+
+          <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+      </div>
+
+    </div>
+
   </section>
 
 </main>
+
+
+<!-- =====================================================
+     CANCELLATION CONFIRMATION MODAL
+     ===================================================== -->
+
+<div id="cancelBookingModal"
+     class="booking-modal hidden"
+     aria-hidden="true">
+
+  <div class="booking-modal-backdrop"
+       data-modal-close="true">
+  </div>
+
+
+  <div class="booking-modal-card"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="cancelBookingTitle">
+
+    <div class="booking-modal-icon">
+
+      <i class="fa-solid fa-ticket"></i>
+
+    </div>
+
+
+    <div class="booking-modal-content">
+
+      <h2 id="cancelBookingTitle">
+        Cancel this booking?
+      </h2>
+
+      <p>
+        Your reservation will be cancelled and
+        the seat will become available again.
+      </p>
+
+    </div>
+
+
+    <div class="booking-modal-actions">
+
+      <button
+              type="button"
+              id="closeCancelModalButton"
+              class="modal-secondary-button">
+
+        Keep Booking
+
+      </button>
+
+
+      <button
+              type="button"
+              id="confirmCancelBookingButton"
+              class="modal-danger-button">
+
+        <i class="fa-solid fa-ban"></i>
+
+        Cancel Booking
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
 
 <!-- =====================================================
@@ -167,6 +383,7 @@
 <!-- =====================================================
      JAVASCRIPT
      ===================================================== -->
+
 <th:block th:replace="~{fragments/scripts :: common-scripts}">
 </th:block>
 

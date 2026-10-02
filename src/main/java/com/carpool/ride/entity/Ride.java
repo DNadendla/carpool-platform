@@ -3,10 +3,9 @@ package com.carpool.ride.entity;
 import com.carpool.user.entity.User;
 import com.carpool.vehicle.entity.Vehicle;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @Table(name = "rides")
@@ -17,54 +16,71 @@ import java.time.LocalDateTime;
 @Builder
 public class Ride {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "driver_id", nullable = false)
-    private User driver;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "driver_id", nullable = false)
+  private User driver;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle_id", nullable = false)
-    private Vehicle vehicle;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "vehicle_id", nullable = false)
+  private Vehicle vehicle;
 
-    @Column(nullable = false)
-    private LocalDateTime departureTime;
+  @Column(nullable = false)
+  private LocalDateTime departureTime;
 
-    @Column(nullable = false)
-    private Integer availableSeats;
+  @Column(nullable = false)
+  private Integer availableSeats;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal pricePerSeat;
+  @Column(nullable = false, precision = 10, scale = 2)
+  private BigDecimal pricePerSeat;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Builder.Default
-    private RideStatus status = RideStatus.SCHEDULED;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  @Builder.Default
+  private RideStatus status = RideStatus.SCHEDULED;
 
-    @Column(nullable = false)
-    private String source;
+  // =========================
+  // CANCELLATION AUDIT
+  // =========================
 
-    @Column(nullable = false)
-    private Double sourceLatitude;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "cancelled_by")
+  private CancellationActor cancelledBy;
 
-    @Column(nullable = false)
-    private Double sourceLongitude;
+  @Column(name = "cancelled_at")
+  private LocalDateTime cancelledAt;
 
-    @Column(nullable = false)
-    private String destination;
+  @Column(nullable = false)
+  private String source;
 
-    @Column(nullable = false)
-    private Double destinationLatitude;
+  @Column(nullable = false)
+  private Double sourceLatitude;
 
-    @Column(nullable = false)
-    private Double destinationLongitude;
+  @Column(nullable = false)
+  private Double sourceLongitude;
 
-    public enum RideStatus {
-        SCHEDULED,
-        STARTED,
-        COMPLETED,
-        CANCELLED
-    }
+  @Column(nullable = false)
+  private String destination;
+
+  @Column(nullable = false)
+  private Double destinationLatitude;
+
+  @Column(nullable = false)
+  private Double destinationLongitude;
+
+  public enum RideStatus {
+    SCHEDULED,
+    STARTED,
+    COMPLETED,
+    CANCELLED
+  }
+
+  public enum CancellationActor {
+    DRIVER,
+    ADMIN,
+    SYSTEM
+  }
 }

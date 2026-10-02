@@ -6,157 +6,143 @@ import com.carpool.user.entity.Role;
 import com.carpool.user.entity.User;
 import com.carpool.user.repository.RoleRepository;
 import com.carpool.user.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+  private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
 
-    private final PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 
-    /*public static void main(String[] args) {
-        String encode = new BCryptPasswordEncoder().encode("dspnadendla@gmail.com");
-        System.out.println(encode);
-    }*/
+  /*public static void main(String[] args) {
+      String encode = new BCryptPasswordEncoder().encode("dspnadendla@gmail.com");
+      System.out.println(encode);
+  }*/
 
-    public UserService(
-            UserRepository userRepository,
-            RoleRepository roleRepository,
-            PasswordEncoder passwordEncoder) {
+  public UserService(
+      UserRepository userRepository,
+      RoleRepository roleRepository,
+      PasswordEncoder passwordEncoder) {
 
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
+    this.userRepository = userRepository;
+    this.roleRepository = roleRepository;
+    this.passwordEncoder = passwordEncoder;
+  }
+
+  public UserResponse createUser(UserRequest request) {
+
+    // 1. Check duplicate email
+    if (userRepository.existsByEmail(request.getEmail())) {
+      throw new RuntimeException("Email already registered");
     }
 
-    public UserResponse createUser(UserRequest request) {
+    // 2. Convert request → entity
+    User user =
+        User.builder()
+            .name(request.getName())
+            .email(request.getEmail())
+            .password(passwordEncoder.encode(request.getPassword()))
+            .phone(request.getPhone())
+            .build();
 
-        // 1. Check duplicate email
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
-        }
+    // 3. Resolve roles
+    Set<Role> roles = resolveRoles(request.getRoles());
 
-        // 2. Convert request → entity
-        User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .phone(request.getPhone())
-                .build();
+    user.setRoles(roles);
 
-        // 3. Resolve roles
-        Set<Role> roles = resolveRoles(request.getRoles());
+    // 4. Save user
+    User savedUser = userRepository.save(user);
 
-        user.setRoles(roles);
+    // 5. Convert entity → response DTO
+    return mapToResponse(savedUser);
+  }
 
-        // 4. Save user
-        User savedUser = userRepository.save(user);
+  @Transactional(readOnly = true)
+  public List<UserResponse> getAllUsers() {
 
-        // 5. Convert entity → response DTO
-        return mapToResponse(savedUser);
+    return userRepository.findAll().stream().map(this::mapToResponse).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public UserResponse getUserById(Long id) {
+
+    User user =
+        userRepository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+    return mapToResponse(user);
+  }
+
+  public UserResponse updateUser(Long id, UserRequest request) {
+
+    User existingUser =
+        userRepository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+    existingUser.setName(request.getName());
+    existingUser.setPhone(request.getPhone());
+
+    if (request.getRoles() != null) {
+      existingUser.setRoles(resolveRoles(request.getRoles()));
     }
 
-    @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
+    User updatedUser = userRepository.save(existingUser);
 
-        return userRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+    return mapToResponse(updatedUser);
+  }
+
+  public void deleteUser(Long id) {
+
+    if (!userRepository.existsById(id)) {
+      throw new RuntimeException("User not found with id: " + id);
     }
 
-    @Transactional(readOnly = true)
-    public UserResponse getUserById(Long id) {
+    userRepository.deleteById(id);
+  }
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found with id: " + id)
-                );
+  private Set<Role> resolveRoles(Set<String> roleNames) {
 
-        return mapToResponse(user);
+    Set<Role> roles = new HashSet<>();
+
+    if (roleNames == null || roleNames.isEmpty()) {
+      roles.add(roleRepository.findByName("PASSENGER").get());
+      return roles;
     }
 
-    public UserResponse updateUser(
-            Long id,
-            UserRequest request) {
+    for (String roleName : roleNames) {
 
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found with id: " + id)
-                );
+      Role role =
+          roleRepository
+              .findByName(roleName)
+              .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
 
-        existingUser.setName(request.getName());
-        existingUser.setPhone(request.getPhone());
-
-        if (request.getRoles() != null) {
-            existingUser.setRoles(
-                    resolveRoles(request.getRoles())
-            );
-        }
-
-        User updatedUser = userRepository.save(existingUser);
-
-        return mapToResponse(updatedUser);
+      roles.add(role);
     }
 
-    public void deleteUser(Long id) {
+    return roles;
+  }
 
-        if (!userRepository.existsById(id)) {
-            throw new RuntimeException(
-                    "User not found with id: " + id
-            );
-        }
+  private UserResponse mapToResponse(User user) {
 
-        userRepository.deleteById(id);
-    }
+    Set<String> roleNames =
+        user.getRoles().stream().map(Role::getName).collect(java.util.stream.Collectors.toSet());
 
-    private Set<Role> resolveRoles(Set<String> roleNames) {
-
-        Set<Role> roles = new HashSet<>();
-
-        if (roleNames == null || roleNames.isEmpty()) {
-            roles.add(roleRepository.findByName("PASSENGER").get());
-            return roles;
-        }
-
-        for (String roleName : roleNames) {
-
-            Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() ->
-                            new RuntimeException(
-                                    "Role not found: " + roleName
-                            )
-                    );
-
-            roles.add(role);
-        }
-
-        return roles;
-    }
-
-    private UserResponse mapToResponse(User user) {
-
-        Set<String> roleNames = user.getRoles()
-                .stream()
-                .map(Role::getName)
-                .collect(java.util.stream.Collectors.toSet());
-
-        return UserResponse.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .roles(roleNames)
-                .build();
-    }
+    return UserResponse.builder()
+        .id(user.getId())
+        .name(user.getName())
+        .email(user.getEmail())
+        .phone(user.getPhone())
+        .roles(roleNames)
+        .build();
+  }
 }

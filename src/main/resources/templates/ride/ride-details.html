@@ -3,19 +3,20 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
   <th:block th:replace="~{fragments/head :: common-head}">
   </th:block>
 
-  <title>
-    Ride Details | Carpool
-  </title>
+  <title>Ride Details | Carpool</title>
 
-  <!-- RIDE DETAILS -->
-  <link rel="stylesheet" th:href="@{/css/ride/ride-details.css}">
+  <!-- Ride Details CSS -->
+  <link rel="stylesheet"
+        th:href="@{/css/ride/ride-details.css}">
 
-  <!-- LEAFLET -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          crossorigin="">
+  <!-- Leaflet -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        crossorigin="">
 
   <th:block th:replace="~{fragments/head :: theme-resources}">
   </th:block>
@@ -24,25 +25,25 @@
 
 <body>
 
-<!-- =========================
+<!-- =========================================================
      NAVBAR
-========================= -->
+========================================================= -->
 
 <div th:replace="~{fragments/navbar :: nav}"></div>
 
 
-<!-- =========================
+<!-- =========================================================
      PAGE
-========================= -->
+========================================================= -->
 
 <main class="ride-page">
 
   <div class="ride-container">
 
 
-    <!-- =========================
+    <!-- =====================================================
          BACK
-    ========================= -->
+    ===================================================== -->
 
     <a href="/rides"
        class="back-link">
@@ -54,9 +55,9 @@
     </a>
 
 
-    <!-- =========================
+    <!-- =====================================================
          LOADING
-    ========================= -->
+    ===================================================== -->
 
     <div id="loading"
          class="loading-card">
@@ -68,9 +69,9 @@
     </div>
 
 
-    <!-- =========================
+    <!-- =====================================================
          ERROR
-    ========================= -->
+    ===================================================== -->
 
     <div id="errorMessage"
          class="error-card hidden">
@@ -94,17 +95,17 @@
     </div>
 
 
-    <!-- =========================
+    <!-- =====================================================
          RIDE DETAILS
-    ========================= -->
+    ===================================================== -->
 
     <section id="rideDetails"
              class="hidden">
 
 
-      <!-- =========================
+      <!-- =================================================
            RIDE HEADER
-      ========================= -->
+      ================================================= -->
 
       <section class="ride-header-card">
 
@@ -125,23 +126,88 @@
         </div>
 
 
-        <div class="ride-status-wrapper">
+        <!-- =================================================
+             HEADER SIDE
+        ================================================= -->
 
-                    <span id="statusBadge"
-                          class="status-badge scheduled">
+        <div class="ride-header-side">
 
-                        SCHEDULED
 
-                    </span>
+          <!-- STATUS -->
+
+          <div class="ride-status-wrapper">
+
+                        <span id="statusBadge"
+                              class="status-badge scheduled">
+                            SCHEDULED
+                        </span>
+
+          </div>
+
+
+          <!-- CANCELLATION NOTICE -->
+
+          <div id="rideCancellationInfo"
+               class="ride-cancellation-info hidden">
+
+            <div class="ride-cancellation-icon">
+
+              <i class="fa-solid fa-ban"></i>
+
+            </div>
+
+
+            <div class="ride-cancellation-content">
+
+              <strong>
+                Ride cancelled
+              </strong>
+
+              <p>
+                This ride is no longer available
+                for booking.
+              </p>
+
+
+              <div class="ride-cancellation-meta">
+
+                                <span>
+
+                                    <i class="fa-solid fa-user"></i>
+
+                                    Cancelled by
+
+                                    <b id="rideCancelledBy">
+                                        -
+                                    </b>
+
+                                </span>
+
+
+                <span>
+
+                                    <i class="fa-regular fa-clock"></i>
+
+                                    <b id="rideCancelledAt">
+                                        -
+                                    </b>
+
+                                </span>
+
+              </div>
+
+            </div>
+
+          </div>
 
         </div>
 
       </section>
 
 
-      <!-- =========================
+      <!-- =================================================
            ROUTE SUMMARY
-      ========================= -->
+      ================================================= -->
 
       <section class="route-summary-card">
 
@@ -200,16 +266,16 @@
       </section>
 
 
-      <!-- =========================
+      <!-- =================================================
            MAP + BOOKING
-      ========================= -->
+      ================================================= -->
 
       <div class="ride-main-grid">
 
 
-        <!-- =========================
+        <!-- =================================================
              MAP
-        ========================= -->
+        ================================================= -->
 
         <section class="ride-map-section">
 
@@ -265,9 +331,9 @@
         </section>
 
 
-        <!-- =========================
+        <!-- =================================================
              BOOKING
-        ========================= -->
+        ================================================= -->
 
         <section id="bookingSection"
                  class="booking-section">
@@ -357,9 +423,7 @@
                       id="decreaseSeatsButton"
                       class="seat-control"
                       aria-label="Decrease seats">
-
                 −
-
               </button>
 
 
@@ -368,9 +432,7 @@
                 <strong id="bookingSeats"
                         data-value="1"
                         data-max="1">
-
                   1
-
                 </strong>
 
                 <span>
@@ -385,9 +447,7 @@
                       id="increaseSeatsButton"
                       class="seat-control"
                       aria-label="Increase seats">
-
                 +
-
               </button>
 
             </div>
@@ -457,16 +517,16 @@
       </div>
 
 
-      <!-- =========================
+      <!-- =================================================
            TRIP DETAILS + DRIVER
-      ========================= -->
+      ================================================= -->
 
       <div class="bottom-grid">
 
 
-        <!-- =========================
+        <!-- =================================================
              TRIP DETAILS
-        ========================= -->
+        ================================================= -->
 
         <section class="details-card">
 
@@ -492,7 +552,6 @@
 
 
           <div class="details-grid">
-
 
             <div class="detail-item">
 
@@ -582,9 +641,9 @@
         </section>
 
 
-        <!-- =========================
+        <!-- =================================================
              DRIVER
-        ========================= -->
+        ================================================= -->
 
         <section class="driver-card">
 
@@ -626,8 +685,11 @@
               </h3>
 
               <div class="driver-trust">
+
                 <span class="trust-dot"></span>
+
                 Carpool member
+
               </div>
 
             </div>
@@ -639,9 +701,9 @@
       </div>
 
 
-      <!-- =========================
+      <!-- =================================================
            ACTIONS
-      ========================= -->
+      ================================================= -->
 
       <section class="ride-actions">
 
@@ -656,7 +718,6 @@
 
       </section>
 
-
     </section>
 
   </div>
@@ -664,9 +725,9 @@
 </main>
 
 
-<!-- =========================
+<!-- =========================================================
      FOOTER
-========================= -->
+========================================================= -->
 
 <footer class="ride-footer">
 
@@ -685,18 +746,28 @@
 </footer>
 
 
-<!-- =========================
-     SCRIPTS
-========================= -->
+<!-- =========================================================
+     COMMON SCRIPTS
+========================================================= -->
+
 <th:block th:replace="~{fragments/scripts :: common-scripts}">
 </th:block>
 
-<!-- LEAFLET -->
+
+<!-- =========================================================
+     LEAFLET
+========================================================= -->
+
 <script
         src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin="">
 </script>
+
+
+<!-- =========================================================
+     RIDE DETAILS JS
+========================================================= -->
 
 <script th:src="@{/js/ride/ride-details.js}">
 </script>

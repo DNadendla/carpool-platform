@@ -12,21 +12,21 @@ import tools.jackson.databind.JsonNode;
 @RequestMapping("/api/location")
 public class LocationController {
 
-    private final GeoapifyService geoapifyService;
+  private final GeoapifyService geoapifyService;
 
-    public LocationController(GeoapifyService geoapifyService) {
-        this.geoapifyService = geoapifyService;
+  public LocationController(GeoapifyService geoapifyService) {
+    this.geoapifyService = geoapifyService;
+  }
+
+  @GetMapping("/autocomplete")
+  public ResponseEntity<JsonNode> autocomplete(@RequestParam String text) {
+
+    if (text == null || text.trim().length() < 3) {
+      return ResponseEntity.badRequest().build();
     }
 
-    @GetMapping("/autocomplete")
-    public ResponseEntity<JsonNode> autocomplete(@RequestParam String text) {
+    JsonNode result = geoapifyService.autocomplete(text.trim());
 
-        if (text == null || text.trim().length() < 3) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        JsonNode result = geoapifyService.autocomplete(text.trim());
-
-        return ResponseEntity.ok(result);
-    }
+    return ResponseEntity.ok(result);
+  }
 }

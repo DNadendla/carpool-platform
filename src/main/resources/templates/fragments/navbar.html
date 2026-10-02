@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
+
 <body>
 
 <nav class="cp-navbar"
      th:fragment="nav">
 
-    <!-- =========================
+    <!-- =====================================================
          BRAND
-    ========================= -->
+         ===================================================== -->
 
     <a href="/home"
        class="cp-brand">
@@ -24,11 +25,14 @@
     </a>
 
 
-    <!-- =========================
+    <!-- =====================================================
          NAVIGATION
-    ========================= -->
+         ===================================================== -->
 
     <div class="cp-nav-links">
+
+
+        <!-- HOME -->
 
         <a href="/home"
            class="cp-nav-link"
@@ -45,6 +49,8 @@
         </a>
 
 
+        <!-- USERS -->
+
         <a href="/users"
            class="cp-nav-link"
            data-page="/users">
@@ -59,6 +65,8 @@
 
         </a>
 
+
+        <!-- VEHICLES -->
 
         <a href="/vehicles"
            class="cp-nav-link"
@@ -75,20 +83,94 @@
         </a>
 
 
-        <a href="/rides"
-           class="cp-nav-link"
-           data-page="/rides">
+        <!-- =================================================
+             RIDES DROPDOWN
+             ================================================= -->
 
-            <span class="cp-nav-icon">
-                🛣️
-            </span>
+        <div class="cp-rides-menu"
+             data-page="/rides">
 
-            <span>
-                Rides
-            </span>
+            <button
+                    type="button"
+                    class="cp-nav-link cp-rides-trigger"
+                    aria-haspopup="true"
+                    aria-expanded="false">
 
-        </a>
+                <span class="cp-nav-icon">
+                    🛣️
+                </span>
 
+                <span>
+                    Rides
+                </span>
+
+                <span class="cp-dropdown-arrow">
+                    ▾
+                </span>
+
+            </button>
+
+
+            <!-- DROPDOWN -->
+
+            <div class="cp-rides-dropdown">
+
+
+                <!-- FIND A RIDE -->
+
+                <a href="/rides"
+                   class="cp-dropdown-item"
+                   data-dropdown-page="/rides">
+
+                    <span class="cp-dropdown-icon">
+                        🔍
+                    </span>
+
+                    <span class="cp-dropdown-content">
+
+                        <span class="cp-dropdown-title">
+                            Find a Ride
+                        </span>
+
+                        <span class="cp-dropdown-description">
+                            Browse available rides
+                        </span>
+
+                    </span>
+
+                </a>
+
+
+                <!-- MY RIDES -->
+
+                <a href="/rides/my"
+                   class="cp-dropdown-item"
+                   data-dropdown-page="/rides/my">
+
+                    <span class="cp-dropdown-icon">
+                        🚗
+                    </span>
+
+                    <span class="cp-dropdown-content">
+
+                        <span class="cp-dropdown-title">
+                            My Rides
+                        </span>
+
+                        <span class="cp-dropdown-description">
+                            Manage rides you offer
+                        </span>
+
+                    </span>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- BOOKINGS -->
 
         <a href="/bookings"
            class="cp-nav-link"
@@ -104,6 +186,9 @@
 
         </a>
 
+
+        <!-- THEME -->
+
         <button
                 type="button"
                 id="themeToggle"
@@ -117,9 +202,8 @@
 
         </button>
 
-        <!-- =====================
-             LOGOUT
-        ====================== -->
+
+        <!-- LOGOUT -->
 
         <a href="/login"
            id="logoutButton"
@@ -142,10 +226,6 @@
 
 <script>
 
-    /*
-     * Highlight current page
-     */
-
     document.addEventListener(
         "DOMContentLoaded",
         function () {
@@ -153,6 +233,10 @@
             const currentPath =
                 window.location.pathname;
 
+
+            /*
+             * Normal navigation links
+             */
 
             const navLinks =
                 document.querySelectorAll(
@@ -163,24 +247,144 @@
             navLinks.forEach(function (link) {
 
                 const page =
-                    link.getAttribute(
-                        "data-page"
+                    link.getAttribute("data-page");
+
+
+                if (
+                    currentPath === page ||
+                    currentPath.startsWith(page + "/")
+                ) {
+
+                    link.classList.add("active");
+
+                }
+
+            });
+
+
+            /*
+             * Rides dropdown
+             */
+
+            const ridesMenu =
+                document.querySelector(
+                    ".cp-rides-menu"
+                );
+
+
+            const ridesTrigger =
+                document.querySelector(
+                    ".cp-rides-trigger"
+                );
+
+
+            if (!ridesMenu || !ridesTrigger) {
+                return;
+            }
+
+
+            /*
+             * Keep Rides active for:
+             *
+             * /rides
+             * /rides/my
+             * /rides/123
+             */
+
+            if (
+                currentPath === "/rides" ||
+                currentPath.startsWith("/rides/")
+            ) {
+
+                ridesTrigger.classList.add("active");
+
+            }
+
+
+            /*
+             * Mark dropdown item active
+             */
+
+            const dropdownItems =
+                ridesMenu.querySelectorAll(
+                    ".cp-dropdown-item"
+                );
+
+
+            dropdownItems.forEach(function (item) {
+
+                const page =
+                    item.getAttribute(
+                        "data-dropdown-page"
                     );
 
 
                 if (
                     currentPath === page ||
-                    currentPath.startsWith(
-                        page + "/"
-                    )
+                    currentPath.startsWith(page + "/")
                 ) {
 
-                    link.classList.add(
-                        "active"
-                    );
+                    item.classList.add("active");
+
                 }
 
             });
+
+
+            /*
+             * Keyboard accessibility
+             */
+
+            ridesTrigger.addEventListener(
+                "click",
+                function () {
+
+                    const expanded =
+                        ridesTrigger.getAttribute(
+                            "aria-expanded"
+                        ) === "true";
+
+
+                    ridesTrigger.setAttribute(
+                        "aria-expanded",
+                        String(!expanded)
+                    );
+
+
+                    ridesMenu.classList.toggle(
+                        "open",
+                        !expanded
+                    );
+
+                }
+            );
+
+
+            /*
+             * Close when clicking elsewhere
+             */
+
+            document.addEventListener(
+                "click",
+                function (event) {
+
+                    if (
+                        !ridesMenu.contains(event.target)
+                    ) {
+
+                        ridesMenu.classList.remove(
+                            "open"
+                        );
+
+                        ridesTrigger.setAttribute(
+                            "aria-expanded",
+                            "false"
+                        );
+
+                    }
+
+                }
+            );
 
         }
     );

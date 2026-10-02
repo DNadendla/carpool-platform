@@ -3335,3 +3335,72 @@ html[data-theme="dark"] .user-form-footer {
         width: 100%;
     }
 }
+
+/* =========================================================
+   BOOKING CANCELLATION NOTICE - DARK
+========================================================= */
+
+html[data-theme="dark"]
+.booking-cancellation-notice {
+
+    background:
+        linear-gradient(
+            135deg,
+            #24181b,
+            #261a1d
+        );
+
+    border-color:
+        #7f1d1d;
+}
+
+
+html[data-theme="dark"]
+.booking-cancellation-notice:hover {
+
+    border-color:
+        #991b1b;
+}
+
+
+html[data-theme="dark"]
+.booking-cancellation-icon {
+
+    background:
+        #431d25;
+
+    color:
+        #fca5a5;
+}
+
+
+html[data-theme="dark"]
+.booking-cancellation-content strong {
+
+    color:
+        #fca5a5;
+}
+
+
+html[data-theme="dark"]
+.booking-cancellation-meta {
+
+    color:
+        #fda4af;
+}
+
+
+html[data-theme="dark"]
+.booking-cancellation-meta b {
+
+    color:
+        #fecaca;
+}
+
+
+html[data-theme="dark"]
+.cancellation-separator {
+
+    color:
+        #991b1b;
+}

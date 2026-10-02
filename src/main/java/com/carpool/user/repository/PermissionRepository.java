@@ -1,14 +1,12 @@
 package com.carpool.user.repository;
 
 import com.carpool.user.entity.Permission;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+public interface PermissionRepository extends JpaRepository<Permission, Long> {
 
-public interface PermissionRepository
-        extends JpaRepository<Permission, Long> {
+  Optional<Permission> findByName(String name);
 
-    Optional<Permission> findByName(String name);
-
-    boolean existsByName(String name);
+  boolean existsByName(String name);
 }

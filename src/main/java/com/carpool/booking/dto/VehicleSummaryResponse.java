@@ -10,13 +10,13 @@ import lombok.*;
 @Builder
 public class VehicleSummaryResponse {
 
-    private Long id;
+  private Long id;
 
-    private String vehicleNumber;
+  private String vehicleNumber;
 
-    private String model;
+  private String model;
 
-    private Vehicle.VehicleType type;
+  private Vehicle.VehicleType type;
 
-    private Integer totalSeats;
+  private Integer totalSeats;
 }

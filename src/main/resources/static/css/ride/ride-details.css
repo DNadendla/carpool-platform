@@ -1937,3 +1937,275 @@ body {
     }
 
 }
+
+
+/* =========================================================
+   RIDE HEADER SIDE
+========================================================= */
+
+.ride-header-side {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 10px;
+
+    flex-shrink: 0;
+
+    width: 340px;
+
+    max-width: 340px;
+}
+
+
+/* =========================================================
+   CANCELLATION NOTICE
+========================================================= */
+
+.ride-cancellation-info {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 13px 15px;
+
+    box-sizing: border-box;
+
+    background: #fff7f7;
+
+    border: 1px solid #fecaca;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 5px 16px
+        rgba(220, 38, 38, 0.05);
+}
+
+
+/* =========================================================
+   CANCELLATION ICON
+========================================================= */
+
+.ride-cancellation-icon {
+
+    width: 32px;
+
+    height: 32px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #fee2e2;
+
+    color: #dc2626;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   CANCELLATION CONTENT
+========================================================= */
+
+.ride-cancellation-content {
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+
+.ride-cancellation-content strong {
+
+    color: #991b1b;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.2px;
+}
+
+
+.ride-cancellation-content p {
+
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 10px;
+
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   CANCELLATION META
+========================================================= */
+
+.ride-cancellation-meta {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 6px 12px;
+
+    margin-top: 4px;
+}
+
+
+.ride-cancellation-meta span {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    color: #64748b;
+
+    font-size: 9px;
+
+    line-height: 1.4;
+}
+
+
+.ride-cancellation-meta i {
+
+    color: #94a3b8;
+
+    font-size: 9px;
+}
+
+
+.ride-cancellation-meta b {
+
+    color: #475569;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   DARK THEME
+========================================================= */
+
+html[data-theme="dark"] .ride-cancellation-info {
+
+    background: var(--cp-danger-bg);
+
+    border-color: #7f1d1d;
+
+    box-shadow:
+        0 6px 18px
+        rgba(0, 0, 0, 0.20);
+}
+
+
+html[data-theme="dark"] .ride-cancellation-icon {
+
+    background: #431d25;
+
+    color: var(--cp-danger-text);
+}
+
+
+html[data-theme="dark"] .ride-cancellation-content strong {
+
+    color: var(--cp-danger-text);
+}
+
+
+html[data-theme="dark"] .ride-cancellation-content p {
+
+    color: var(--cp-text-secondary);
+}
+
+
+html[data-theme="dark"] .ride-cancellation-meta span {
+
+    color: var(--cp-text-secondary);
+}
+
+
+html[data-theme="dark"] .ride-cancellation-meta i {
+
+    color: var(--cp-text-muted);
+}
+
+
+html[data-theme="dark"] .ride-cancellation-meta b {
+
+    color: var(--cp-text);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .ride-header-side {
+
+        width: 100%;
+
+        max-width: none;
+
+        align-items: flex-start;
+    }
+
+    .ride-cancellation-info {
+
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   BOOKING UNAVAILABLE
+   Expand map when booking panel is hidden
+========================================================= */
+
+.ride-main-grid.booking-unavailable {
+    grid-template-columns: 1fr;
+}
+
+
+/* Make the map occupy the full row */
+
+.ride-main-grid.booking-unavailable
+.ride-map-section {
+    width: 100%;
+}
+
+
+/* Optional: give the map a little more height
+   when it gets the full width */
+
+.ride-main-grid.booking-unavailable
+#rideMap {
+    height: 500px;
+}

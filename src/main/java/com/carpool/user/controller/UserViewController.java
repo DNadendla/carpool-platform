@@ -8,23 +8,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/users")
 public class UserViewController {
 
-    @GetMapping
-    public String usersPage() {
-        return "user/users";
-    }
+  @GetMapping
+  public String usersPage() {
+    return "user/users";
+  }
 
-    @GetMapping("/new")
-    public String createUserPage() {
-        return "user/user-form";
-    }
+  @GetMapping("/new")
+  public String createUserPage() {
+    return "user/user-form";
+  }
 
-    @GetMapping("/{id}")
-    public String userDetailsPage() {
-        return "user/details";
-    }
+  @GetMapping("/{id}")
+  public String userDetailsPage() {
+    return "user/details";
+  }
 
-    @GetMapping("/{id}/edit")
-    public String editUserPage() {
-        return "user/user-form";
-    }
+  @GetMapping("/{id}/edit")
+  public String editUserPage() {
+    return "user/user-form";
+  }
 }

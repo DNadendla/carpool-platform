@@ -21,6 +21,21 @@ document.addEventListener(
         const cancelButton =
             document.getElementById("cancelRideButton");
 
+        const cancellationInfo =
+            document.getElementById(
+                "rideCancellationInfo"
+            );
+
+        const cancelledByElement =
+            document.getElementById(
+                "rideCancelledBy"
+            );
+
+        const cancelledAtElement =
+            document.getElementById(
+                "rideCancelledAt"
+            );
+
 
         /* =====================================================
            GET RIDE ID
@@ -63,21 +78,18 @@ document.addEventListener(
                 let message =
                     "Unable to load ride details.";
 
-
                 try {
 
                     const error =
                         await response.json();
-
 
                     if (error.message) {
                         message = error.message;
                     }
 
                 } catch (e) {
-                    // Ignore parsing error
+                    // Ignore response parsing error
                 }
-
 
                 throw new Error(message);
             }
@@ -91,11 +103,10 @@ document.addEventListener(
 
 
             /*
-             * IMPORTANT:
-             *
-             * Render first so #rideMap becomes visible.
-             * Then initialize Leaflet.
+             * Render the page first so the map container
+             * has its final visible dimensions.
              */
+
             renderRide(ride);
 
             initializeRideMap(ride);
@@ -104,6 +115,8 @@ document.addEventListener(
 
             initializeBookingEvents();
 
+            initializeRideActions();
+
 
         } catch (error) {
 
@@ -111,7 +124,6 @@ document.addEventListener(
                 "Ride details error:",
                 error
             );
-
 
             showError(
                 error.message ||
@@ -125,6 +137,10 @@ document.addEventListener(
         ===================================================== */
 
         function renderRide(ride) {
+
+            /*
+             * Basic ride information
+             */
 
             document.getElementById("routeTitle")
                 .textContent =
@@ -176,6 +192,10 @@ document.addEventListener(
                 ride.driverName;
 
 
+            /* =================================================
+               STATUS
+            ================================================= */
+
             const statusBadge =
                 document.getElementById(
                     "statusBadge"
@@ -183,26 +203,49 @@ document.addEventListener(
 
 
             statusBadge.textContent =
-                ride.status;
+                formatStatus(ride.status);
 
 
             statusBadge.className =
                 "status-badge " +
-                ride.status.toLowerCase();
-
-
-            /* Hide loading */
-
-            loading.classList.add("hidden");
-
-
-            /* Show ride details */
-
-            rideDetails.classList.remove("hidden");
+                String(
+                    ride.status || ""
+                ).toLowerCase();
 
 
             /* =================================================
-               CANCEL RIDE
+               RESET RIDE ACTIONS
+            ================================================= */
+
+            cancelButton.classList.add(
+                "hidden"
+            );
+
+
+            if (cancellationInfo) {
+
+                cancellationInfo.classList.add(
+                    "hidden"
+                );
+            }
+
+
+            if (cancelledByElement) {
+
+                cancelledByElement.textContent =
+                    "";
+            }
+
+
+            if (cancelledAtElement) {
+
+                cancelledAtElement.textContent =
+                    "";
+            }
+
+
+            /* =================================================
+               SCHEDULED
             ================================================= */
 
             if (ride.status === "SCHEDULED") {
@@ -210,16 +253,141 @@ document.addEventListener(
                 cancelButton.classList.remove(
                     "hidden"
                 );
+            }
 
 
-                cancelButton.addEventListener(
-                    "click",
-                    function () {
+            /* =================================================
+               CANCELLED
+            ================================================= */
 
-                        cancelRide(ride.id);
+            if (ride.status === "CANCELLED") {
 
+                if (cancellationInfo) {
+
+                    cancellationInfo.classList.remove(
+                        "hidden"
+                    );
+                }
+
+
+                if (cancelledByElement) {
+
+                    cancelledByElement.textContent =
+                        formatCancellationActor(
+                            ride.cancelledBy
+                        );
+                }
+
+
+                if (cancelledAtElement) {
+
+                    cancelledAtElement.textContent =
+                        formatDateTime(
+                            ride.cancelledAt
+                        );
+                }
+
+
+                /*
+                 * Booking is not available anymore.
+                 */
+
+                const bookingSection =
+                    document.getElementById(
+                        "bookingSection"
+                    );
+
+
+                if (bookingSection) {
+
+                    bookingSection.classList.add(
+                        "hidden"
+                    );
+                }
+            }
+
+
+            /* =================================================
+               SHOW PAGE
+            ================================================= */
+
+            loading.classList.add(
+                "hidden"
+            );
+
+            rideDetails.classList.remove(
+                "hidden"
+            );
+        }
+
+
+        /* =====================================================
+           RIDE ACTIONS
+        ===================================================== */
+
+        function initializeRideActions() {
+
+            if (!cancelButton) {
+                return;
+            }
+
+
+            cancelButton.addEventListener(
+                "click",
+                function () {
+
+                    if (!currentRide) {
+                        return;
                     }
-                );
+
+                    cancelRide(
+                        currentRide.id
+                    );
+                }
+            );
+        }
+
+
+        /* =====================================================
+           STATUS FORMAT
+        ===================================================== */
+
+        function formatStatus(status) {
+
+            if (!status) {
+                return "-";
+            }
+
+            return String(status)
+                .replace(/_/g, " ")
+                .toUpperCase();
+        }
+
+
+        /* =====================================================
+           CANCELLATION ACTOR
+        ===================================================== */
+
+        function formatCancellationActor(actor) {
+
+            if (!actor) {
+                return "Unknown";
+            }
+
+
+            switch (actor) {
+
+                case "DRIVER":
+                    return "Driver";
+
+                case "ADMIN":
+                    return "Admin";
+
+                case "SYSTEM":
+                    return "System";
+
+                default:
+                    return actor;
             }
         }
 
@@ -260,6 +428,11 @@ document.addEventListener(
                     "increaseSeatsButton"
                 );
 
+            const bookButton =
+                document.getElementById(
+                    "bookRideButton"
+                );
+
 
             if (
                 !bookingSection ||
@@ -271,9 +444,68 @@ document.addEventListener(
             }
 
 
+            const rideMainGrid =
+                document.querySelector(
+                    ".ride-main-grid"
+                );
+
+
+            /*
+             * Booking is only available
+             * for scheduled rides.
+             */
+
+            if (ride.status !== "SCHEDULED") {
+
+                bookingSection.classList.add(
+                    "hidden"
+                );
+
+
+                if (rideMainGrid) {
+
+                    rideMainGrid.classList.add(
+                        "booking-unavailable"
+                    );
+                }
+
+
+                return;
+            }
+
+
+            /*
+             * Scheduled ride
+             */
+
+            bookingSection.classList.remove(
+                "hidden"
+            );
+
+
+            /*
+             * Restore normal two-column layout.
+             */
+
+            if (rideMainGrid) {
+
+                rideMainGrid.classList.remove(
+                    "booking-unavailable"
+                );
+            }
+
+
+            /*
+             * Available seats
+             */
+
             availableSeatsElement.textContent =
                 ride.availableSeats;
 
+
+            /*
+             * Price per seat
+             */
 
             priceElement.textContent =
                 "₹" +
@@ -286,10 +518,14 @@ document.addEventListener(
              * Start with one seat.
              */
 
-            seatsElement.textContent =
+            const initialSeats =
                 ride.availableSeats > 0
-                    ? "1"
-                    : "0";
+                    ? 1
+                    : 0;
+
+
+            seatsElement.textContent =
+                initialSeats;
 
 
             seatsElement.dataset.max =
@@ -297,28 +533,25 @@ document.addEventListener(
 
 
             seatsElement.dataset.value =
-                ride.availableSeats > 0
-                    ? "1"
-                    : "0";
+                initialSeats;
 
 
             /*
-             * No seats.
+             * No seats available.
              */
 
             if (ride.availableSeats <= 0) {
 
-                decreaseButton.disabled = true;
+                decreaseButton.disabled =
+                    true;
 
-                increaseButton.disabled = true;
+                increaseButton.disabled =
+                    true;
 
-                document.getElementById(
-                    "bookRideButton"
-                ).disabled = true;
+                bookButton.disabled =
+                    true;
 
-                document.getElementById(
-                    "bookRideButton"
-                ).textContent =
+                bookButton.textContent =
                     "No Seats Available";
 
                 updateBookingTotal();
@@ -331,32 +564,17 @@ document.addEventListener(
              * Normal initial state.
              */
 
-            decreaseButton.disabled = true;
+            decreaseButton.disabled =
+                true;
 
             increaseButton.disabled =
                 ride.availableSeats <= 1;
 
+            bookButton.disabled =
+                false;
 
-            /*
-             * Booking only available
-             * for scheduled rides.
-             */
-
-            if (ride.status !== "SCHEDULED") {
-
-                decreaseButton.disabled = true;
-
-                increaseButton.disabled = true;
-
-                document.getElementById(
-                    "bookRideButton"
-                ).disabled = true;
-
-                document.getElementById(
-                    "bookRideButton"
-                ).textContent =
-                    "Booking Not Available";
-            }
+            bookButton.textContent =
+                "Book This Ride";
 
 
             updateBookingTotal();
@@ -385,6 +603,11 @@ document.addEventListener(
                 );
 
 
+            if (!seatsElement) {
+                return;
+            }
+
+
             let seats =
                 Number(
                     seatsElement.dataset.value
@@ -408,14 +631,12 @@ document.addEventListener(
             seatsElement.dataset.value =
                 seats;
 
-
             seatsElement.textContent =
                 seats;
 
 
             decreaseButton.disabled =
                 seats <= 1;
-
 
             increaseButton.disabled =
                 seats >= maxSeats;
@@ -447,6 +668,11 @@ document.addEventListener(
                 );
 
 
+            if (!seatsElement) {
+                return;
+            }
+
+
             let seats =
                 Number(
                     seatsElement.dataset.value
@@ -464,14 +690,12 @@ document.addEventListener(
             seatsElement.dataset.value =
                 seats;
 
-
             seatsElement.textContent =
                 seats;
 
 
             decreaseButton.disabled =
                 seats <= 1;
-
 
             increaseButton.disabled =
                 seats >=
@@ -553,11 +777,15 @@ document.addEventListener(
 
             if (
                 !currentRide ||
-                !seatsElement
+                !seatsElement ||
+                !totalElement
             ) {
 
-                totalElement.textContent =
-                    "₹0.00";
+                if (totalElement) {
+
+                    totalElement.textContent =
+                        "₹0.00";
+                }
 
                 return;
             }
@@ -602,18 +830,15 @@ document.addEventListener(
                     "bookingSeats"
                 );
 
-
             const bookButton =
                 document.getElementById(
                     "bookRideButton"
                 );
 
-
             const messageElement =
                 document.getElementById(
                     "bookingMessage"
                 );
-
 
             const errorElement =
                 document.getElementById(
@@ -621,12 +846,11 @@ document.addEventListener(
                 );
 
 
-            errorElement.textContent = "";
-
+            errorElement.textContent =
+                "";
 
             messageElement.className =
                 "booking-message";
-
 
             messageElement.textContent =
                 "";
@@ -638,7 +862,9 @@ document.addEventListener(
                 );
 
 
-            /* Validation */
+            /* =================================================
+               VALIDATION
+            ================================================= */
 
             if (!seats) {
 
@@ -650,9 +876,15 @@ document.addEventListener(
 
 
             if (!currentRide) {
+
                 return;
             }
 
+
+            /*
+             * Client-side validation only.
+             * Backend remains the final authority.
+             */
 
             if (
                 seats >
@@ -666,9 +898,12 @@ document.addEventListener(
             }
 
 
-            /* Start booking */
+            /* =================================================
+               START BOOKING
+            ================================================= */
 
-            bookButton.disabled = true;
+            bookButton.disabled =
+                true;
 
             bookButton.textContent =
                 "Booking...";
@@ -683,7 +918,6 @@ document.addEventListener(
 
                     seats:
                         seats
-
                 };
 
 
@@ -699,11 +933,22 @@ document.addEventListener(
                 }
 
 
-                const data =
-                    await response.json();
+                let data = {};
+
+                try {
+
+                    data =
+                        await response.json();
+
+                } catch (e) {
+
+                    data = {};
+                }
 
 
-                /* Booking failed */
+                /* =================================================
+                   BOOKING FAILED
+                ================================================= */
 
                 if (!response.ok) {
 
@@ -713,12 +958,11 @@ document.addEventListener(
 
                     messageElement.textContent =
                         data.message ||
-                        "Booking failed.";
+                        "Booking failed. Please try again.";
 
 
                     bookButton.disabled =
                         false;
-
 
                     bookButton.textContent =
                         "Book This Ride";
@@ -728,21 +972,29 @@ document.addEventListener(
                 }
 
 
-                /* Booking success */
+                /* =================================================
+                   BOOKING SUCCESS
+                ================================================= */
 
                 messageElement.className =
                     "booking-message success";
 
 
-                messageElement.innerHTML =
-                    "✓ Booking confirmed! " +
+                messageElement.textContent =
+                    "Booking confirmed! " +
                     "Booking ID: " +
                     data.id;
 
 
+                bookButton.disabled =
+                    true;
+
+                bookButton.textContent =
+                    "Booking Confirmed";
+
+
                 /*
-                 * Redirect to bookings page
-                 * after showing confirmation.
+                 * Redirect after displaying confirmation.
                  */
 
                 setTimeout(function () {
@@ -772,7 +1024,6 @@ document.addEventListener(
                 bookButton.disabled =
                     false;
 
-
                 bookButton.textContent =
                     "Book This Ride";
             }
@@ -798,7 +1049,8 @@ document.addEventListener(
 
             try {
 
-                cancelButton.disabled = true;
+                cancelButton.disabled =
+                    true;
 
                 cancelButton.textContent =
                     "Cancelling...";
@@ -813,6 +1065,13 @@ document.addEventListener(
 
 
                 if (!response) {
+
+                    cancelButton.disabled =
+                        false;
+
+                    cancelButton.textContent =
+                        "Cancel Ride";
+
                     return;
                 }
 
@@ -840,14 +1099,17 @@ document.addEventListener(
                     }
 
 
-                    throw new Error(message);
+                    throw new Error(
+                        message
+                    );
                 }
 
 
-                alert(
-                    "Ride cancelled successfully."
-                );
-
+                /*
+                 * Refresh the page so the latest
+                 * ride status and cancellation details
+                 * come directly from the backend.
+                 */
 
                 window.location.reload();
 
@@ -860,18 +1122,22 @@ document.addEventListener(
                 );
 
 
+                cancelButton.disabled =
+                    false;
+
+                cancelButton.textContent =
+                    "Cancel Ride";
+
+
+                /*
+                 * Show a cleaner message than alert()
+                 * where possible.
+                 */
+
                 alert(
                     error.message ||
                     "Unable to cancel ride."
                 );
-
-
-                cancelButton.disabled =
-                    false;
-
-
-                cancelButton.textContent =
-                    "Cancel Ride";
             }
         }
 
@@ -889,6 +1155,11 @@ document.addEventListener(
 
             const date =
                 new Date(value);
+
+
+            if (isNaN(date.getTime())) {
+                return "-";
+            }
 
 
             return date.toLocaleString(
@@ -949,7 +1220,10 @@ document.addEventListener(
 function initializeRideMap(ride) {
 
     const mapElement =
-        document.getElementById("rideMap");
+        document.getElementById(
+            "rideMap"
+        );
+
 
     if (!mapElement) {
         return;
@@ -957,16 +1231,24 @@ function initializeRideMap(ride) {
 
 
     const sourceLatitude =
-        Number(ride.sourceLatitude);
+        Number(
+            ride.sourceLatitude
+        );
 
     const sourceLongitude =
-        Number(ride.sourceLongitude);
+        Number(
+            ride.sourceLongitude
+        );
 
     const destinationLatitude =
-        Number(ride.destinationLatitude);
+        Number(
+            ride.destinationLatitude
+        );
 
     const destinationLongitude =
-        Number(ride.destinationLongitude);
+        Number(
+            ride.destinationLongitude
+        );
 
 
     /* =====================================================
@@ -994,10 +1276,13 @@ function initializeRideMap(ride) {
     ===================================================== */
 
     const map =
-        L.map("rideMap", {
-            zoomControl: true,
-            scrollWheelZoom: true
-        });
+        L.map(
+            "rideMap",
+            {
+                zoomControl: true,
+                scrollWheelZoom: true
+            }
+        );
 
 
     /* =====================================================
@@ -1028,6 +1313,7 @@ function initializeRideMap(ride) {
         sourceLongitude
     ];
 
+
     const destinationPoint = [
         destinationLatitude,
         destinationLongitude
@@ -1035,7 +1321,7 @@ function initializeRideMap(ride) {
 
 
     /* =====================================================
-       CUSTOM SOURCE ICON
+       SOURCE ICON
     ===================================================== */
 
     const sourceIcon =
@@ -1057,12 +1343,11 @@ function initializeRideMap(ride) {
 
             popupAnchor:
                 [0, -20]
-
         });
 
 
     /* =====================================================
-       CUSTOM DESTINATION ICON
+       DESTINATION ICON
     ===================================================== */
 
     const destinationIcon =
@@ -1084,7 +1369,6 @@ function initializeRideMap(ride) {
 
             popupAnchor:
                 [0, -20]
-
         });
 
 
@@ -1106,7 +1390,9 @@ function initializeRideMap(ride) {
         "<strong style='color:#15803d'>" +
         "Pickup" +
         "</strong><br>" +
-        escapeHtml(ride.source)
+        escapeHtml(
+            ride.source
+        )
     );
 
 
@@ -1128,39 +1414,34 @@ function initializeRideMap(ride) {
         "<strong style='color:#dc2626'>" +
         "Destination" +
         "</strong><br>" +
-        escapeHtml(ride.destination)
+        escapeHtml(
+            ride.destination
+        )
     );
 
 
     /* =====================================================
-       STRAIGHT ROUTE LINE
+       ROUTE LINE
     ===================================================== */
 
-    const routeLine =
-        L.polyline(
-            [
-                sourcePoint,
-                destinationPoint
-            ],
-            {
-                color: "#2563eb",
-
-                weight: 4,
-
-                opacity: 0.85,
-
-                dashArray: "8 8",
-
-                lineCap: "round",
-
-                lineJoin: "round"
-            }
-        )
-        .addTo(map);
+    L.polyline(
+        [
+            sourcePoint,
+            destinationPoint
+        ],
+        {
+            color: "#2563eb",
+            weight: 4,
+            opacity: 0.85,
+            dashArray: "8 8",
+            lineCap: "round",
+            lineJoin: "round"
+        }
+    ).addTo(map);
 
 
     /* =====================================================
-       BOUNDS
+       MAP BOUNDS
     ===================================================== */
 
     const bounds =
@@ -1170,60 +1451,66 @@ function initializeRideMap(ride) {
         );
 
 
-    /* =====================================================
-       IMPORTANT:
-       WAIT UNTIL BROWSER FINISHES LAYOUT
-    ===================================================== */
+    /*
+     * Wait until browser finishes layout.
+     */
 
-    requestAnimationFrame(function () {
+    requestAnimationFrame(
+        function () {
 
-        map.invalidateSize(true);
+            map.invalidateSize(
+                true
+            );
 
-        map.fitBounds(
-            bounds,
-            {
-                padding: [
-                    35,
-                    35
-                ],
+            map.fitBounds(
+                bounds,
+                {
+                    padding: [
+                        35,
+                        35
+                    ],
 
-                maxZoom: 10,
+                    maxZoom: 10,
 
-                animate: false
-            }
-        );
+                    animate: false
+                }
+            );
 
-        tileLayer.redraw();
-
-    });
+            tileLayer.redraw();
+        }
+    );
 
 
     /*
-     * Second recalculation after
-     * browser has painted everything.
+     * Second recalculation after browser paint.
      */
 
-    setTimeout(function () {
+    setTimeout(
+        function () {
 
-        map.invalidateSize(true);
+            map.invalidateSize(
+                true
+            );
 
-        map.fitBounds(
-            bounds,
-            {
-                padding: [
-                    35,
-                    35
-                ],
+            map.fitBounds(
+                bounds,
+                {
+                    padding: [
+                        35,
+                        35
+                    ],
 
-                maxZoom: 10,
+                    maxZoom: 10,
 
-                animate: false
-            }
-        );
+                    animate: false
+                }
+            );
 
-        tileLayer.redraw();
+            tileLayer.redraw();
 
-    }, 500);
+        },
+        500
+    );
 }
 
 
@@ -1242,29 +1529,24 @@ function escapeHtml(value) {
 
 
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-/* =========================================================
-   SIMPLE HTML ESCAPE
-========================================================= */
-
-function escapeHtml(value) {
-
-    if (value === null || value === undefined) {
-        return "";
-    }
-
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }

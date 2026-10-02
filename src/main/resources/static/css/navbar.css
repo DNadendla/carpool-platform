@@ -1,0 +1,681 @@
+/* =========================================================
+   CARPOOL NAVBAR
+   ========================================================= */
+
+.cp-navbar {
+
+    height: 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 32px;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    border-bottom: 1px solid var(--navbar-border);
+
+    background: var(--navbar-bg);
+
+    color: var(--navbar-text);
+
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.cp-brand {
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    text-decoration: none;
+
+    color: var(--brand-text);
+
+    font-weight: 800;
+
+    font-size: 23px;
+
+}
+
+
+.cp-brand-icon {
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: var(--brand-icon-bg);
+
+    font-size: 20px;
+
+}
+
+
+.cp-brand-text {
+
+    letter-spacing: -0.4px;
+
+}
+
+
+/* =========================================================
+   NAV LINKS
+   ========================================================= */
+
+.cp-nav-links {
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+}
+
+
+.cp-nav-link {
+
+    height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 0 13px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: var(--nav-link-text);
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+
+}
+
+
+.cp-nav-link:hover {
+
+    background: var(--nav-hover-bg);
+
+    color: var(--nav-hover-text);
+
+}
+
+
+.cp-nav-link.active {
+
+    background: var(--nav-active-bg);
+
+    color: var(--nav-active-text);
+
+}
+
+
+.cp-nav-icon {
+
+    width: 20px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 15px;
+
+}
+
+
+.cp-nav-link:hover .cp-nav-icon {
+
+    transform: translateY(-1px);
+
+}
+
+
+/* =========================================================
+   RIDES MENU
+   ========================================================= */
+
+.cp-rides-menu {
+
+    position: relative;
+
+}
+
+
+/*
+ * Remove default button appearance
+ */
+
+.cp-rides-trigger {
+
+    appearance: none;
+
+    -webkit-appearance: none;
+
+}
+
+
+.cp-dropdown-arrow {
+
+    margin-left: 2px;
+
+    font-size: 11px;
+
+    opacity: 0.7;
+
+    transition:
+        transform 0.2s ease;
+
+}
+
+
+.cp-rides-menu:hover
+.cp-dropdown-arrow,
+
+.cp-rides-menu.open
+.cp-dropdown-arrow {
+
+    transform: rotate(180deg);
+
+}
+
+
+/* =========================================================
+   RIDES DROPDOWN
+   ========================================================= */
+
+.cp-rides-dropdown {
+
+    position: absolute;
+
+    top: calc(100% + 10px);
+
+    right: 0;
+
+    width: 280px;
+
+    padding: 8px;
+
+    border-radius: 14px;
+
+    background: var(--dropdown-bg);
+
+    border: 1px solid var(--dropdown-border);
+
+    box-shadow: var(--dropdown-shadow);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transform:
+        translateY(-6px)
+        scale(0.98);
+
+    transform-origin: top right;
+
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease,
+        visibility 0.18s ease;
+
+}
+
+
+/*
+ * Small invisible bridge so moving mouse
+ * from Rides to dropdown doesn't close it.
+ */
+
+.cp-rides-dropdown::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -10px;
+
+    left: 0;
+    right: 0;
+
+    height: 10px;
+
+}
+
+
+/* =========================================================
+   SHOW DROPDOWN
+   ========================================================= */
+
+.cp-rides-menu:hover
+.cp-rides-dropdown,
+
+.cp-rides-menu.open
+.cp-rides-dropdown,
+
+.cp-rides-trigger:focus-visible
++ .cp-rides-dropdown {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    transform:
+        translateY(0)
+        scale(1);
+
+}
+
+
+/* =========================================================
+   DROPDOWN ITEM
+   ========================================================= */
+
+.cp-dropdown-item {
+
+    min-height: 66px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 10px 12px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    color: var(--dropdown-item-text);
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+
+}
+
+
+.cp-dropdown-item:hover {
+
+    background: var(--dropdown-item-hover-bg);
+
+    color: var(--dropdown-item-hover-text);
+
+    transform: translateX(2px);
+
+}
+
+
+.cp-dropdown-item.active {
+
+    background: var(--dropdown-item-active-bg);
+
+    color: var(--dropdown-item-active-text);
+
+}
+
+
+/* =========================================================
+   DROPDOWN ICON
+   ========================================================= */
+
+.cp-dropdown-icon {
+
+    flex: 0 0 auto;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: var(--dropdown-icon-bg);
+
+    font-size: 17px;
+
+}
+
+
+.cp-dropdown-item:hover
+.cp-dropdown-icon {
+
+    background: var(--dropdown-icon-hover-bg);
+
+}
+
+
+/* =========================================================
+   DROPDOWN CONTENT
+   ========================================================= */
+
+.cp-dropdown-content {
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+}
+
+
+.cp-dropdown-title {
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    line-height: 1.2;
+
+}
+
+
+.cp-dropdown-description {
+
+    font-size: 12px;
+
+    font-weight: 500;
+
+    line-height: 1.3;
+
+    color: var(--dropdown-description);
+
+}
+
+
+/* =========================================================
+   THEME TOGGLE
+   ========================================================= */
+
+.theme-toggle {
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-left: 3px;
+
+    border-radius: 10px;
+
+    border: 1px solid var(--theme-toggle-border);
+
+    background: var(--theme-toggle-bg);
+
+    color: var(--theme-toggle-text);
+
+    cursor: pointer;
+
+    font-size: 17px;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+
+}
+
+
+.theme-toggle:hover {
+
+    background: var(--theme-toggle-hover-bg);
+
+    transform: translateY(-1px);
+
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+.cp-logout-link {
+
+    margin-left: 2px;
+
+}
+
+
+/* =========================================================
+   LIGHT THEME
+   ========================================================= */
+
+:root {
+
+    --navbar-bg: #ffffff;
+
+    --navbar-border: #e5e7eb;
+
+    --navbar-text: #111827;
+
+    --brand-text: #2563eb;
+
+    --brand-icon-bg: #e8efff;
+
+    --nav-link-text: #4b5563;
+
+    --nav-hover-bg: #f1f5f9;
+
+    --nav-hover-text: #111827;
+
+    --nav-active-bg: #e8efff;
+
+    --nav-active-text: #2563eb;
+
+
+    /* Dropdown */
+
+    --dropdown-bg: #ffffff;
+
+    --dropdown-border: #e2e8f0;
+
+    --dropdown-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.16);
+
+    --dropdown-item-text: #1e293b;
+
+    --dropdown-item-hover-bg: #f1f5ff;
+
+    --dropdown-item-hover-text: #1d4ed8;
+
+    --dropdown-item-active-bg: #eaf1ff;
+
+    --dropdown-item-active-text: #2563eb;
+
+    --dropdown-description: #64748b;
+
+    --dropdown-icon-bg: #eef2ff;
+
+    --dropdown-icon-hover-bg: #dbeafe;
+
+
+    /* Theme button */
+
+    --theme-toggle-border: #e2e8f0;
+
+    --theme-toggle-bg: #f8fafc;
+
+    --theme-toggle-text: #334155;
+
+    --theme-toggle-hover-bg: #eef2ff;
+
+}
+
+
+/* =========================================================
+   DARK THEME
+   ========================================================= */
+
+/*
+ * Supports the common theme class names.
+ *
+ * Keep whichever one your theme.js uses.
+ */
+
+body.dark-theme,
+body.dark,
+html.dark body,
+html[data-theme="dark"] body {
+
+    --navbar-bg: #0b1220;
+
+    --navbar-border: #263247;
+
+    --navbar-text: #f8fafc;
+
+    --brand-text: #60a5fa;
+
+    --brand-icon-bg: #172554;
+
+    --nav-link-text: #cbd5e1;
+
+    --nav-hover-bg: #1a2538;
+
+    --nav-hover-text: #ffffff;
+
+    --nav-active-bg: #172d66;
+
+    --nav-active-text: #60a5fa;
+
+
+    /* Dropdown */
+
+    --dropdown-bg: #182235;
+
+    --dropdown-border: #344158;
+
+    --dropdown-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.55);
+
+    --dropdown-item-text: #f1f5f9;
+
+    --dropdown-item-hover-bg: #26344d;
+
+    --dropdown-item-hover-text: #ffffff;
+
+    --dropdown-item-active-bg: #1e3a8a;
+
+    --dropdown-item-active-text: #bfdbfe;
+
+    --dropdown-description: #a8b4c7;
+
+    --dropdown-icon-bg: #273550;
+
+    --dropdown-icon-hover-bg: #33466a;
+
+
+    /* Theme button */
+
+    --theme-toggle-border: #334155;
+
+    --theme-toggle-bg: #172033;
+
+    --theme-toggle-text: #f8fafc;
+
+    --theme-toggle-hover-bg: #26344d;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .cp-navbar {
+
+        padding: 0 18px;
+
+    }
+
+    .cp-nav-link {
+
+        padding: 0 9px;
+
+    }
+
+    .cp-nav-link > span:last-child {
+
+        display: none;
+
+    }
+
+    .cp-rides-trigger > span:nth-child(2) {
+
+        display: inline;
+
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .cp-navbar {
+
+        padding: 0 12px;
+
+    }
+
+    .cp-brand-text {
+
+        display: none;
+
+    }
+
+    .cp-nav-links {
+
+        gap: 2px;
+
+    }
+
+    .cp-rides-dropdown {
+
+        right: -10px;
+
+        width: 260px;
+
+    }
+
+}

@@ -1,189 +1,317 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    const ridesList = document.getElementById("ridesList");
+    /* =====================================================
+       DOM ELEMENTS
+       ===================================================== */
 
-    const loadingState = document.getElementById("loadingState");
-    const emptyState = document.getElementById("emptyState");
-    const errorState = document.getElementById("errorState");
+    const ridesList =
+        document.getElementById("ridesList");
 
-    const errorMessage = document.getElementById("errorMessage");
+    const loadingState =
+        document.getElementById("loadingState");
 
-    const rideCount = document.getElementById("rideCount");
+    const emptyState =
+        document.getElementById("emptyState");
 
-    const sourceInput = document.getElementById("source");
-    const destinationInput = document.getElementById("destination");
+    const errorState =
+        document.getElementById("errorState");
 
-    const searchButton = document.getElementById("searchButton");
-    const clearSearchButton = document.getElementById("clearSearchButton");
+    const errorMessage =
+        document.getElementById("errorMessage");
 
-    const allRidesTab = document.getElementById("allRidesTab");
-    const myRidesTab = document.getElementById("myRidesTab");
+    const searchValidation =
+        document.getElementById("searchValidation");
 
-    const retryButton = document.getElementById("retryButton");
+    const rideCount =
+        document.getElementById("rideCount");
 
-    const offerRideButton = document.getElementById("offerRideButton");
-    const emptyOfferButton = document.getElementById("emptyOfferButton");
+    const sourceInput =
+        document.getElementById("source");
 
+    const destinationInput =
+        document.getElementById("destination");
 
-    let currentMode = "all";
+    const searchButton =
+        document.getElementById("searchButton");
 
+    const clearSearchButton =
+        document.getElementById("clearSearchButton");
 
-    // =========================
-    // INITIAL LOAD
-    // =========================
+    const retryButton =
+        document.getElementById("retryButton");
 
-    loadAllRides();
+    const offerRideButton =
+        document.getElementById("offerRideButton");
 
-
-    // =========================
-    // ALL RIDES
-    // =========================
-
-    allRidesTab.addEventListener("click", function () {
-
-        currentMode = "all";
-
-        setActiveTab(allRidesTab, myRidesTab);
-
-        loadAllRides();
-    });
+    const pagination =
+        document.getElementById("pagination");
 
 
-    // =========================
-    // MY RIDES
-    // =========================
+    /* =====================================================
+       CONFIGURATION
+       ===================================================== */
 
-    myRidesTab.addEventListener("click", function () {
-
-        currentMode = "my";
-
-        setActiveTab(myRidesTab, allRidesTab);
-
-        loadMyRides();
-    });
+    const PAGE_SIZE = 5;
 
 
-    // =========================
-    // SEARCH
-    // =========================
+    /* =====================================================
+       STATE
+       ===================================================== */
 
-    searchButton.addEventListener("click", function () {
+    let currentPage = 0;
 
-        const source = sourceInput.value.trim();
-        const destination = destinationInput.value.trim();
+    let currentSource = "";
 
-        if (!source || !destination) {
+    let currentDestination = "";
 
-            showError(
-                "Please enter both source and destination."
-            );
+    let isSearching = false;
 
-            return;
+    let isLoading = false;
+
+
+    /* =====================================================
+       INITIAL LOAD
+       ===================================================== */
+
+    loadRides(0);
+
+
+    /* =====================================================
+       SEARCH
+       ===================================================== */
+
+    searchButton.addEventListener(
+        "click",
+        function () {
+
+            const source =
+                sourceInput.value.trim();
+
+            const destination =
+                destinationInput.value.trim();
+
+
+            if (!source || !destination) {
+
+                showSearchValidation();
+
+                return;
+            }
+
+
+            hideSearchValidation();
+
+            currentSource = source;
+
+            currentDestination = destination;
+
+            isSearching = true;
+
+            loadRides(0);
         }
-
-        searchRides(source, destination);
-    });
+    );
 
 
-    // =========================
-    // CLEAR SEARCH
-    // =========================
+    /* =====================================================
+       CLEAR SEARCH
+       ===================================================== */
 
-    clearSearchButton.addEventListener("click", function () {
+    clearSearchButton.addEventListener(
+        "click",
+        function () {
 
-        sourceInput.value = "";
-        destinationInput.value = "";
+            sourceInput.value = "";
 
-        hideError();
+            destinationInput.value = "";
 
-        if (currentMode === "my") {
+            currentSource = "";
 
-            loadMyRides();
+            currentDestination = "";
 
-        } else {
+            isSearching = false;
 
-            loadAllRides();
+            hideSearchValidation();
+
+            hideError();
+
+            loadRides(0);
         }
-    });
+    );
 
 
-    // =========================
-    // ENTER KEY SEARCH
-    // =========================
+    /* =====================================================
+       ENTER KEY SEARCH
+       ===================================================== */
 
-    sourceInput.addEventListener("keydown", handleEnter);
+    sourceInput.addEventListener(
+        "keydown",
+        handleEnter
+    );
 
-    destinationInput.addEventListener("keydown", handleEnter);
+    destinationInput.addEventListener(
+        "keydown",
+        handleEnter
+    );
 
 
     function handleEnter(event) {
 
         if (event.key === "Enter") {
 
+            event.preventDefault();
+
             searchButton.click();
         }
     }
 
 
-    // =========================
-    // RETRY
-    // =========================
+    /* =====================================================
+       RETRY
+       ===================================================== */
 
-    retryButton.addEventListener("click", function () {
+    retryButton.addEventListener(
+        "click",
+        function () {
 
-        if (currentMode === "my") {
-
-            loadMyRides();
-
-        } else {
-
-            loadAllRides();
+            loadRides(currentPage);
         }
-    });
+    );
 
 
-    // =========================
-    // OFFER RIDE
-    // =========================
+    /* =====================================================
+       OFFER RIDE
+       ===================================================== */
 
-    offerRideButton.addEventListener("click", function () {
+    offerRideButton.addEventListener(
+        "click",
+        function () {
 
-        window.location.href = "/rides/create";
-    });
-
-
-    emptyOfferButton.addEventListener("click", function () {
-
-        window.location.href = "/rides/create";
-    });
+            window.location.href =
+                "/rides/create";
+        }
+    );
 
 
-    // =========================
-    // LOAD ALL RIDES
-    // =========================
+    /* =====================================================
+       LOAD RIDES
+       ===================================================== */
 
-    async function loadAllRides() {
+    async function loadRides(page) {
+
+        /*
+         * Prevent duplicate requests.
+         *
+         * Example:
+         * User clicks page 2 multiple times quickly.
+         *
+         * Only one request should be active.
+         */
+
+        if (isLoading) {
+            return;
+        }
+
+
+        isLoading = true;
+
+        currentPage = page;
+
+        hideSearchValidation();
 
         showLoading();
 
+
         try {
 
-            const response = await API.get("/api/rides");
+            let url;
 
-            if (!response) {
-                return;
+
+            /* ---------------------------------------------
+               SEARCH MODE
+               --------------------------------------------- */
+
+            if (
+                isSearching &&
+                currentSource &&
+                currentDestination
+            ) {
+
+                const params =
+                    new URLSearchParams({
+                        source: currentSource,
+                        destination: currentDestination,
+                        page: page,
+                        size: PAGE_SIZE
+                    });
+
+                url =
+                    `/api/rides/search?${params.toString()}`;
             }
 
-            if (!response.ok) {
+
+            /* ---------------------------------------------
+               NORMAL MODE
+               --------------------------------------------- */
+
+            else {
+
+                const params =
+                    new URLSearchParams({
+                        page: page,
+                        size: PAGE_SIZE
+                    });
+
+                url =
+                    `/api/rides?${params.toString()}`;
+            }
+
+
+            /* ---------------------------------------------
+               API CALL
+               --------------------------------------------- */
+
+            const response =
+                await API.get(url);
+
+
+            if (!response) {
 
                 throw new Error(
-                    "Unable to load rides."
+                    "No response received from server."
                 );
             }
 
-            const rides = await response.json();
 
-            renderRides(rides);
+            if (!response.ok) {
+
+                let message =
+                    "Unable to load rides.";
+
+                try {
+
+                    const error =
+                        await response.json();
+
+                    message =
+                        error?.message ||
+                        error?.error ||
+                        message;
+
+                } catch (e) {
+
+                    // Ignore JSON parsing errors
+                }
+
+                throw new Error(message);
+            }
+
+
+            const data =
+                await response.json();
+
+
+            renderResponse(data);
+
 
         } catch (error) {
 
@@ -192,120 +320,142 @@ document.addEventListener("DOMContentLoaded", function () {
                 error
             );
 
+
             showError(
+                error.message ||
                 "Unable to load rides. Please try again."
             );
+
+        } finally {
+
+            isLoading = false;
         }
     }
 
 
-    // =========================
-    // LOAD MY RIDES
-    // =========================
+    /* =====================================================
+       HANDLE API RESPONSE
+       ===================================================== */
 
-    async function loadMyRides() {
+    function renderResponse(data) {
 
-        showLoading();
+        /*
+         * Backend now returns RidePageResponse:
+         *
+         * {
+         *     content: [],
+         *     page: 0,
+         *     size: 5,
+         *     totalElements: 20,
+         *     totalPages: 4,
+         *     first: true,
+         *     last: false
+         * }
+         */
 
-        try {
 
-            const response = await API.get(
-                "/api/rides/my"
-            );
+        if (
+            !data ||
+            !Array.isArray(data.content)
+        ) {
 
-            if (!response) {
-                return;
-            }
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Unable to load your rides."
-                );
-            }
-
-            const rides = await response.json();
-
-            renderRides(rides);
-
-        } catch (error) {
-
-            console.error(
-                "Error loading my rides:",
-                error
-            );
-
-            showError(
-                "Unable to load your rides."
+            throw new Error(
+                "Unexpected response received from rides API."
             );
         }
+
+
+        const rides =
+            data.content;
+
+
+        const totalElements =
+            Number(
+                data.totalElements || 0
+            );
+
+
+        /*
+         * IMPORTANT:
+         *
+         * Your custom RidePageResponse contains
+         * "page", not Spring Page's "number".
+         */
+
+        const page =
+            Number(
+                data.page || 0
+            );
+
+
+        const totalPages =
+            Number(
+                data.totalPages || 0
+            );
+
+
+        const first =
+            Boolean(data.first);
+
+
+        const last =
+            Boolean(data.last);
+
+
+        currentPage = page;
+
+
+        renderRideList(
+            rides,
+            totalElements
+        );
+
+
+        renderPagination(
+            page,
+            totalPages,
+            first,
+            last
+        );
     }
 
 
-    // =========================
-    // SEARCH RIDES
-    // =========================
+    /* =====================================================
+       RENDER RIDE LIST
+       ===================================================== */
 
-    async function searchRides(source, destination) {
-
-        showLoading();
-
-        try {
-
-            const url =
-                "/api/rides/search"
-                + "?source="
-                + encodeURIComponent(source)
-                + "&destination="
-                + encodeURIComponent(destination);
-
-            const response = await API.get(url);
-
-            if (!response) {
-                return;
-            }
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Unable to search rides."
-                );
-            }
-
-            const rides = await response.json();
-
-            renderRides(rides);
-
-        } catch (error) {
-
-            console.error(
-                "Error searching rides:",
-                error
-            );
-
-            showError(
-                "Unable to search rides. Please try again."
-            );
-        }
-    }
-
-
-    // =========================
-    // RENDER RIDES
-    // =========================
-
-    function renderRides(rides) {
+    function renderRideList(
+        rides,
+        totalElements
+    ) {
 
         hideAllStates();
 
+
         ridesList.innerHTML = "";
 
+
+        /* ---------------------------------------------
+           COUNT
+           --------------------------------------------- */
+
         rideCount.textContent =
-            rides.length
-            + (rides.length === 1 ? " ride" : " rides");
+            totalElements +
+            (
+                totalElements === 1
+                    ? " ride"
+                    : " rides"
+            );
 
 
-        if (!rides || rides.length === 0) {
+        /* ---------------------------------------------
+           EMPTY
+           --------------------------------------------- */
+
+        if (
+            !rides ||
+            rides.length === 0
+        ) {
 
             showEmpty();
 
@@ -313,156 +463,253 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        rides.forEach(function (ride) {
+        /* ---------------------------------------------
+           CARDS
+           --------------------------------------------- */
 
-            const card = createRideCard(ride);
+        rides.forEach(
+            function (ride) {
 
-            ridesList.appendChild(card);
-        });
+                const card =
+                    createRideCard(ride);
+
+                ridesList.appendChild(card);
+            }
+        );
 
 
-        ridesList.classList.remove("hidden");
+        ridesList.classList.remove(
+            "hidden"
+        );
     }
 
 
-    // =========================
-    // CREATE RIDE CARD
-    // =========================
+    /* =====================================================
+       CREATE RIDE CARD
+       ===================================================== */
 
     function createRideCard(ride) {
 
-        const card = document.createElement("div");
+        const card =
+            document.createElement("article");
 
-        card.className = "ride-card";
+        card.className =
+            "ride-card";
 
 
-        // =========================
-        // STATUS
-        // =========================
+        /* =================================================
+           STATUS
+           ================================================= */
 
         const status =
-            ride.status || "SCHEDULED";
+            String(
+                ride?.status ||
+                "SCHEDULED"
+            ).toUpperCase();
 
-        const statusClass =
-            "status-"
-            + status.toLowerCase();
+
+        let statusClass =
+            "ride-status-active";
 
 
-        // =========================
-        // DATE / TIME
-        // =========================
+        if (
+            status === "CANCELLED"
+        ) {
+
+            statusClass =
+                "ride-status-cancelled";
+
+        } else if (
+            status === "STARTED" ||
+            status === "IN_PROGRESS"
+        ) {
+
+            statusClass =
+                "ride-status-started";
+
+        } else if (
+            status === "COMPLETED"
+        ) {
+
+            statusClass =
+                "ride-status-completed";
+        }
+
+
+        /* =================================================
+           DATE
+           ================================================= */
 
         const departure =
-            formatDateTime(ride.departureTime);
+            formatDateTime(
+                ride?.departureTime
+            );
 
 
-        // =========================
-        // CARD
-        // =========================
+        /* =================================================
+           CARD HTML
+           ================================================= */
 
         card.innerHTML = `
 
-            <div class="ride-card-top">
+            <div class="ride-card-header">
 
-                <div class="route">
+                <div class="ride-route">
 
-                    <span class="location">
-                        ${escapeHtml(ride.source)}
+                    <span
+                        class="ride-route-location"
+                        title="${escapeHtml(
+                            ride?.source
+                        )}">
+
+                        ${escapeHtml(
+                            ride?.source ||
+                            "Unknown"
+                        )}
+
                     </span>
 
-                    <span class="route-line">
-                        →
+
+                    <span
+                        class="ride-route-arrow"
+                        aria-hidden="true">
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
                     </span>
 
-                    <span class="location">
-                        ${escapeHtml(ride.destination)}
+
+                    <span
+                        class="ride-route-location"
+                        title="${escapeHtml(
+                            ride?.destination
+                        )}">
+
+                        ${escapeHtml(
+                            ride?.destination ||
+                            "Unknown"
+                        )}
+
                     </span>
 
                 </div>
 
-                <span class="status ${statusClass}">
-                    ${escapeHtml(status)}
+
+                <span
+                    class="ride-status ${statusClass}">
+
+                    ${formatStatus(status)}
+
                 </span>
 
             </div>
 
 
-            <div class="ride-info">
+            <div class="ride-details">
 
-                <div class="info-item">
 
-                    <span class="info-label">
+                <div class="ride-detail">
+
+                    <div class="ride-detail-label">
                         Departure
-                    </span>
+                    </div>
 
-                    <span class="info-value">
+                    <div class="ride-detail-value">
+
+                        <i class="fa-regular fa-calendar"></i>
+
                         ${departure}
-                    </span>
+
+                    </div>
 
                 </div>
 
 
-                <div class="info-item">
+                <div class="ride-detail">
 
-                    <span class="info-label">
+                    <div class="ride-detail-label">
                         Available Seats
-                    </span>
+                    </div>
 
-                    <span class="info-value">
-                        ${ride.availableSeats}
-                    </span>
+                    <div class="ride-detail-value">
 
-                </div>
+                        <i class="fa-solid fa-chair"></i>
 
-
-                <div class="info-item">
-
-                    <span class="info-label">
-                        Price / Seat
-                    </span>
-
-                    <span class="info-value price">
-                        ₹${formatPrice(ride.pricePerSeat)}
-                    </span>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <span class="info-label">
-                        Vehicle
-                    </span>
-
-                    <span class="info-value">
                         ${escapeHtml(
-                            ride.vehicleNumber || "N/A"
+                            ride?.availableSeats ??
+                            "N/A"
                         )}
-                    </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="ride-detail">
+
+                    <div class="ride-detail-label">
+                        Price / Seat
+                    </div>
+
+                    <div class="ride-detail-value ride-price">
+
+                        ₹${formatPrice(
+                            ride?.pricePerSeat
+                        )}
+
+                    </div>
+
+                </div>
+
+
+                <div class="ride-detail">
+
+                    <div class="ride-detail-label">
+                        Vehicle
+                    </div>
+
+                    <div class="ride-detail-value">
+
+                        ${escapeHtml(
+                            ride?.vehicleNumber ||
+                            "N/A"
+                        )}
+
+                    </div>
 
                 </div>
 
             </div>
 
 
-            <div class="driver-section">
+            <div class="ride-driver">
 
                 <div class="driver-avatar">
-                    👤
+
+                    <i class="fa-solid fa-user"></i>
+
                 </div>
 
-                <div class="driver-details">
+
+                <div class="driver-info">
 
                     <span class="driver-name">
+
                         ${escapeHtml(
-                            ride.driverName || "Unknown Driver"
+                            ride?.driverName ||
+                            "Unknown Driver"
                         )}
+
                     </span>
 
-                    <span class="vehicle-details">
+
+                    <span class="driver-vehicle">
+
                         ${escapeHtml(
-                            ride.vehicleModel || "Vehicle"
+                            ride?.vehicleModel ||
+                            "Vehicle"
                         )}
+
                     </span>
 
                 </div>
@@ -472,22 +719,287 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
 
 
-        // Click card → details page
+        /* =================================================
+           CARD CLICK
+           ================================================= */
 
-        card.addEventListener("click", function () {
+        card.addEventListener(
+            "click",
+            function () {
 
-            window.location.href =
-                "/rides/" + ride.id;
-        });
+                if (!ride?.id) {
+                    return;
+                }
+
+                window.location.href =
+                    `/rides/${ride.id}`;
+            }
+        );
 
 
         return card;
     }
 
 
-    // =========================
-    // FORMAT DATE
-    // =========================
+    /* =====================================================
+       PAGINATION
+       ===================================================== */
+
+    function renderPagination(
+        page,
+        totalPages,
+        first,
+        last
+    ) {
+
+        pagination.innerHTML = "";
+
+
+        if (
+            !totalPages ||
+            totalPages <= 1
+        ) {
+
+            hidePagination();
+
+            return;
+        }
+
+
+        pagination.classList.remove(
+            "hidden"
+        );
+
+
+        /* ---------------------------------------------
+           PREVIOUS
+           --------------------------------------------- */
+
+        const previousButton =
+            createPaginationButton(
+                '<i class="fa-solid fa-chevron-left"></i>',
+                first,
+                function () {
+
+                    if (!first) {
+
+                        loadRides(
+                            page - 1
+                        );
+                    }
+                }
+            );
+
+
+        previousButton.setAttribute(
+            "aria-label",
+            "Previous page"
+        );
+
+
+        pagination.appendChild(
+            previousButton
+        );
+
+
+        /* ---------------------------------------------
+           PAGE NUMBERS
+           --------------------------------------------- */
+
+        const maxVisiblePages = 5;
+
+
+        let startPage =
+            Math.max(
+                0,
+                page -
+                Math.floor(
+                    maxVisiblePages / 2
+                )
+            );
+
+
+        let endPage =
+            Math.min(
+                totalPages,
+                startPage + maxVisiblePages
+            );
+
+
+        /*
+         * Re-adjust start when we're
+         * near the final pages.
+         */
+
+        if (
+            endPage - startPage <
+            maxVisiblePages
+        ) {
+
+            startPage =
+                Math.max(
+                    0,
+                    endPage -
+                    maxVisiblePages
+                );
+        }
+
+
+        for (
+            let i = startPage;
+            i < endPage;
+            i++
+        ) {
+
+            const pageButton =
+                document.createElement("button");
+
+
+            pageButton.type =
+                "button";
+
+
+            pageButton.className =
+                "pagination-button";
+
+
+            if (i === page) {
+
+                pageButton.classList.add(
+                    "active"
+                );
+
+                pageButton.setAttribute(
+                    "aria-current",
+                    "page"
+                );
+            }
+
+
+            pageButton.textContent =
+                i + 1;
+
+
+            pageButton.addEventListener(
+                "click",
+                function () {
+
+                    if (
+                        i !== page &&
+                        !isLoading
+                    ) {
+
+                        loadRides(i);
+                    }
+                }
+            );
+
+
+            pagination.appendChild(
+                pageButton
+            );
+        }
+
+
+        /* ---------------------------------------------
+           NEXT
+           --------------------------------------------- */
+
+        const nextButton =
+            createPaginationButton(
+                '<i class="fa-solid fa-chevron-right"></i>',
+                last,
+                function () {
+
+                    if (!last) {
+
+                        loadRides(
+                            page + 1
+                        );
+                    }
+                }
+            );
+
+
+        nextButton.setAttribute(
+            "aria-label",
+            "Next page"
+        );
+
+
+        pagination.appendChild(
+            nextButton
+        );
+    }
+
+
+    /* =====================================================
+       CREATE PAGINATION BUTTON
+       ===================================================== */
+
+    function createPaginationButton(
+        content,
+        disabled,
+        clickHandler
+    ) {
+
+        const button =
+            document.createElement("button");
+
+
+        button.type =
+            "button";
+
+
+        button.className =
+            "pagination-button";
+
+
+        button.innerHTML =
+            content;
+
+
+        button.disabled =
+            disabled;
+
+
+        button.addEventListener(
+            "click",
+            clickHandler
+        );
+
+
+        return button;
+    }
+
+
+    /* =====================================================
+       FORMAT STATUS
+       ===================================================== */
+
+    function formatStatus(status) {
+
+        if (!status) {
+            return "Scheduled";
+        }
+
+
+        return String(status)
+            .replaceAll("_", " ")
+            .toLowerCase()
+            .replace(
+                /\b\w/g,
+                function (char) {
+
+                    return char.toUpperCase();
+                }
+            );
+    }
+
+
+    /* =====================================================
+       FORMAT DATE / TIME
+       ===================================================== */
 
     function formatDateTime(dateTime) {
 
@@ -495,11 +1007,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return "N/A";
         }
 
-        const date = new Date(dateTime);
 
-        if (isNaN(date.getTime())) {
+        const date =
+            new Date(dateTime);
+
+
+        if (
+            isNaN(
+                date.getTime()
+            )
+        ) {
+
             return dateTime;
         }
+
 
         return date.toLocaleString(
             "en-IN",
@@ -514,17 +1035,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // =========================
-    // FORMAT PRICE
-    // =========================
+    /* =====================================================
+       FORMAT PRICE
+       ===================================================== */
 
     function formatPrice(price) {
 
-        if (price === null || price === undefined) {
+        if (
+            price === null ||
+            price === undefined ||
+            price === ""
+        ) {
+
             return "0.00";
         }
 
-        return Number(price).toLocaleString(
+
+        const numericPrice =
+            Number(price);
+
+
+        if (
+            Number.isNaN(
+                numericPrice
+            )
+        ) {
+
+            return "0.00";
+        }
+
+
+        return numericPrice.toLocaleString(
             "en-IN",
             {
                 minimumFractionDigits: 2,
@@ -534,98 +1075,177 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // =========================
-    // TAB
-    // =========================
+    /* =====================================================
+       SEARCH VALIDATION
+       ===================================================== */
 
-    function setActiveTab(activeTab, inactiveTab) {
+    function showSearchValidation() {
 
-        activeTab.classList.add("active");
+        if (!searchValidation) {
+            return;
+        }
 
-        inactiveTab.classList.remove("active");
+
+        searchValidation.classList.remove(
+            "hidden"
+        );
     }
 
 
-    // =========================
-    // SHOW LOADING
-    // =========================
+    function hideSearchValidation() {
+
+        if (!searchValidation) {
+            return;
+        }
+
+
+        searchValidation.classList.add(
+            "hidden"
+        );
+    }
+
+
+    /* =====================================================
+       SHOW LOADING
+       ===================================================== */
 
     function showLoading() {
 
         hideAllStates();
 
-        loadingState.classList.remove("hidden");
+        hidePagination();
+
+
+        loadingState.classList.remove(
+            "hidden"
+        );
     }
 
 
-    // =========================
-    // SHOW EMPTY
-    // =========================
+    /* =====================================================
+       SHOW EMPTY
+       ===================================================== */
 
     function showEmpty() {
 
         hideAllStates();
 
-        emptyState.classList.remove("hidden");
+        hidePagination();
+
+
+        emptyState.classList.remove(
+            "hidden"
+        );
     }
 
 
-    // =========================
-    // SHOW ERROR
-    // =========================
+    /* =====================================================
+       SHOW ERROR
+       ===================================================== */
 
     function showError(message) {
 
         hideAllStates();
 
-        errorMessage.textContent = message;
+        hidePagination();
 
-        errorState.classList.remove("hidden");
+
+        errorMessage.textContent =
+            message;
+
+
+        errorState.classList.remove(
+            "hidden"
+        );
     }
 
 
-    // =========================
-    // HIDE ERROR
-    // =========================
+    /* =====================================================
+       HIDE ERROR
+       ===================================================== */
 
     function hideError() {
 
-        errorState.classList.add("hidden");
+        errorState.classList.add(
+            "hidden"
+        );
     }
 
 
-    // =========================
-    // HIDE ALL STATES
-    // =========================
+    /* =====================================================
+       HIDE PAGINATION
+       ===================================================== */
+
+    function hidePagination() {
+
+        pagination.innerHTML = "";
+
+        pagination.classList.add(
+            "hidden"
+        );
+    }
+
+
+    /* =====================================================
+       HIDE ALL STATES
+       ===================================================== */
 
     function hideAllStates() {
 
-        loadingState.classList.add("hidden");
+        loadingState.classList.add(
+            "hidden"
+        );
 
-        emptyState.classList.add("hidden");
+        emptyState.classList.add(
+            "hidden"
+        );
 
-        errorState.classList.add("hidden");
+        errorState.classList.add(
+            "hidden"
+        );
 
-        ridesList.classList.add("hidden");
+        ridesList.classList.add(
+            "hidden"
+        );
     }
 
 
-    // =========================
-    // ESCAPE HTML
-    // =========================
+    /* =====================================================
+       ESCAPE HTML
+       ===================================================== */
 
     function escapeHtml(value) {
 
-        if (value === null || value === undefined) {
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
             return "";
         }
 
+
         return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
     }
 
 });

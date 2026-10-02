@@ -3,204 +3,312 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
   <th:block th:replace="~{fragments/head :: common-head}">
   </th:block>
 
   <title>
-    Rides | Carpool
+    Find a Ride | Carpool
   </title>
 
   <!-- RIDES -->
-  <link rel="stylesheet" th:href="@{/css/ride/rides.css}">
+  <link rel="stylesheet"
+        th:href="@{/css/ride/rides.css}">
 
   <th:block th:replace="~{fragments/head :: theme-resources}">
   </th:block>
+
 </head>
 
 <body>
 
-<!-- =========================
-     NAVBAR
-========================= -->
+<!-- =====================================================
+     GLOBAL NAVBAR
+     ===================================================== -->
 
 <div th:replace="~{fragments/navbar :: nav}"></div>
 
-<!-- =========================
+
+<!-- =====================================================
      MAIN CONTENT
-========================= -->
+     ===================================================== -->
 
 <main class="rides-container">
 
-  <!-- Page Header -->
 
-  <section class="page-header">
+  <!-- =================================================
+       HERO
+       ================================================= -->
 
-    <div>
-      <p class="eyebrow">CARPOOL RIDES</p>
+  <section class="rides-hero">
 
-      <h1>Find your next ride</h1>
+    <div class="rides-hero-content">
 
-      <p class="page-description">
-        Search available rides or manage the rides you offer.
-      </p>
+      <div class="hero-text">
+
+        <p class="eyebrow">
+          CARPOOL
+        </p>
+
+        <h1>
+          Find your next ride
+        </h1>
+
+        <p>
+          Search available rides and find a journey
+          that works for you.
+        </p>
+
+      </div>
+
+
+      <button
+              type="button"
+              id="offerRideButton"
+              class="offer-ride-button">
+
+        <i class="fa-solid fa-plus"></i>
+
+        Offer a Ride
+
+      </button>
+
     </div>
-
-    <button id="offerRideButton" class="primary-button">
-      + Offer a Ride
-    </button>
 
   </section>
 
 
-  <!-- =========================
+  <!-- =================================================
        SEARCH CARD
-  ========================= -->
+       ================================================= -->
 
-  <section class="search-card">
+  <section class="ride-search-card">
 
-    <div class="search-title">
 
-      <div class="search-icon">
-        🔍
+    <!-- SEARCH HEADER -->
+
+    <div class="search-card-header">
+
+      <div class="search-card-icon">
+
+        <i class="fa-solid fa-magnifying-glass"></i>
+
       </div>
 
+
       <div>
-        <h2>Find a Ride</h2>
+
+        <h2>
+          Find a Ride
+        </h2>
 
         <p>
-          Enter your starting point and destination.
+          Tell us where you're going.
         </p>
+
       </div>
 
     </div>
 
 
-    <div class="search-form">
+    <!-- SEARCH FORM -->
 
-      <div class="input-group">
+    <div class="ride-search-form">
+
+
+      <!-- FROM -->
+
+      <div class="ride-input-wrapper">
 
         <label for="source">
           From
         </label>
 
-        <input
-                type="text"
-                id="source"
-                placeholder="e.g. Hyderabad"
-        >
+        <div class="ride-input">
+
+          <i class="fa-solid fa-location-dot"></i>
+
+          <input
+                  type="text"
+                  id="source"
+                  placeholder="e.g. Hyderabad"
+                  autocomplete="off"
+          >
+
+        </div>
 
       </div>
 
 
-      <div class="route-arrow">
-        →
+      <!-- ROUTE CONNECTOR -->
+
+      <div
+              class="route-connector"
+              aria-hidden="true">
+
+        <span></span>
+
+        <i class="fa-solid fa-arrow-right"></i>
+
+        <span></span>
+
       </div>
 
 
-      <div class="input-group">
+      <!-- TO -->
+
+      <div class="ride-input-wrapper">
 
         <label for="destination">
           To
         </label>
 
-        <input
-                type="text"
-                id="destination"
-                placeholder="e.g. Vijayawada"
-        >
+        <div class="ride-input">
+
+          <i class="fa-solid fa-location-dot"></i>
+
+          <input
+                  type="text"
+                  id="destination"
+                  placeholder="e.g. Vijayawada"
+                  autocomplete="off"
+          >
+
+        </div>
 
       </div>
 
 
-      <button
-              id="searchButton"
-              class="search-button">
+      <!-- ACTIONS -->
 
-        Search
+      <div class="ride-search-actions">
 
-      </button>
+        <button
+                type="button"
+                id="searchButton"
+                class="search-button">
+
+          <i class="fa-solid fa-magnifying-glass"></i>
+
+          Search
+
+        </button>
 
 
-      <button
-              id="clearSearchButton"
-              class="clear-button">
+        <button
+                type="button"
+                id="clearSearchButton"
+                class="clear-button">
 
-        Clear
+          Clear
 
-      </button>
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- SEARCH VALIDATION -->
+
+    <div
+            id="searchValidation"
+            class="search-validation hidden">
+
+      <i class="fa-solid fa-circle-exclamation"></i>
+
+      <span>
+        Please enter both your starting point and destination.
+      </span>
 
     </div>
 
   </section>
 
 
-  <!-- =========================
-       RIDE TABS
-  ========================= -->
+  <!-- =================================================
+       RESULTS
+       ================================================= -->
 
-  <section class="ride-section">
+  <section class="ride-results-section">
 
-    <div class="section-header">
 
-      <div class="tabs">
+    <!-- RESULTS HEADER -->
 
-        <button
-                id="allRidesTab"
-                class="tab active">
+    <div class="results-header">
 
-          All Rides
+      <div>
 
-        </button>
+        <div class="results-title-row">
 
-        <button
-                id="myRidesTab"
-                class="tab">
+          <h2>
+            Available Rides
+          </h2>
 
-          My Rides
+          <span
+                  id="rideCount"
+                  class="ride-count">
 
-        </button>
+            0 rides
+
+          </span>
+
+        </div>
+
+        <p>
+          Browse rides available for your journey.
+        </p>
 
       </div>
-
-      <span id="rideCount" class="ride-count">
-                0 rides
-            </span>
 
     </div>
 
 
-    <!-- Loading -->
+    <!-- =================================================
+         LOADING
+         ================================================= -->
 
-    <div id="loadingState" class="state-container">
+    <div
+            id="loadingState"
+            class="state-container loading-state">
 
       <div class="spinner"></div>
 
       <p>
-        Loading rides...
+        Finding available rides...
       </p>
 
     </div>
 
 
-    <!-- Error -->
+    <!-- =================================================
+         ERROR
+         ================================================= -->
 
     <div
             id="errorState"
             class="state-container error-state hidden">
 
       <div class="state-icon">
-        ⚠️
+
+        <i class="fa-solid fa-circle-exclamation"></i>
+
       </div>
 
-      <h3>Unable to load rides</h3>
+      <h3>
+        Unable to load rides
+      </h3>
 
       <p id="errorMessage">
         Something went wrong while loading rides.
       </p>
 
       <button
+              type="button"
               id="retryButton"
               class="secondary-button">
+
+        <i class="fa-solid fa-rotate-right"></i>
 
         Try Again
 
@@ -209,38 +317,55 @@
     </div>
 
 
-    <!-- Empty -->
+    <!-- =================================================
+         EMPTY
+         ================================================= -->
 
     <div
             id="emptyState"
             class="state-container empty-state hidden">
 
       <div class="state-icon">
-        🚗
+
+        <i class="fa-solid fa-car-side"></i>
+
       </div>
 
-      <h3>No rides found</h3>
+      <h3>
+        No rides found
+      </h3>
 
       <p>
-        There are no rides matching your search.
+        We couldn't find any rides matching your journey.
+        Try a different route or offer a ride yourself.
       </p>
-
-      <button
-              id="emptyOfferButton"
-              class="primary-button">
-
-        Offer a Ride
-
-      </button>
 
     </div>
 
 
-    <!-- Ride Cards -->
+    <!-- =================================================
+         RIDES LIST
+         ================================================= -->
 
     <div
             id="ridesList"
             class="rides-list hidden">
+
+      <!-- Ride cards generated by rides.js -->
+
+    </div>
+
+
+    <!-- =================================================
+         PAGINATION
+         ================================================= -->
+
+    <div
+            id="pagination"
+            class="pagination hidden">
+
+      <!-- Pagination generated by rides.js -->
+
     </div>
 
   </section>
@@ -248,9 +373,9 @@
 </main>
 
 
-<!-- =========================
+<!-- =====================================================
      FOOTER
-========================= -->
+     ===================================================== -->
 
 <footer class="footer">
 
@@ -261,11 +386,13 @@
 </footer>
 
 
-<!-- =========================
+<!-- =====================================================
      JAVASCRIPT
-========================= -->
+     ===================================================== -->
+
 <th:block th:replace="~{fragments/scripts :: common-scripts}">
 </th:block>
+
 <script th:src="@{/js/ride/rides.js}"></script>
 
 </body>

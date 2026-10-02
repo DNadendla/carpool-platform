@@ -1,10 +1,9 @@
 package com.carpool.booking.dto;
 
 import com.carpool.ride.entity.Ride;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Getter
 @Setter
@@ -13,21 +12,25 @@ import java.time.LocalDateTime;
 @Builder
 public class RideSummaryResponse {
 
-    private Long id;
+  private Long id;
 
-    private String source;
+  private String source;
 
-    private String destination;
+  private String destination;
 
-    private LocalDateTime departureTime;
+  private LocalDateTime departureTime;
 
-    private Integer availableSeats;
+  private Integer availableSeats;
 
-    private BigDecimal pricePerSeat;
+  private BigDecimal pricePerSeat;
 
-    private Ride.RideStatus status;
+  private DriverSummaryResponse driver;
 
-    private DriverSummaryResponse driver;
+  private VehicleSummaryResponse vehicle;
 
-    private VehicleSummaryResponse vehicle;
+  private Ride.RideStatus status;
+
+  private Ride.CancellationActor cancelledBy;
+
+  private LocalDateTime cancelledAt;
 }
