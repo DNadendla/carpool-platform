@@ -461,7 +461,6 @@ document.addEventListener(
                     "hidden"
                 );
 
-
                 if (rideMainGrid) {
 
                     rideMainGrid.classList.add(
@@ -469,6 +468,45 @@ document.addEventListener(
                     );
                 }
 
+                return;
+            }
+
+
+            /*
+             * Driver cannot book their own ride.
+             *
+             * Backend already enforces this rule.
+             * This check prevents the invalid
+             * booking UI from being displayed.
+             */
+
+            const currentUserId =
+                Number(
+                    localStorage.getItem("userId")
+                );
+
+
+            const driverId =
+                Number(ride.driverId);
+
+
+            if (
+                currentUserId &&
+                driverId &&
+                currentUserId === driverId
+            ) {
+
+                bookingSection.classList.add(
+                    "hidden"
+                );
+
+
+                if (rideMainGrid) {
+
+                    rideMainGrid.classList.add(
+                        "booking-unavailable"
+                    );
+                }
 
                 return;
             }

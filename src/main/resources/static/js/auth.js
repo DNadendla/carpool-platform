@@ -132,6 +132,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
                 localStorage.setItem(
+                    "userId",
+                    data.userId
+                );
+
+                localStorage.setItem(
                     "userEmail",
                     data.email
                 );
