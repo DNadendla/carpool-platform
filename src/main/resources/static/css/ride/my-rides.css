@@ -974,6 +974,16 @@
 }
 
 
+.ride-status.expired {
+
+    background:
+        var(--cp-surface-soft);
+
+    color:
+        var(--cp-text-muted);
+}
+
+
 /* =========================================================
    ROUTE
    ========================================================= */
@@ -1365,6 +1375,23 @@
 }
 
 
+.ride-cancellation-reason {
+
+    flex-basis:
+        100%;
+
+    padding-top:
+        7px;
+
+    border-top:
+        1px solid
+        rgba(220, 38, 38, 0.18);
+
+    line-height:
+        1.5;
+}
+
+
 /* =========================================================
    CARD FOOTER
    ========================================================= */
@@ -1533,6 +1560,89 @@
 
     color:
         var(--cp-danger-text);
+}
+
+
+.ride-action-button.start {
+
+    border:
+        1px solid
+        var(--cp-primary);
+
+    background:
+        var(--cp-primary);
+
+    color:
+        #ffffff;
+}
+
+
+.ride-action-button.start:hover {
+
+    border-color:
+        var(--cp-primary-dark);
+
+    background:
+        var(--cp-primary-dark);
+
+    color:
+        #ffffff;
+}
+
+
+.ride-action-button.complete {
+
+    border:
+        1px solid
+        var(--cp-success-text);
+
+    background:
+        var(--cp-success-bg);
+
+    color:
+        var(--cp-success-text);
+}
+
+
+.ride-action-button.complete:hover {
+
+    border-color:
+        var(--cp-success-text);
+
+    background:
+        var(--cp-success-text);
+
+    color:
+        #ffffff;
+}
+
+
+
+
+.ride-action-button.info {
+
+    border:
+        1px solid
+        var(--cp-border);
+
+    background:
+        var(--cp-surface);
+
+    color:
+        var(--cp-text-secondary);
+}
+
+
+.ride-action-button.info:hover {
+
+    border-color:
+        var(--cp-primary);
+
+    background:
+        rgba(37, 99, 235, 0.08);
+
+    color:
+        var(--cp-primary);
 }
 
 
@@ -2153,6 +2263,172 @@
 }
 
 
+/* =========================================================
+   CANCELLATION REASON FIELD
+   ========================================================= */
+
+.cancel-reason-field {
+
+    margin-top:
+        14px;
+}
+
+
+.cancel-reason-field label {
+
+    display:
+        block;
+
+    margin-bottom:
+        6px;
+
+    color:
+        var(--cp-text);
+
+    font-size:
+        11px;
+
+    font-weight:
+        750;
+}
+
+
+.cancellation-reason-input {
+
+    width:
+        100%;
+
+    min-height:
+        92px;
+
+    padding:
+        10px 11px;
+
+    border:
+        1px solid
+        var(--cp-border);
+
+    border-radius:
+        9px;
+
+    background:
+        var(--cp-surface);
+
+    color:
+        var(--cp-text);
+
+    font-family:
+        inherit;
+
+    font-size:
+        11px;
+
+    line-height:
+        1.5;
+
+    resize:
+        vertical;
+
+    outline:
+        none;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.cancellation-reason-input::placeholder {
+
+    color:
+        var(--cp-text-muted);
+}
+
+
+.cancellation-reason-input:focus {
+
+    border-color:
+        var(--cp-primary);
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+.cancellation-reason-input.invalid {
+
+    border-color:
+        var(--cp-danger-text);
+
+    box-shadow:
+        0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+
+.cancel-reason-meta {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        10px;
+
+    margin-top:
+        5px;
+}
+
+
+.field-error {
+
+    color:
+        var(--cp-danger-text);
+
+    font-size:
+        10px;
+
+    font-weight:
+        650;
+}
+
+
+.character-count {
+
+    margin-left:
+        auto;
+
+    color:
+        var(--cp-text-muted);
+
+    font-size:
+        9px;
+
+    font-weight:
+        600;
+}
+
+
+.cancel-reason-help {
+
+    display:
+        block;
+
+    margin-top:
+        3px;
+
+    color:
+        var(--cp-text-muted);
+
+    font-size:
+        9px;
+}
+
+
 .modal-actions {
 
     display:
@@ -2269,6 +2545,315 @@
 /* =========================================================
    FOOTER
    ========================================================= */
+
+/* =========================================================
+   CANCELLATION DETAILS MODAL
+   ========================================================= */
+
+.cancellation-details-modal {
+
+    width:
+        min(520px, 100%);
+}
+
+
+.cancellation-details-icon {
+
+    background:
+        var(--cp-danger-bg);
+
+    color:
+        var(--cp-danger-text);
+}
+
+
+.cancellation-details-eyebrow {
+
+    color:
+        var(--cp-danger-text);
+}
+
+
+.cancellation-details-summary {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        10px;
+
+    margin-top:
+        16px;
+
+    padding:
+        13px;
+
+    border:
+        1px solid
+        var(--cp-border);
+
+    border-radius:
+        11px;
+
+    background:
+        var(--cp-surface-soft);
+}
+
+
+.cancellation-details-row,
+.cancellation-details-route {
+
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    justify-content:
+        space-between;
+
+    gap:
+        15px;
+}
+
+
+.cancellation-details-label {
+
+    flex:
+        0 0 105px;
+
+    color:
+        var(--cp-text-muted);
+
+    font-size:
+        9px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        0.8px;
+
+    text-transform:
+        uppercase;
+}
+
+
+.cancellation-details-row strong {
+
+    color:
+        var(--cp-text);
+
+    font-size:
+        11px;
+
+    font-weight:
+        750;
+
+    text-align:
+        right;
+}
+
+
+.cancellation-details-route-value {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        flex-end;
+
+    gap:
+        8px;
+
+    min-width:
+        0;
+}
+
+
+.cancellation-details-route-value strong {
+
+    overflow:
+        hidden;
+
+    color:
+        var(--cp-text);
+
+    font-size:
+        11px;
+
+    font-weight:
+        750;
+
+    text-overflow:
+        ellipsis;
+
+    white-space:
+        nowrap;
+}
+
+
+.cancellation-details-route-value i {
+
+    flex:
+        0 0 auto;
+
+    color:
+        var(--cp-text-secondary);
+
+    font-size:
+        9px;
+}
+
+
+.cancellation-details-reason {
+
+    margin-top:
+        2px;
+
+    padding-top:
+        11px;
+
+    border-top:
+        1px solid
+        var(--cp-border);
+}
+
+
+.cancellation-details-reason p {
+
+    margin:
+        6px 0 0;
+
+    padding:
+        9px 10px;
+
+    border:
+        1px solid
+        rgba(220, 38, 38, 0.15);
+
+    border-radius:
+        8px;
+
+    background:
+        var(--cp-danger-bg);
+
+    color:
+        var(--cp-text);
+
+    font-size:
+        11px;
+
+    line-height:
+        1.5;
+}
+
+
+/* =========================================================
+   START / COMPLETE RIDE CONFIRMATION MODAL
+   ========================================================= */
+
+.ride-action-confirmation-modal {
+
+    width:
+        min(500px, 100%);
+}
+
+
+.action-confirmation-icon {
+
+    background:
+        var(--cp-surface-soft);
+
+    color:
+        var(--cp-primary);
+}
+
+
+.action-confirmation-icon.start {
+
+    background:
+        rgba(37, 99, 235, 0.12);
+
+    color:
+        var(--cp-primary);
+}
+
+
+.action-confirmation-icon.complete {
+
+    background:
+        var(--cp-success-bg);
+
+    color:
+        var(--cp-success-text);
+}
+
+
+.action-confirmation-eyebrow {
+
+    color:
+        var(--cp-primary);
+}
+
+
+.action-confirmation-summary {
+
+    margin-top:
+        16px;
+}
+
+
+.modal-button.primary {
+
+    border:
+        1px solid
+        var(--cp-primary);
+
+    background:
+        var(--cp-primary);
+
+    color:
+        #ffffff;
+}
+
+
+.modal-button.primary:hover {
+
+    background:
+        var(--cp-primary-dark);
+
+    border-color:
+        var(--cp-primary-dark);
+}
+
+
+.modal-button.success {
+
+    border:
+        1px solid
+        var(--cp-success-text);
+
+    background:
+        var(--cp-success-text);
+
+    color:
+        #ffffff;
+}
+
+
+.modal-button.success:hover {
+
+    opacity:
+        0.88;
+}
+
 
 .my-rides-footer {
 
@@ -2550,6 +3135,41 @@
 
         justify-content:
             center;
+    }
+
+
+    .cancellation-details-row,
+    .cancellation-details-route {
+
+        flex-direction:
+            column;
+
+        gap:
+            4px;
+    }
+
+
+    .cancellation-details-label {
+
+        flex:
+            0 0 auto;
+    }
+
+
+    .cancellation-details-row strong {
+
+        text-align:
+            left;
+    }
+
+
+    .cancellation-details-route-value {
+
+        width:
+            100%;
+
+        justify-content:
+            flex-start;
     }
 
 

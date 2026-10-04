@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <th:block th:replace="~{fragments/head :: common-head}"></th:block>
+
+    <title>Booking Requests | Carpool</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/ride/booking-requests.css(v=20261004-2)}">
+
+    <th:block th:replace="~{fragments/head :: theme-resources}"></th:block>
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+<main class="br-page">
+
+    <div class="br-container">
+
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
+
+        <section class="br-hero">
+
+            <div class="br-hero-top">
+
+                <a href="/rides/my" class="br-back-link">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    My Rides
+                </a>
+
+                <div class="br-hero-actions">
+
+                    <button type="button"
+                            id="refreshButton"
+                            class="br-icon-button"
+                            title="Refresh requests"
+                            aria-label="Refresh requests">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+
+                    <button type="button"
+                            id="viewRideButton"
+                            class="br-secondary-button">
+                        <i class="fa-regular fa-eye"></i>
+                        View Ride
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="br-hero-copy">
+                <span class="br-eyebrow">DRIVER DASHBOARD</span>
+
+                <h1>Booking Requests</h1>
+
+                <p>
+                    Review who wants to join your ride, check their request details,
+                    and approve or reject each request.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             ERROR
+        ====================================================== -->
+
+        <section id="errorMessage"
+                 class="br-state br-error hidden"
+                 role="alert">
+
+            <div class="br-state-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+
+            <div class="br-state-copy">
+                <strong>Unable to load booking requests</strong>
+                <span id="errorText">Please try again.</span>
+            </div>
+
+            <button type="button"
+                    id="retryButton"
+                    class="br-primary-button">
+                Retry
+            </button>
+
+        </section>
+
+
+        <!-- =====================================================
+             RIDE OVERVIEW
+        ====================================================== -->
+
+        <section id="rideSummary"
+                 class="br-ride-card hidden">
+
+            <div class="br-ride-heading">
+
+                <div class="br-route-block">
+                    <span class="br-section-label">RIDE OVERVIEW</span>
+
+                    <h2 id="rideRouteTitle">-</h2>
+
+                    <p id="rideRouteSubtext">
+                        Manage passengers for this ride.
+                    </p>
+                </div>
+
+                <span id="rideStatusBadge"
+                      class="br-status-badge">
+                    -
+                </span>
+
+            </div>
+
+            <div class="br-summary-grid">
+
+                <div class="br-summary-item">
+                    <span class="br-summary-icon">
+                        <i class="fa-regular fa-calendar"></i>
+                    </span>
+                    <div>
+                        <span class="br-summary-label">DEPARTURE</span>
+                        <strong id="rideDeparture">-</strong>
+                    </div>
+                </div>
+
+                <div class="br-summary-item">
+                    <span class="br-summary-icon">
+                        <i class="fa-solid fa-chair"></i>
+                    </span>
+                    <div>
+                        <span class="br-summary-label">AVAILABLE SEATS</span>
+                        <strong id="rideAvailableSeats">-</strong>
+                    </div>
+                </div>
+
+                <div class="br-summary-item">
+                    <span class="br-summary-icon">
+                        <i class="fa-solid fa-indian-rupee-sign"></i>
+                    </span>
+                    <div>
+                        <span class="br-summary-label">PRICE / SEAT</span>
+                        <strong id="ridePricePerSeat">-</strong>
+                    </div>
+                </div>
+
+                <div class="br-summary-item">
+                    <span class="br-summary-icon">
+                        <i class="fa-solid fa-user-group"></i>
+                    </span>
+                    <div>
+                        <span class="br-summary-label">REQUESTS</span>
+                        <strong id="rideRequestCount">0</strong>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             LOADING
+        ====================================================== -->
+
+        <section id="loading"
+                 class="br-loading">
+            <span class="br-spinner"></span>
+            <div>
+                <strong>Loading requests</strong>
+                <span>Fetching the latest passenger requests...</span>
+            </div>
+        </section>
+
+
+        <!-- =====================================================
+             REQUEST CONTENT
+        ====================================================== -->
+
+        <section id="requestsContent"
+                 class="hidden">
+
+            <!-- ================= FILTER BAR ================= -->
+
+            <section class="br-filter-card">
+
+                <div class="br-filter-heading">
+                    <div>
+                        <span class="br-section-label">PASSENGERS</span>
+                        <h2>Manage requests</h2>
+                    </div>
+
+                    <span class="br-filter-note">
+                        Pending requests appear first.
+                    </span>
+                </div>
+
+                <div id="requestFilters"
+                     class="br-filters"
+                     role="tablist"
+                     aria-label="Booking request status">
+
+                    <button type="button"
+                            class="br-filter active"
+                            data-status="ALL"
+                            role="tab"
+                            aria-selected="true">
+                        <span>All</span>
+                        <strong id="countAll">0</strong>
+                    </button>
+
+                    <button type="button"
+                            class="br-filter"
+                            data-status="PENDING"
+                            role="tab"
+                            aria-selected="false">
+                        <span>Pending</span>
+                        <strong id="countPending">0</strong>
+                    </button>
+
+                    <button type="button"
+                            class="br-filter"
+                            data-status="CONFIRMED"
+                            role="tab"
+                            aria-selected="false">
+                        <span>Confirmed</span>
+                        <strong id="countConfirmed">0</strong>
+                    </button>
+
+                    <button type="button"
+                            class="br-filter"
+                            data-status="REJECTED"
+                            role="tab"
+                            aria-selected="false">
+                        <span>Rejected</span>
+                        <strong id="countRejected">0</strong>
+                    </button>
+
+                    <button type="button"
+                            class="br-filter"
+                            data-status="CANCELLED"
+                            role="tab"
+                            aria-selected="false">
+                        <span>Cancelled</span>
+                        <strong id="countCancelled">0</strong>
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================= SUCCESS ================= -->
+
+            <div id="successMessage"
+                 class="br-inline-message br-success hidden"
+                 role="status">
+                <i class="fa-solid fa-circle-check"></i>
+                <span id="successText"></span>
+            </div>
+
+
+            <!-- ================= REQUEST LIST ================= -->
+
+            <div id="requestsContainer"
+                 class="br-request-list">
+            </div>
+
+
+            <!-- ================= EMPTY ================= -->
+
+            <section id="emptyState"
+                     class="br-empty hidden">
+
+                <div class="br-empty-icon">
+                    <i class="fa-solid fa-user-group"></i>
+                </div>
+
+                <h2 id="emptyStateTitle">No requests found</h2>
+
+                <p id="emptyStateDescription">
+                    There are no booking requests for this ride yet.
+                </p>
+
+            </section>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     APPROVE MODAL
+========================================================== -->
+
+<div id="approveModal"
+     class="br-modal hidden"
+     aria-hidden="true">
+
+    <div class="br-modal-backdrop"
+         data-modal-close="true"></div>
+
+    <div class="br-modal-dialog"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="approveModalTitle">
+
+        <div class="br-modal-icon approve">
+            <i class="fa-solid fa-check"></i>
+        </div>
+
+        <div class="br-modal-body">
+            <span class="br-section-label">CONFIRM ACTION</span>
+            <h2 id="approveModalTitle">Approve booking?</h2>
+            <p>
+                This will confirm the passenger and reserve the requested seats.
+            </p>
+
+            <div class="br-modal-summary">
+                <div>
+                    <span>PASSENGER</span>
+                    <strong id="approvePassengerName">-</strong>
+                </div>
+                <div>
+                    <span>SEATS</span>
+                    <strong id="approveSeatCount">-</strong>
+                </div>
+            </div>
+
+            <div id="approveErrorMessage"
+                 class="br-modal-error hidden"
+                 role="alert"
+                 aria-live="assertive">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="approveErrorText"></span>
+            </div>
+        </div>
+
+        <div class="br-modal-actions">
+            <button type="button"
+                    id="closeApproveModalButton"
+                    class="br-modal-button secondary">
+                Not now
+            </button>
+
+            <button type="button"
+                    id="confirmApproveButton"
+                    class="br-modal-button approve">
+                <i class="fa-solid fa-check"></i>
+                Approve Booking
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- =========================================================
+     REJECT MODAL
+========================================================== -->
+
+<div id="rejectModal"
+     class="br-modal hidden"
+     aria-hidden="true">
+
+    <div class="br-modal-backdrop"
+         data-modal-close="true"></div>
+
+    <div class="br-modal-dialog"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="rejectModalTitle">
+
+        <div class="br-modal-icon reject">
+            <i class="fa-solid fa-ban"></i>
+        </div>
+
+        <div class="br-modal-body">
+            <span class="br-section-label">REJECT REQUEST</span>
+            <h2 id="rejectModalTitle">Reject booking?</h2>
+            <p>
+                Add a short reason so the passenger understands your decision.
+            </p>
+
+            <label for="rejectionReason">Reason</label>
+
+            <textarea id="rejectionReason"
+                      maxlength="500"
+                      rows="5"
+                      placeholder="Example: I need to reserve these seats for another passenger."></textarea>
+
+            <div class="br-textarea-meta">
+                <span id="rejectionReasonError"></span>
+                <span id="rejectionReasonCount">0 / 500</span>
+            </div>
+        </div>
+
+        <div class="br-modal-actions">
+            <button type="button"
+                    id="closeRejectModalButton"
+                    class="br-modal-button secondary">
+                Keep Request
+            </button>
+
+            <button type="button"
+                    id="confirmRejectButton"
+                    class="br-modal-button reject">
+                <i class="fa-solid fa-ban"></i>
+                Reject Booking
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+<th:block th:replace="~{fragments/scripts :: common-scripts}"></th:block>
+
+<script th:src="@{/js/ride/booking-requests.js(v=20261004-2)}"></script>
+
+</body>
+</html>

@@ -11,4 +11,5 @@ public class RideCountsResponse {
   private long started;
   private long completed;
   private long cancelled;
+  private long expired;
 }

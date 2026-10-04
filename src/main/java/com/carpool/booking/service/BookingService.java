@@ -1,6 +1,7 @@
 package com.carpool.booking.service;
 
 import com.carpool.booking.dto.BookingCounts;
+import com.carpool.booking.dto.BookingRejectionRequest;
 import com.carpool.booking.dto.BookingRequest;
 import com.carpool.booking.dto.BookingResponse;
 import com.carpool.booking.dto.BookingStatusCount;
@@ -12,7 +13,10 @@ import com.carpool.booking.entity.Booking;
 import com.carpool.booking.exception.BookingNotAllowedException;
 import com.carpool.booking.exception.InsufficientSeatsException;
 import com.carpool.booking.repository.BookingRepository;
+import com.carpool.exception.BusinessValidationException;
+import com.carpool.exception.ConflictException;
 import com.carpool.exception.DuplicateResourceException;
+import com.carpool.exception.OperationNotAllowedException;
 import com.carpool.exception.ResourceNotFoundException;
 import com.carpool.ride.entity.Ride;
 import com.carpool.ride.repository.RideRepository;
@@ -35,7 +39,6 @@ public class BookingService {
 
   private final BookingRepository bookingRepository;
   private final RideRepository rideRepository;
-
   private final AuthenticatedUserService authenticatedUserService;
 
   public BookingService(
@@ -48,12 +51,14 @@ public class BookingService {
     this.authenticatedUserService = authenticatedUserService;
   }
 
+  // =====================================================
+  // CREATE BOOKING
+  // =====================================================
+
   public BookingResponse createBooking(BookingRequest request) {
 
-    // 1. Find passenger
     User passenger = authenticatedUserService.getCurrentUser();
 
-    // 2. LOCK the ride
     Ride ride =
         rideRepository
             .findByIdForUpdate(request.getRideId())
@@ -62,59 +67,222 @@ public class BookingService {
                     new ResourceNotFoundException(
                         "Ride not found with id: " + request.getRideId()));
 
-    if (!LocalDateTime.now().isBefore(ride.getDepartureTime())) {
-      throw new BookingNotAllowedException("Cannot book a ride after its departure time");
-    }
+    validateRideAvailableForBooking(ride);
 
-    // 3. Check ride status
-    if (ride.getStatus() != Ride.RideStatus.SCHEDULED) {
-
-      throw new IllegalStateException("Ride is not available for booking");
-    }
-
-    // 4. Driver cannot book own ride
     if (ride.getDriver().getId().equals(passenger.getId())) {
-
-      throw new IllegalArgumentException("Driver cannot book their own ride");
+      throw new BookingNotAllowedException("Driver cannot book their own ride");
     }
 
-    // 5. Check duplicate booking
     boolean alreadyBooked =
-        bookingRepository.existsByRideIdAndPassengerIdAndStatus(
-            ride.getId(), passenger.getId(), Booking.BookingStatus.CONFIRMED);
+        bookingRepository.existsByRideIdAndPassengerIdAndStatusIn(
+            ride.getId(),
+            passenger.getId(),
+            List.of(Booking.BookingStatus.PENDING, Booking.BookingStatus.CONFIRMED));
 
     if (alreadyBooked) {
-
-      throw new DuplicateResourceException("Passenger already booked this ride");
+      throw new DuplicateResourceException(
+          "Passenger already has an active booking request for this ride");
     }
 
-    // 6. Check available seats
     if (request.getSeats() > ride.getAvailableSeats()) {
-
       throw new InsufficientSeatsException(
-          "Only " + ride.getAvailableSeats() + " seats are available");
+          "Only " + ride.getAvailableSeats() + " seats are currently available");
     }
 
-    // 7. Reduce seats
-    ride.setAvailableSeats(ride.getAvailableSeats() - request.getSeats());
+    /*
+     * Phase #2 rule:
+     * PENDING bookings do not consume seats.
+     * Seats are reserved only when the driver approves the booking.
+     */
 
-    // 8. Create booking
     Booking booking =
         Booking.builder()
             .ride(ride)
             .passenger(passenger)
             .seats(request.getSeats())
-            .status(Booking.BookingStatus.CONFIRMED)
+            .status(Booking.BookingStatus.PENDING)
             .build();
 
-    // 9. Save
     Booking savedBooking = bookingRepository.save(booking);
 
     return mapToResponse(savedBooking);
   }
 
+  // =====================================================
+  // APPROVE BOOKING
+  // =====================================================
+
+  public BookingResponse approveBooking(Long bookingId) {
+
+    User driver = authenticatedUserService.getCurrentUser();
+
+    // =====================================================
+    // GET RIDE ID ONLY
+    // Do NOT load Booking entity before locking.
+    // =====================================================
+
+    Long rideId =
+        bookingRepository
+            .findRideIdByBookingId(bookingId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
+
+    // =====================================================
+    // LOCK ORDER: RIDE -> BOOKING
+    // =====================================================
+
+    Ride ride =
+        rideRepository
+            .findByIdForUpdate(rideId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: " + rideId));
+
+    Booking booking =
+        bookingRepository
+            .findByIdForUpdate(bookingId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
+
+    // =====================================================
+    // DRIVER OWNERSHIP
+    // =====================================================
+
+    validateDriverOwnsRide(ride, driver);
+
+    // =====================================================
+    // RIDE STATUS
+    // =====================================================
+
+    validateBookingRideIsScheduled(ride);
+
+    if (!LocalDateTime.now().isBefore(ride.getDepartureTime())) {
+
+      throw new ConflictException("Cannot approve a booking after ride departure time");
+    }
+
+    // =====================================================
+    // BOOKING STATUS
+    // =====================================================
+
+    if (booking.getStatus() != Booking.BookingStatus.PENDING) {
+
+      throw new ConflictException(
+          "Only pending bookings can be approved. " + "Current status: " + booking.getStatus());
+    }
+
+    // =====================================================
+    // SEAT CHECK
+    // =====================================================
+
+    if (booking.getSeats() > ride.getAvailableSeats()) {
+
+      throw new InsufficientSeatsException(
+          "Only " + ride.getAvailableSeats() + " seats are available for approval");
+    }
+
+    // =====================================================
+    // RESERVE SEATS
+    // =====================================================
+
+    ride.setAvailableSeats(ride.getAvailableSeats() - booking.getSeats());
+
+    // =====================================================
+    // CONFIRM BOOKING
+    // =====================================================
+
+    booking.setStatus(Booking.BookingStatus.CONFIRMED);
+
+    booking.setRejectionReason(null);
+    booking.setRejectedAt(null);
+
+    Booking savedBooking = bookingRepository.save(booking);
+
+    return mapToResponse(savedBooking);
+  }
+
+  // =====================================================
+  // REJECT BOOKING
+  // =====================================================
+
+  public BookingResponse rejectBooking(Long bookingId, BookingRejectionRequest request) {
+
+    User driver = authenticatedUserService.getCurrentUser();
+
+    String reason = normalizeRejectionReason(request.getReason());
+
+    // =====================================================
+    // GET RIDE ID ONLY
+    // =====================================================
+
+    Long rideId =
+        bookingRepository
+            .findRideIdByBookingId(bookingId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
+
+    // =====================================================
+    // LOCK ORDER: RIDE -> BOOKING
+    // =====================================================
+
+    Ride ride =
+        rideRepository
+            .findByIdForUpdate(rideId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: " + rideId));
+
+    Booking booking =
+        bookingRepository
+            .findByIdForUpdate(bookingId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
+
+    // =====================================================
+    // DRIVER OWNERSHIP
+    // =====================================================
+
+    validateDriverOwnsRide(ride, driver);
+
+    // =====================================================
+    // RIDE STATUS
+    // =====================================================
+
+    validateBookingRideIsScheduled(ride);
+
+    if (!LocalDateTime.now().isBefore(ride.getDepartureTime())) {
+
+      throw new ConflictException("Cannot reject a booking after ride departure time");
+    }
+
+    // =====================================================
+    // BOOKING STATUS
+    // =====================================================
+
+    if (booking.getStatus() != Booking.BookingStatus.PENDING) {
+
+      throw new ConflictException(
+          "Only pending bookings can be rejected. " + "Current status: " + booking.getStatus());
+    }
+
+    // =====================================================
+    // REJECT
+    // =====================================================
+
+    booking.setStatus(Booking.BookingStatus.REJECTED);
+
+    booking.setRejectionReason(reason);
+
+    booking.setRejectedAt(LocalDateTime.now());
+
+    Booking savedBooking = bookingRepository.save(booking);
+
+    return mapToResponse(savedBooking);
+  }
+
+  // =====================================================
+  // GET BOOKING BY ID
+  // =====================================================
+
   @Transactional(readOnly = true)
   public BookingResponse getBookingById(Long id) {
+
     User currentUser = authenticatedUserService.getCurrentUser();
 
     Booking booking =
@@ -123,7 +291,6 @@ public class BookingService {
             .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + id));
 
     boolean isPassenger = booking.getPassenger().getId().equals(currentUser.getId());
-
     boolean isDriver = booking.getRide().getDriver().getId().equals(currentUser.getId());
 
     if (!isPassenger && !isDriver) {
@@ -133,8 +300,13 @@ public class BookingService {
     return mapToResponse(booking);
   }
 
+  // =====================================================
+  // GET BOOKINGS BY RIDE
+  // =====================================================
+
   @Transactional(readOnly = true)
   public List<BookingResponse> getBookingsByRide(Long rideId) {
+
     User currentUser = authenticatedUserService.getCurrentUser();
 
     Ride ride =
@@ -149,30 +321,33 @@ public class BookingService {
     return bookingRepository.findByRideId(rideId).stream().map(this::mapToResponse).toList();
   }
 
+  // =====================================================
+  // CANCEL BOOKING
+  // =====================================================
+
   public BookingResponse cancelBooking(Long bookingId) {
+
     User passenger = authenticatedUserService.getCurrentUser();
 
-    // First read booking to determine the ride
-    Booking existingBooking =
+    // =====================================================
+    // GET RIDE ID ONLY
+    // Do NOT load Booking entity before locking.
+    // =====================================================
+
+    Long rideId =
         bookingRepository
-            .findById(bookingId)
+            .findRideIdByBookingId(bookingId)
             .orElseThrow(
                 () -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
 
-    Long rideId = existingBooking.getRide().getId();
-
-    // =========================
-    // LOCK RIDE FIRST
-    // =========================
+    // =====================================================
+    // LOCK ORDER: RIDE -> BOOKING
+    // =====================================================
 
     Ride ride =
         rideRepository
             .findByIdForUpdate(rideId)
             .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: " + rideId));
-
-    // =========================
-    // THEN LOCK BOOKING
-    // =========================
 
     Booking booking =
         bookingRepository
@@ -180,54 +355,105 @@ public class BookingService {
             .orElseThrow(
                 () -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
 
-    // =========================
-    // OWNERSHIP CHECK
-    // =========================
+    // =====================================================
+    // PASSENGER OWNERSHIP
+    // =====================================================
 
     if (!booking.getPassenger().getId().equals(passenger.getId())) {
 
       throw new BookingNotAllowedException("You are not allowed to cancel this booking");
     }
 
-    // =========================
-    // STATUS CHECK
-    // =========================
+    // =====================================================
+    // BOOKING STATUS
+    // =====================================================
 
-    if (booking.getStatus() != Booking.BookingStatus.CONFIRMED) {
+    if (booking.getStatus() != Booking.BookingStatus.PENDING
+        && booking.getStatus() != Booking.BookingStatus.CONFIRMED) {
 
-      throw new BookingNotAllowedException("Only confirmed bookings can be cancelled");
+      throw new BookingNotAllowedException("Only pending or confirmed bookings can be cancelled");
     }
 
-    // =========================
-    // DEPARTURE CHECK
-    // =========================
+    // =====================================================
+    // RIDE STATUS
+    // =====================================================
+
+    validateBookingRideIsScheduled(ride);
 
     if (!LocalDateTime.now().isBefore(ride.getDepartureTime())) {
 
       throw new BookingNotAllowedException("Cannot cancel a booking after ride departure");
     }
 
-    // =========================
-    // RESTORE SEATS
-    // =========================
+    // =====================================================
+    // RESTORE SEATS ONLY FOR CONFIRMED BOOKING
+    // =====================================================
 
-    ride.setAvailableSeats(ride.getAvailableSeats() + booking.getSeats());
+    if (booking.getStatus() == Booking.BookingStatus.CONFIRMED) {
 
-    // =========================
+      ride.setAvailableSeats(ride.getAvailableSeats() + booking.getSeats());
+    }
+
+    // =====================================================
     // CANCEL BOOKING
-    // =========================
+    // =====================================================
 
     booking.setStatus(Booking.BookingStatus.CANCELLED);
+
     booking.setCancelledBy(Booking.CancellationActor.PASSENGER);
+
     booking.setCancellationReason(Booking.CancellationReason.PASSENGER_CANCELLED_BOOKING);
+
     booking.setCancelledAt(LocalDateTime.now());
+
     Booking savedBooking = bookingRepository.save(booking);
 
     return mapToResponse(savedBooking);
   }
 
+  // =====================================================
+  // RIDE -> BOOKING SYNCHRONIZATION
+  // =====================================================
+
+  /**
+   * Cancels all active bookings belonging to a ride.
+   *
+   * <p>Both PENDING and CONFIRMED bookings are considered active. This method is called while the
+   * ride row is already locked, and it locks the affected booking rows as well.
+   *
+   * <p>No seats are restored here because the entire ride has already become unavailable.
+   */
+  public void cancelActiveBookingsForRide(
+      Long rideId,
+      Booking.CancellationActor cancelledBy,
+      Booking.CancellationReason cancellationReason,
+      LocalDateTime cancelledAt) {
+
+    List<Booking> activeBookings =
+        bookingRepository.findByRideIdAndStatusInForUpdate(
+            rideId, List.of(Booking.BookingStatus.PENDING, Booking.BookingStatus.CONFIRMED));
+
+    if (activeBookings.isEmpty()) {
+      return;
+    }
+
+    for (Booking booking : activeBookings) {
+      booking.setStatus(Booking.BookingStatus.CANCELLED);
+      booking.setCancelledBy(cancelledBy);
+      booking.setCancellationReason(cancellationReason);
+      booking.setCancelledAt(cancelledAt);
+    }
+
+    bookingRepository.saveAll(activeBookings);
+  }
+
+  // =====================================================
+  // GET MY BOOKINGS
+  // =====================================================
+
   @Transactional(readOnly = true)
   public MyBookingsResponse getMyBookings(Booking.BookingStatus status, Pageable pageable) {
+
     User passenger = authenticatedUserService.getCurrentUser();
 
     int pageNumber = Math.max(pageable.getPageNumber(), 0);
@@ -262,6 +488,55 @@ public class BookingService {
         .build();
   }
 
+  // =====================================================
+  // PRIVATE VALIDATION HELPERS
+  // =====================================================
+
+  private void validateRideAvailableForBooking(Ride ride) {
+
+    if (!LocalDateTime.now().isBefore(ride.getDepartureTime())) {
+      throw new BookingNotAllowedException("Cannot book a ride after its departure time");
+    }
+
+    if (ride.getStatus() != Ride.RideStatus.SCHEDULED) {
+      throw new ConflictException("Ride is not available for booking");
+    }
+  }
+
+  private void validateBookingRideIsScheduled(Ride ride) {
+
+    if (ride.getStatus() != Ride.RideStatus.SCHEDULED) {
+      throw new ConflictException("Booking actions are allowed only while the ride is scheduled");
+    }
+  }
+
+  private void validateDriverOwnsRide(Ride ride, User driver) {
+
+    if (!ride.getDriver().getId().equals(driver.getId())) {
+      throw new OperationNotAllowedException(
+          "You are not authorized to manage bookings for this ride");
+    }
+  }
+
+  private String normalizeRejectionReason(String reason) {
+
+    String normalizedReason = reason == null ? "" : reason.trim();
+
+    if (normalizedReason.isBlank()) {
+      throw new BusinessValidationException("Rejection reason is required");
+    }
+
+    if (normalizedReason.length() > 500) {
+      throw new BusinessValidationException("Rejection reason cannot exceed 500 characters");
+    }
+
+    return normalizedReason;
+  }
+
+  // =====================================================
+  // BUILD BOOKING COUNTS
+  // =====================================================
+
   private BookingCounts buildBookingCounts(Long passengerId) {
 
     List<BookingStatusCount> results =
@@ -279,21 +554,10 @@ public class BookingService {
       }
 
       switch (result.getStatus()) {
-        case CONFIRMED:
-          confirmed = result.getCount();
-          break;
-
-        case PENDING:
-          pending = result.getCount();
-          break;
-
-        case CANCELLED:
-          cancelled = result.getCount();
-          break;
-
-        case REJECTED:
-          rejected = result.getCount();
-          break;
+        case CONFIRMED -> confirmed = result.getCount();
+        case PENDING -> pending = result.getCount();
+        case CANCELLED -> cancelled = result.getCount();
+        case REJECTED -> rejected = result.getCount();
       }
     }
 
@@ -308,9 +572,15 @@ public class BookingService {
         .build();
   }
 
+  // =====================================================
+  // ENTITY -> RESPONSE
+  // =====================================================
+
   private BookingResponse mapToResponse(Booking booking) {
+
     Ride ride = booking.getRide();
     User driver = ride.getDriver();
+    User passenger = booking.getPassenger();
     Vehicle vehicle = ride.getVehicle();
 
     DriverSummaryResponse driverResponse =
@@ -349,10 +619,16 @@ public class BookingService {
         .seats(booking.getSeats())
         .totalAmount(totalAmount)
         .status(booking.getStatus())
+        .bookedAt(booking.getBookedAt())
+        .rejectionReason(booking.getRejectionReason())
+        .rejectedAt(booking.getRejectedAt())
         .cancelledBy(booking.getCancelledBy())
         .cancellationReason(booking.getCancellationReason())
         .cancelledAt(booking.getCancelledAt())
-        .bookedAt(booking.getBookedAt())
+        .passengerId(passenger.getId())
+        .passengerName(passenger.getName())
+        .passengerEmail(passenger.getEmail())
+        .passengerPhone(passenger.getPhone())
         .build();
   }
 }

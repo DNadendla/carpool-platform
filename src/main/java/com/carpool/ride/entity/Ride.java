@@ -53,6 +53,13 @@ public class Ride {
   @Column(name = "cancelled_at")
   private LocalDateTime cancelledAt;
 
+  @Column(name = "cancellation_reason", length = 500)
+  private String cancellationReason;
+
+  // =========================
+  // LOCATION
+  // =========================
+
   @Column(nullable = false)
   private String source;
 
@@ -71,12 +78,21 @@ public class Ride {
   @Column(nullable = false)
   private Double destinationLongitude;
 
+  // =========================
+  // RIDE STATUS
+  // =========================
+
   public enum RideStatus {
     SCHEDULED,
     STARTED,
     COMPLETED,
-    CANCELLED
+    CANCELLED,
+    EXPIRED
   }
+
+  // =========================
+  // CANCELLATION ACTOR
+  // =========================
 
   public enum CancellationActor {
     DRIVER,

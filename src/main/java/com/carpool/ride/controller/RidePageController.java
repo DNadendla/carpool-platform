@@ -26,4 +26,9 @@ public class RidePageController {
   public String myRidesPage() {
     return "ride/my-rides";
   }
+
+  @GetMapping("/rides/{id}/booking-requests")
+  public String bookingRequestsPage() {
+    return "ride/booking-requests";
+  }
 }

@@ -38,11 +38,16 @@ public class RideResponse {
   private RideStatus status;
 
   private Double sourceLatitude;
+
   private Double sourceLongitude;
 
   private Double destinationLatitude;
+
   private Double destinationLongitude;
 
   private Ride.CancellationActor cancelledBy;
+
   private LocalDateTime cancelledAt;
+
+  private String cancellationReason;
 }

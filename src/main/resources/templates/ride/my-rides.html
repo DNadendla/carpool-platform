@@ -10,7 +10,7 @@
 
     <!-- Cache-busted page CSS -->
     <link rel="stylesheet"
-          th:href="@{/css/ride/my-rides.css(v=20261002)}">
+          th:href="@{/css/ride/my-rides.css(v=20261002-3)}">
 
     <th:block th:replace="~{fragments/head :: theme-resources}"></th:block>
 
@@ -287,6 +287,26 @@
 
                 </button>
 
+
+                <!-- EXPIRED -->
+
+                <button type="button"
+                        class="ride-filter-button"
+                        data-status="EXPIRED"
+                        role="tab"
+                        aria-selected="false">
+
+                    <span class="filter-button-label">
+                        Expired
+                    </span>
+
+                    <span id="countExpired"
+                          class="filter-count">
+                        0
+                    </span>
+
+                </button>
+
             </div>
 
         </section>
@@ -470,6 +490,44 @@
 
             </div>
 
+
+            <!-- CANCELLATION REASON -->
+
+            <div class="cancel-reason-field">
+
+                <label for="cancellationReason">
+                    Cancellation reason
+                </label>
+
+                <textarea
+                        id="cancellationReason"
+                        class="cancellation-reason-input"
+                        maxlength="500"
+                        rows="4"
+                        placeholder="Enter the reason for cancelling this ride..."
+                        aria-describedby="cancellationReasonHelp cancellationReasonError"></textarea>
+
+                <div class="cancel-reason-meta">
+
+                    <span id="cancellationReasonError"
+                          class="field-error hidden"
+                          role="alert">
+                    </span>
+
+                    <span id="cancellationReasonCount"
+                          class="character-count">
+                        0 / 500
+                    </span>
+
+                </div>
+
+                <span id="cancellationReasonHelp"
+                      class="cancel-reason-help">
+                    A short reason is required.
+                </span>
+
+            </div>
+
         </div>
 
 
@@ -491,6 +549,220 @@
                 <i class="fa-solid fa-ban"></i>
 
                 Cancel Ride
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     CANCELLATION DETAILS MODAL
+========================================================= -->
+
+<div id="cancellationDetailsModal"
+     class="modal-backdrop hidden"
+     data-modal-close="true"
+     aria-hidden="true">
+
+    <div class="modal-card cancellation-details-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="cancellationDetailsTitle">
+
+        <div class="modal-icon cancellation-details-icon">
+
+            <i class="fa-solid fa-circle-info"></i>
+
+        </div>
+
+        <div class="modal-content">
+
+            <span class="modal-eyebrow cancellation-details-eyebrow">
+                CANCELLATION DETAILS
+            </span>
+
+            <h2 id="cancellationDetailsTitle">
+                Ride cancellation
+            </h2>
+
+            <div class="cancellation-details-summary">
+
+                <div class="cancellation-details-row">
+
+                    <span class="cancellation-details-label">
+                        Ride
+                    </span>
+
+                    <strong id="cancellationDetailsRideId">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="cancellation-details-route">
+
+                    <span class="cancellation-details-label">
+                        Route
+                    </span>
+
+                    <div class="cancellation-details-route-value">
+
+                        <strong id="cancellationDetailsSource">
+                            -
+                        </strong>
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                        <strong id="cancellationDetailsDestination">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="cancellation-details-row">
+
+                    <span class="cancellation-details-label">
+                        Cancelled By
+                    </span>
+
+                    <strong id="cancellationDetailsCancelledBy">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="cancellation-details-row">
+
+                    <span class="cancellation-details-label">
+                        Cancelled At
+                    </span>
+
+                    <strong id="cancellationDetailsCancelledAt">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="cancellation-details-reason">
+
+                    <span class="cancellation-details-label">
+                        Reason
+                    </span>
+
+                    <p id="cancellationDetailsReason">
+                        No cancellation reason was provided.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal-actions">
+
+            <button type="button"
+                    id="closeCancellationDetailsButton"
+                    class="modal-button secondary">
+
+                Close
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     START / COMPLETE RIDE CONFIRMATION MODAL
+========================================================= -->
+
+<div id="rideActionConfirmationModal"
+     class="modal-backdrop hidden"
+     data-modal-close="true"
+     aria-hidden="true">
+
+    <div class="modal-card ride-action-confirmation-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="rideActionConfirmationTitle">
+
+        <div id="rideActionConfirmationIcon"
+             class="modal-icon action-confirmation-icon">
+
+            <i id="rideActionConfirmationIconElement"
+               class="fa-solid fa-circle-question"></i>
+
+        </div>
+
+        <div class="modal-content">
+
+            <span id="rideActionConfirmationEyebrow"
+                  class="modal-eyebrow action-confirmation-eyebrow">
+                CONFIRM ACTION
+            </span>
+
+            <h2 id="rideActionConfirmationTitle">
+                Confirm ride action?
+            </h2>
+
+            <p id="rideActionConfirmationMessage">
+                Please confirm that you want to perform this action.
+            </p>
+
+            <div class="cancel-ride-summary action-confirmation-summary">
+
+                <div class="cancel-summary-route">
+
+                    <strong id="rideActionConfirmationSource">
+                        -
+                    </strong>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                    <strong id="rideActionConfirmationDestination">
+                        -
+                    </strong>
+
+                </div>
+
+                <span id="rideActionConfirmationDeparture">
+                    -
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="modal-actions">
+
+            <button type="button"
+                    id="closeRideActionConfirmationButton"
+                    class="modal-button secondary">
+
+                Not Now
+
+            </button>
+
+            <button type="button"
+                    id="confirmRideActionButton"
+                    class="modal-button primary">
+
+                <i id="confirmRideActionIcon"
+                   class="fa-solid fa-check"></i>
+
+                <span id="confirmRideActionText">
+                    Confirm
+                </span>
 
             </button>
 
@@ -536,7 +808,7 @@
      previous my-rides.js version.
 ========================================================= -->
 
-<script th:src="@{/js/ride/my-rides.js(v=20261002)}"></script>
+<script th:src="@{/js/ride/my-rides.js(v=20261002-3)}"></script>
 
 </body>
 

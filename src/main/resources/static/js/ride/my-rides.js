@@ -66,6 +66,9 @@ document.addEventListener(
         const countCancelled =
             document.getElementById("countCancelled");
 
+        const countExpired =
+            document.getElementById("countExpired");
+
 
         /* =====================================================
            PAGINATION
@@ -129,6 +132,136 @@ document.addEventListener(
                 "cancelRideDeparture"
             );
 
+        const cancellationReasonInput =
+            document.getElementById(
+                "cancellationReason"
+            );
+
+        const cancellationReasonError =
+            document.getElementById(
+                "cancellationReasonError"
+            );
+
+        const cancellationReasonCount =
+            document.getElementById(
+                "cancellationReasonCount"
+            );
+
+
+        /* =====================================================
+           CANCELLATION DETAILS MODAL
+        ===================================================== */
+
+        const cancellationDetailsModal =
+            document.getElementById(
+                "cancellationDetailsModal"
+            );
+
+        const closeCancellationDetailsButton =
+            document.getElementById(
+                "closeCancellationDetailsButton"
+            );
+
+        const cancellationDetailsRideId =
+            document.getElementById(
+                "cancellationDetailsRideId"
+            );
+
+        const cancellationDetailsSource =
+            document.getElementById(
+                "cancellationDetailsSource"
+            );
+
+        const cancellationDetailsDestination =
+            document.getElementById(
+                "cancellationDetailsDestination"
+            );
+
+        const cancellationDetailsCancelledBy =
+            document.getElementById(
+                "cancellationDetailsCancelledBy"
+            );
+
+        const cancellationDetailsCancelledAt =
+            document.getElementById(
+                "cancellationDetailsCancelledAt"
+            );
+
+        const cancellationDetailsReason =
+            document.getElementById(
+                "cancellationDetailsReason"
+            );
+
+
+        /* =====================================================
+           START / COMPLETE CONFIRMATION MODAL
+        ===================================================== */
+
+        const rideActionConfirmationModal =
+            document.getElementById(
+                "rideActionConfirmationModal"
+            );
+
+        const closeRideActionConfirmationButton =
+            document.getElementById(
+                "closeRideActionConfirmationButton"
+            );
+
+        const confirmRideActionButton =
+            document.getElementById(
+                "confirmRideActionButton"
+            );
+
+        const rideActionConfirmationIcon =
+            document.getElementById(
+                "rideActionConfirmationIcon"
+            );
+
+        const rideActionConfirmationIconElement =
+            document.getElementById(
+                "rideActionConfirmationIconElement"
+            );
+
+        const rideActionConfirmationEyebrow =
+            document.getElementById(
+                "rideActionConfirmationEyebrow"
+            );
+
+        const rideActionConfirmationTitle =
+            document.getElementById(
+                "rideActionConfirmationTitle"
+            );
+
+        const rideActionConfirmationMessage =
+            document.getElementById(
+                "rideActionConfirmationMessage"
+            );
+
+        const rideActionConfirmationSource =
+            document.getElementById(
+                "rideActionConfirmationSource"
+            );
+
+        const rideActionConfirmationDestination =
+            document.getElementById(
+                "rideActionConfirmationDestination"
+            );
+
+        const rideActionConfirmationDeparture =
+            document.getElementById(
+                "rideActionConfirmationDeparture"
+            );
+
+        const confirmRideActionIcon =
+            document.getElementById(
+                "confirmRideActionIcon"
+            );
+
+        const confirmRideActionText =
+            document.getElementById(
+                "confirmRideActionText"
+            );
+
 
         /* =====================================================
            STATE
@@ -151,6 +284,10 @@ document.addEventListener(
 
         let ridePendingCancellation = null;
 
+        let ridePendingCancellationDetails = null;
+
+        let ridePendingAction = null;
+
         let successTimer = null;
 
 
@@ -163,6 +300,12 @@ document.addEventListener(
         initializePagination();
 
         initializeCancelModal();
+
+        initializeCancellationReasonInput();
+
+        initializeCancellationDetailsModal();
+
+        initializeRideActionConfirmationModal();
 
         initializeRetry();
 
@@ -646,6 +789,16 @@ document.addEventListener(
                 }
 
 
+                if (countExpired) {
+
+                    countExpired.textContent =
+                        formatCount(
+                            counts.expired
+                        );
+
+                }
+
+
                 return;
 
             }
@@ -708,6 +861,15 @@ document.addEventListener(
                 ).length;
 
 
+            const expired =
+                rides.filter(
+                    function (ride) {
+                        return ride.status ===
+                            "EXPIRED";
+                    }
+                ).length;
+
+
             if (countAll) {
 
                 countAll.textContent =
@@ -744,6 +906,14 @@ document.addEventListener(
 
                 countCancelled.textContent =
                     cancelled;
+
+            }
+
+
+            if (countExpired) {
+
+                countExpired.textContent =
+                    expired;
 
             }
 
@@ -855,6 +1025,145 @@ document.addEventListener(
 
 
         /* =====================================================
+           RIDE ACTION BUTTONS
+        ===================================================== */
+
+        function buildRideActionButtons(
+            ride
+        ) {
+
+            if (
+                !ride ||
+                !ride.status
+            ) {
+                return "";
+            }
+
+
+            /*
+             * SCHEDULED RIDE
+             *
+             * Driver can:
+             * - View booking requests
+             * - Start ride
+             * - Cancel ride
+             */
+            if (
+                ride.status ===
+                "SCHEDULED"
+            ) {
+
+                return `
+
+                    <button
+                        type="button"
+                        class="ride-action-button info"
+                        data-action="booking-requests"
+                        data-ride-id="${escapeAttribute(
+                            ride.id
+                        )}">
+
+                        <i class="fa-solid fa-users"></i>
+
+                        Booking Requests
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="ride-action-button start"
+                        data-action="start"
+                        data-ride-id="${escapeAttribute(
+                            ride.id
+                        )}">
+
+                        <i class="fa-solid fa-play"></i>
+
+                        Start Ride
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="ride-action-button cancel"
+                        data-action="cancel"
+                        data-ride-id="${escapeAttribute(
+                            ride.id
+                        )}">
+
+                        <i class="fa-solid fa-ban"></i>
+
+                        Cancel Ride
+
+                    </button>
+
+                `;
+            }
+
+
+            /*
+             * STARTED RIDE
+             */
+            if (
+                ride.status ===
+                "STARTED"
+            ) {
+
+                return `
+
+                    <button
+                        type="button"
+                        class="ride-action-button complete"
+                        data-action="complete"
+                        data-ride-id="${escapeAttribute(
+                            ride.id
+                        )}">
+
+                        <i class="fa-solid fa-flag-checkered"></i>
+
+                        Complete Ride
+
+                    </button>
+
+                `;
+            }
+
+
+            /*
+             * CANCELLED RIDE
+             */
+            if (
+                ride.status ===
+                "CANCELLED"
+            ) {
+
+                return `
+
+                    <button
+                        type="button"
+                        class="ride-action-button info"
+                        data-action="cancellation-details"
+                        data-ride-id="${escapeAttribute(
+                            ride.id
+                        )}">
+
+                        <i class="fa-solid fa-circle-info"></i>
+
+                        Cancellation Info
+
+                    </button>
+
+                `;
+            }
+
+
+            return "";
+        }
+
+
+        /* =====================================================
            CREATE RIDE CARD
         ===================================================== */
 
@@ -908,28 +1217,10 @@ document.addEventListener(
                 0;
 
 
-            const cancellationMeta =
-                buildCancellationMeta(
+            const actionButtons =
+                buildRideActionButtons(
                     ride
                 );
-
-
-            const cancelButton =
-                status === "SCHEDULED"
-                    ? `
-                        <button
-                            type="button"
-                            class="ride-action-button cancel"
-                            data-action="cancel"
-                            data-ride-id="${escapeAttribute(ride.id)}">
-
-                            <i class="fa-solid fa-ban"></i>
-
-                            Cancel Ride
-
-                        </button>
-                      `
-                    : "";
 
 
             card.innerHTML = `
@@ -1179,9 +1470,6 @@ document.addEventListener(
                 </div>
 
 
-                ${cancellationMeta}
-
-
                 <!-- FOOTER -->
 
                 <div class="my-ride-card-footer">
@@ -1221,7 +1509,7 @@ document.addEventListener(
                         </button>
 
 
-                        ${cancelButton}
+                        ${actionButtons}
 
                     </div>
 
@@ -1245,6 +1533,10 @@ document.addEventListener(
            RIDE CARD ACTIONS
         ===================================================== */
 
+        /* =====================================================
+           RIDE CARD ACTIONS
+        ===================================================== */
+
         function initializeRideCardActions(
             card,
             ride
@@ -1256,11 +1548,42 @@ document.addEventListener(
                 );
 
 
+            const startButton =
+                card.querySelector(
+                    '[data-action="start"]'
+                );
+
+
+            const completeButton =
+                card.querySelector(
+                    '[data-action="complete"]'
+                );
+
+
             const cancelButton =
                 card.querySelector(
                     '[data-action="cancel"]'
                 );
 
+
+            const cancellationDetailsButton =
+                card.querySelector(
+                    '[data-action="cancellation-details"]'
+                );
+
+
+            /*
+             * BOOKING REQUESTS
+             */
+            const bookingRequestsButton =
+                card.querySelector(
+                    '[data-action="booking-requests"]'
+                );
+
+
+            /* =====================================================
+               VIEW RIDE
+            ===================================================== */
 
             if (viewButton) {
 
@@ -1280,6 +1603,52 @@ document.addEventListener(
             }
 
 
+            /* =====================================================
+               START RIDE
+            ===================================================== */
+
+            if (startButton) {
+
+                startButton.addEventListener(
+                    "click",
+                    function () {
+
+                        openRideActionConfirmation(
+                            ride,
+                            "START"
+                        );
+
+                    }
+                );
+
+            }
+
+
+            /* =====================================================
+               COMPLETE RIDE
+            ===================================================== */
+
+            if (completeButton) {
+
+                completeButton.addEventListener(
+                    "click",
+                    function () {
+
+                        openRideActionConfirmation(
+                            ride,
+                            "COMPLETE"
+                        );
+
+                    }
+                );
+
+            }
+
+
+            /* =====================================================
+               CANCEL RIDE
+            ===================================================== */
+
             if (cancelButton) {
 
                 cancelButton.addEventListener(
@@ -1295,73 +1664,213 @@ document.addEventListener(
 
             }
 
-        }
 
-
-        /* =====================================================
-           CANCELLATION META
-        ===================================================== */
-
-        function buildCancellationMeta(
-            ride
-        ) {
+            /* =====================================================
+               CANCELLATION DETAILS
+            ===================================================== */
 
             if (
-                ride.status !==
-                "CANCELLED"
+                cancellationDetailsButton
             ) {
 
-                return "";
+                cancellationDetailsButton.addEventListener(
+                    "click",
+                    function () {
+
+                        openCancellationDetailsModal(
+                            ride
+                        );
+
+                    }
+                );
 
             }
 
 
-            const cancelledBy =
-                formatCancellationActor(
-                    ride.cancelledBy
+            /* =====================================================
+               BOOKING REQUESTS
+            ===================================================== */
+
+            if (
+                bookingRequestsButton
+            ) {
+
+                bookingRequestsButton.addEventListener(
+                    "click",
+                    function () {
+
+                        window.location.href =
+                            "/rides/" +
+                            encodeURIComponent(
+                                ride.id
+                            ) +
+                            "/booking-requests";
+
+                    }
                 );
 
+            }
 
-            const cancelledAt =
-                formatDateTime(
-                    ride.cancelledAt
+        }
+
+
+        /* =====================================================
+           CANCELLATION DETAILS MODAL
+        ===================================================== */
+
+        function initializeCancellationDetailsModal() {
+
+            if (closeCancellationDetailsButton) {
+
+                closeCancellationDetailsButton.addEventListener(
+                    "click",
+                    closeCancellationDetailsModal
                 );
 
+            }
 
-            return `
+            if (cancellationDetailsModal) {
 
-                <div class="ride-cancellation-meta">
+                cancellationDetailsModal.addEventListener(
+                    "click",
+                    function (event) {
 
-                    <span>
+                        if (
+                            event.target.dataset.modalClose ===
+                            "true"
+                        ) {
 
-                        <i class="fa-solid fa-user">
-                        </i>
+                            closeCancellationDetailsModal();
 
-                        Cancelled by
+                        }
 
-                        <b>
-                            ${escapeHtml(
-                                cancelledBy
-                            )}
-                        </b>
+                    }
+                );
 
-                    </span>
+            }
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (
+                        event.key === "Escape" &&
+                        cancellationDetailsModal &&
+                        !cancellationDetailsModal.classList.contains(
+                            "hidden"
+                        )
+                    ) {
+
+                        closeCancellationDetailsModal();
+
+                    }
+
+                }
+            );
+
+        }
 
 
-                    <span>
+        function openCancellationDetailsModal(
+            ride
+        ) {
 
-                        <i class="fa-regular fa-clock">
-                        </i>
+            if (!ride) {
+                return;
+            }
 
-                        ${escapeHtml(
-                            cancelledAt
-                        )}
+            ridePendingCancellationDetails =
+                ride;
 
-                    </span>
+            if (cancellationDetailsRideId) {
 
-                </div>
+                cancellationDetailsRideId.textContent =
+                    "#" + ride.id;
 
-            `;
+            }
+
+            if (cancellationDetailsSource) {
+
+                cancellationDetailsSource.textContent =
+                    ride.source || "Unknown";
+
+            }
+
+            if (cancellationDetailsDestination) {
+
+                cancellationDetailsDestination.textContent =
+                    ride.destination || "Unknown";
+
+            }
+
+            if (cancellationDetailsCancelledBy) {
+
+                cancellationDetailsCancelledBy.textContent =
+                    formatCancellationActor(
+                        ride.cancelledBy
+                    );
+
+            }
+
+            if (cancellationDetailsCancelledAt) {
+
+                cancellationDetailsCancelledAt.textContent =
+                    formatDateTime(
+                        ride.cancelledAt
+                    );
+
+            }
+
+            if (cancellationDetailsReason) {
+
+                cancellationDetailsReason.textContent =
+                    String(
+                        ride.cancellationReason ||
+                        "No cancellation reason was provided."
+                    ).trim() ||
+                    "No cancellation reason was provided.";
+
+            }
+
+            if (cancellationDetailsModal) {
+
+                cancellationDetailsModal.classList.remove(
+                    "hidden"
+                );
+
+                cancellationDetailsModal.setAttribute(
+                    "aria-hidden",
+                    "false"
+                );
+
+                document.body.style.overflow =
+                    "hidden";
+
+            }
+
+        }
+
+
+        function closeCancellationDetailsModal() {
+
+            ridePendingCancellationDetails =
+                null;
+
+            if (cancellationDetailsModal) {
+
+                cancellationDetailsModal.classList.add(
+                    "hidden"
+                );
+
+                cancellationDetailsModal.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+            }
+
+            document.body.style.overflow =
+                "";
 
         }
 
@@ -1661,6 +2170,594 @@ document.addEventListener(
 
 
         /* =====================================================
+           START / COMPLETE RIDE CONFIRMATION
+        ===================================================== */
+
+        function initializeRideActionConfirmationModal() {
+
+            if (closeRideActionConfirmationButton) {
+
+                closeRideActionConfirmationButton.addEventListener(
+                    "click",
+                    closeRideActionConfirmationModal
+                );
+
+            }
+
+
+            if (rideActionConfirmationModal) {
+
+                rideActionConfirmationModal.addEventListener(
+                    "click",
+                    function (event) {
+
+                        if (
+                            event.target.dataset.modalClose ===
+                            "true"
+                        ) {
+
+                            closeRideActionConfirmationModal();
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (
+                        event.key === "Escape" &&
+                        rideActionConfirmationModal &&
+                        !rideActionConfirmationModal.classList.contains(
+                            "hidden"
+                        )
+                    ) {
+
+                        closeRideActionConfirmationModal();
+
+                    }
+
+                }
+            );
+
+
+            if (confirmRideActionButton) {
+
+                confirmRideActionButton.addEventListener(
+                    "click",
+                    async function () {
+
+                        if (!ridePendingAction) {
+                            return;
+                        }
+
+
+                        const pendingAction =
+                            ridePendingAction;
+
+
+                        confirmRideActionButton.disabled =
+                            true;
+
+
+                        confirmRideActionButton.innerHTML =
+                            pendingAction.type === "START"
+                                ? '<i class="fa-solid fa-spinner fa-spin"></i><span>Starting...</span>'
+                                : '<i class="fa-solid fa-spinner fa-spin"></i><span>Completing...</span>';
+
+
+                        try {
+
+                            if (pendingAction.type === "START") {
+
+                                await startRide(
+                                    pendingAction.ride.id,
+                                    null
+                                );
+
+                            } else {
+
+                                await completeRide(
+                                    pendingAction.ride.id,
+                                    null
+                                );
+
+                            }
+
+                        } finally {
+
+                            closeRideActionConfirmationModal();
+
+                        }
+
+                    }
+                );
+
+            }
+
+        }
+
+
+        function openRideActionConfirmation(
+            ride,
+            actionType
+        ) {
+
+            if (
+                !ride ||
+                !ride.id
+            ) {
+
+                return;
+
+            }
+
+
+            ridePendingAction = {
+                ride: ride,
+                type: actionType
+            };
+
+
+            if (rideActionConfirmationSource) {
+
+                rideActionConfirmationSource.textContent =
+                    ride.source ||
+                    "Unknown";
+
+            }
+
+
+            if (rideActionConfirmationDestination) {
+
+                rideActionConfirmationDestination.textContent =
+                    ride.destination ||
+                    "Unknown";
+
+            }
+
+
+            if (rideActionConfirmationDeparture) {
+
+                rideActionConfirmationDeparture.textContent =
+                    formatDepartureTime(
+                        ride.departureTime
+                    );
+
+            }
+
+
+            if (actionType === "START") {
+
+                rideActionConfirmationEyebrow.textContent =
+                    "START RIDE";
+
+                rideActionConfirmationTitle.textContent =
+                    "Start this ride?";
+
+                rideActionConfirmationMessage.textContent =
+                    "Starting the ride will change its status from Scheduled to Started. Confirm only when you are ready to begin the trip.";
+
+                rideActionConfirmationIcon.className =
+                    "modal-icon action-confirmation-icon start";
+
+                rideActionConfirmationIconElement.className =
+                    "fa-solid fa-play";
+
+                confirmRideActionButton.className =
+                    "modal-button primary";
+
+                confirmRideActionIcon.className =
+                    "fa-solid fa-play";
+
+                confirmRideActionText.textContent =
+                    "Start Ride";
+
+            } else {
+
+                rideActionConfirmationEyebrow.textContent =
+                    "COMPLETE RIDE";
+
+                rideActionConfirmationTitle.textContent =
+                    "Complete this ride?";
+
+                rideActionConfirmationMessage.textContent =
+                    "Completing the ride will mark it as completed. Confirm only after the trip has finished.";
+
+                rideActionConfirmationIcon.className =
+                    "modal-icon action-confirmation-icon complete";
+
+                rideActionConfirmationIconElement.className =
+                    "fa-solid fa-flag-checkered";
+
+                confirmRideActionButton.className =
+                    "modal-button success";
+
+                confirmRideActionIcon.className =
+                    "fa-solid fa-flag-checkered";
+
+                confirmRideActionText.textContent =
+                    "Complete Ride";
+
+            }
+
+
+            if (confirmRideActionButton) {
+
+                confirmRideActionButton.disabled =
+                    false;
+
+            }
+
+
+            if (rideActionConfirmationModal) {
+
+                rideActionConfirmationModal.classList.remove(
+                    "hidden"
+                );
+
+                rideActionConfirmationModal.setAttribute(
+                    "aria-hidden",
+                    "false"
+                );
+
+                document.body.style.overflow =
+                    "hidden";
+
+            }
+
+        }
+
+
+        function closeRideActionConfirmationModal() {
+
+            ridePendingAction =
+                null;
+
+
+            if (rideActionConfirmationModal) {
+
+                rideActionConfirmationModal.classList.add(
+                    "hidden"
+                );
+
+                rideActionConfirmationModal.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+            }
+
+
+            document.body.style.overflow =
+                "";
+
+
+            if (confirmRideActionButton) {
+
+                confirmRideActionButton.disabled =
+                    false;
+
+                confirmRideActionButton.className =
+                    "modal-button primary";
+
+                confirmRideActionButton.innerHTML =
+                    `
+                    <i class="fa-solid fa-check"></i>
+                    <span>Confirm</span>
+                    `;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           START RIDE
+        ===================================================== */
+
+        async function startRide(
+            rideId,
+            button
+        ) {
+
+            if (!rideId) {
+                return;
+            }
+
+            if (button) {
+                button.disabled = true;
+                button.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin"></i> Starting...';
+            }
+
+            try {
+
+                const response =
+                    await API.patch(
+                        "/api/rides/" +
+                        encodeURIComponent(
+                            rideId
+                        ) +
+                        "/start"
+                    );
+
+                if (!response) {
+                    throw new Error(
+                        "No response received from server."
+                    );
+                }
+
+                if (!response.ok) {
+                    const error =
+                        await readApiError(
+                            response,
+                            "Unable to start the ride."
+                        );
+
+                    throw new Error(error);
+                }
+
+                await response.json();
+
+                showSuccess(
+                    "Ride started successfully."
+                );
+
+                await loadMyRides(
+                    currentPage,
+                    getSelectedStatus()
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Start ride error:",
+                    error
+                );
+
+                showError(
+                    error.message ||
+                    "Unable to start the ride."
+                );
+
+            }
+            finally {
+
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML =
+                        '<i class="fa-solid fa-play"></i> Start Ride';
+                }
+
+            }
+
+        }
+
+
+        /* =====================================================
+           COMPLETE RIDE
+        ===================================================== */
+
+        async function completeRide(
+            rideId,
+            button
+        ) {
+
+            if (!rideId) {
+                return;
+            }
+
+            if (button) {
+                button.disabled = true;
+                button.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin"></i> Completing...';
+            }
+
+            try {
+
+                const response =
+                    await API.patch(
+                        "/api/rides/" +
+                        encodeURIComponent(
+                            rideId
+                        ) +
+                        "/complete"
+                    );
+
+                if (!response) {
+                    throw new Error(
+                        "No response received from server."
+                    );
+                }
+
+                if (!response.ok) {
+                    const error =
+                        await readApiError(
+                            response,
+                            "Unable to complete the ride."
+                        );
+
+                    throw new Error(error);
+                }
+
+                await response.json();
+
+                showSuccess(
+                    "Ride completed successfully."
+                );
+
+                await loadMyRides(
+                    currentPage,
+                    getSelectedStatus()
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Complete ride error:",
+                    error
+                );
+
+                showError(
+                    error.message ||
+                    "Unable to complete the ride."
+                );
+
+            }
+            finally {
+
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML =
+                        '<i class="fa-solid fa-flag-checkered"></i> Complete Ride';
+                }
+
+            }
+
+        }
+
+
+        /* =====================================================
+           API ERROR HELPER
+        ===================================================== */
+
+        async function readApiError(
+            response,
+            fallbackMessage
+        ) {
+
+            try {
+                const error =
+                    await response.json();
+
+                return error?.message ||
+                    error?.error ||
+                    fallbackMessage;
+            }
+            catch (ignored) {
+                return fallbackMessage;
+            }
+
+        }
+
+
+        /* =====================================================
+           CANCELLATION REASON INPUT
+        ===================================================== */
+
+        function initializeCancellationReasonInput() {
+
+            if (!cancellationReasonInput) {
+                return;
+            }
+
+            cancellationReasonInput.addEventListener(
+                "input",
+                function () {
+
+                    updateCancellationReasonCount();
+                    clearCancellationReasonError();
+
+                }
+            );
+
+            updateCancellationReasonCount();
+        }
+
+
+        function updateCancellationReasonCount() {
+
+            if (!cancellationReasonCount) {
+                return;
+            }
+
+            const value =
+                cancellationReasonInput?.value ||
+                "";
+
+            cancellationReasonCount.textContent =
+                value.length +
+                " / 500";
+        }
+
+
+        function clearCancellationReasonError() {
+
+            if (cancellationReasonError) {
+                cancellationReasonError.textContent =
+                    "";
+                cancellationReasonError.classList.add(
+                    "hidden"
+                );
+            }
+
+            if (cancellationReasonInput) {
+                cancellationReasonInput.classList.remove(
+                    "invalid"
+                );
+            }
+        }
+
+
+        function validateCancellationReason() {
+
+            const reason =
+                cancellationReasonInput?.value
+                    ?.trim() ||
+                "";
+
+            if (!reason) {
+                showCancellationReasonError(
+                    "Cancellation reason is required."
+                );
+
+                return null;
+            }
+
+            if (reason.length > 500) {
+                showCancellationReasonError(
+                    "Cancellation reason cannot exceed 500 characters."
+                );
+
+                return null;
+            }
+
+            clearCancellationReasonError();
+
+            return reason;
+        }
+
+
+        function showCancellationReasonError(
+            message
+        ) {
+
+            if (cancellationReasonError) {
+                cancellationReasonError.textContent =
+                    message;
+                cancellationReasonError.classList.remove(
+                    "hidden"
+                );
+            }
+
+            if (cancellationReasonInput) {
+                cancellationReasonInput.classList.add(
+                    "invalid"
+                );
+                cancellationReasonInput.focus();
+            }
+        }
+
+
+        /* =====================================================
            CANCEL MODAL INITIALIZATION
         ===================================================== */
 
@@ -1740,6 +2837,13 @@ document.addEventListener(
                         const rideId =
                             ridePendingCancellation.id;
 
+                        const reason =
+                            validateCancellationReason();
+
+                        if (!reason) {
+                            return;
+                        }
+
 
                         confirmCancelRideButton.disabled =
                             true;
@@ -1750,7 +2854,8 @@ document.addEventListener(
 
 
                         await cancelRide(
-                            rideId
+                            rideId,
+                            reason
                         );
 
                     }
@@ -1805,6 +2910,17 @@ document.addEventListener(
             }
 
 
+            if (cancellationReasonInput) {
+
+                cancellationReasonInput.value =
+                    "";
+
+            }
+
+            clearCancellationReasonError();
+            updateCancellationReasonCount();
+
+
             if (
                 confirmCancelRideButton
             ) {
@@ -1839,6 +2955,14 @@ document.addEventListener(
             ridePendingCancellation =
                 null;
 
+            if (cancellationReasonInput) {
+                cancellationReasonInput.value =
+                    "";
+            }
+
+            clearCancellationReasonError();
+            updateCancellationReasonCount();
+
 
             if (cancelRideModal) {
 
@@ -1856,7 +2980,8 @@ document.addEventListener(
         ===================================================== */
 
         async function cancelRide(
-            rideId
+            rideId,
+            reason
         ) {
 
             try {
@@ -1867,7 +2992,10 @@ document.addEventListener(
                         encodeURIComponent(
                             rideId
                         ) +
-                        "/cancel"
+                        "/cancel",
+                        {
+                            reason: reason
+                        }
                     );
 
 
@@ -1882,25 +3010,11 @@ document.addEventListener(
 
                 if (!response.ok) {
 
-                    let message =
-                        "Unable to cancel the ride.";
-
-
-                    try {
-
-                        const error =
-                            await response.json();
-
-
-                        message =
-                            error?.message ||
-                            error?.error ||
-                            message;
-
-                    }
-                    catch (ignored) {
-                    }
-
+                    const message =
+                        await readApiError(
+                            response,
+                            "Unable to cancel the ride."
+                        );
 
                     throw new Error(
                         message
@@ -2302,6 +3416,9 @@ document.addEventListener(
 
                 case "CANCELLED":
                     return "cancelled";
+
+                case "EXPIRED":
+                    return "expired";
 
                 default:
                     return "completed";

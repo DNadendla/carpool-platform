@@ -627,6 +627,13 @@ document.addEventListener(
             card.className =
                 "booking-card";
 
+            /*
+             * Keep the complete booking object on the card
+             * so information dialogs can use the backend data.
+             */
+            card.bookingData =
+                booking;
+
 
             const ride =
                 booking.ride || {};
@@ -669,7 +676,10 @@ document.addEventListener(
 
 
             const canCancel =
-                bookingIsConfirmed &&
+                (
+                    bookingStatus === "PENDING" ||
+                    bookingStatus === "CONFIRMED"
+                ) &&
                 !rideIsCancelled;
 
 
@@ -1017,11 +1027,58 @@ document.addEventListener(
                                         class="cancel-booking-button"
                                         data-booking-id="${escapeHtml(
                                             booking.id
+                                        )}"
+                                        data-booking-status="${escapeHtml(
+                                            bookingStatus
                                         )}">
 
                                         <i class="fa-solid fa-ban"></i>
 
-                                        Cancel Booking
+                                        ${
+                                            bookingStatus === "PENDING"
+                                                ? "Cancel Request"
+                                                : "Cancel Booking"
+                                        }
+
+                                    </button>
+                                  `
+                                : ""
+                        }
+
+                        ${
+                            bookingStatus === "REJECTED"
+                                ? `
+                                    <button
+                                        type="button"
+                                        class="view-ride-button booking-info-button"
+                                        data-info-type="rejection"
+                                        data-booking-id="${escapeHtml(
+                                            booking.id
+                                        )}">
+
+                                        <i class="fa-solid fa-circle-info"></i>
+
+                                        View Rejection Reason
+
+                                    </button>
+                                  `
+                                : ""
+                        }
+
+                        ${
+                            bookingStatus === "CANCELLED"
+                                ? `
+                                    <button
+                                        type="button"
+                                        class="view-ride-button booking-info-button"
+                                        data-info-type="cancellation"
+                                        data-booking-id="${escapeHtml(
+                                            booking.id
+                                        )}">
+
+                                        <i class="fa-solid fa-circle-info"></i>
+
+                                        View Cancellation Info
 
                                     </button>
                                   `
@@ -1043,7 +1100,6 @@ document.addEventListener(
             return card;
         }
 
-
         /* =====================================================
            CARD ACTIONS
         ===================================================== */
@@ -1052,9 +1108,13 @@ document.addEventListener(
             card
         ) {
 
+            /*
+             * Only the actual View Ride button should
+             * navigate to the ride details page.
+             */
             const viewRideButton =
                 card.querySelector(
-                    ".view-ride-button"
+                    ".view-ride-button[data-ride-id]"
                 );
 
 
@@ -1081,6 +1141,9 @@ document.addEventListener(
             }
 
 
+            /*
+             * Cancel Request / Cancel Booking
+             */
             const cancelButton =
                 card.querySelector(
                     ".cancel-booking-button"
@@ -1104,11 +1167,417 @@ document.addEventListener(
 
                         openCancelModal(
                             bookingId,
-                            this
+                            this,
+                            this.dataset.bookingStatus
                         );
                     }
                 );
             }
+
+
+            /*
+             * Rejection reason / cancellation information
+             */
+            const infoButtons =
+                card.querySelectorAll(
+                    ".booking-info-button"
+                );
+
+
+            infoButtons.forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            const booking =
+                                card.bookingData;
+
+
+                            if (!booking) {
+                                return;
+                            }
+
+
+                            const infoType =
+                                this.dataset.infoType;
+
+
+                            if (
+                                infoType ===
+                                "rejection"
+                            ) {
+
+                                showBookingInfoModal(
+                                    "Booking Rejected",
+                                    booking,
+                                    "rejection"
+                                );
+
+                                return;
+                            }
+
+
+                            if (
+                                infoType ===
+                                "cancellation"
+                            ) {
+
+                                showBookingInfoModal(
+                                    "Booking Cancellation",
+                                    booking,
+                                    "cancellation"
+                                );
+                            }
+                        }
+                    );
+                }
+            );
+        }
+
+        /* =====================================================
+           BOOKING INFORMATION MODAL
+        ===================================================== */
+
+        function showBookingInfoModal(
+            title,
+            booking,
+            type
+        ) {
+
+            const existingModal =
+                document.getElementById(
+                    "bookingInfoModal"
+                );
+
+
+            if (existingModal) {
+
+                existingModal.remove();
+            }
+
+
+            let content = "";
+
+
+            if (type === "rejection") {
+
+                content = `
+
+                    <div class="booking-info-row-modal">
+
+                        <span class="booking-info-label-modal">
+                            Booking
+                        </span>
+
+                        <strong>
+                            #${escapeHtml(
+                                booking.id
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="booking-info-row-modal">
+
+                        <span class="booking-info-label-modal">
+                            Status
+                        </span>
+
+                        <strong>
+                            REJECTED
+                        </strong>
+
+                    </div>
+
+
+                    <div class="booking-info-row-modal">
+
+                        <span class="booking-info-label-modal">
+                            Reason
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                booking.rejectionReason ||
+                                "No reason provided"
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    ${
+                        booking.rejectedAt
+                            ? `
+                                <div class="booking-info-row-modal">
+
+                                    <span class="booking-info-label-modal">
+                                        Rejected At
+                                    </span>
+
+                                    <strong>
+                                        ${formatDateTime(
+                                            booking.rejectedAt
+                                        )}
+                                    </strong>
+
+                                </div>
+                              `
+                            : ""
+                    }
+
+                `;
+            }
+
+
+            if (type === "cancellation") {
+
+                content = `
+
+                    <div class="booking-info-row-modal">
+
+                        <span class="booking-info-label-modal">
+                            Booking
+                        </span>
+
+                        <strong>
+                            #${escapeHtml(
+                                booking.id
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="booking-info-row-modal">
+
+                        <span class="booking-info-label-modal">
+                            Status
+                        </span>
+
+                        <strong>
+                            CANCELLED
+                        </strong>
+
+                    </div>
+
+
+                    <div class="booking-info-row-modal">
+
+                        <span class="booking-info-label-modal">
+                            Cancelled By
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                formatCancellationActor(
+                                    booking.cancelledBy
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="booking-info-row-modal">
+
+                        <span class="booking-info-label-modal">
+                            Reason
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                getCancellationMessage(
+                                    booking.cancellationReason
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    ${
+                        booking.cancelledAt
+                            ? `
+                                <div class="booking-info-row-modal">
+
+                                    <span class="booking-info-label-modal">
+                                        Cancelled At
+                                    </span>
+
+                                    <strong>
+                                        ${formatDateTime(
+                                            booking.cancelledAt
+                                        )}
+                                    </strong>
+
+                                </div>
+                              `
+                            : ""
+                    }
+
+                `;
+            }
+
+
+            const modal =
+                document.createElement(
+                    "div"
+                );
+
+
+            modal.id =
+                "bookingInfoModal";
+
+            modal.className =
+                "booking-info-modal";
+
+
+            modal.innerHTML = `
+
+                <div
+                    class="booking-info-modal-backdrop"
+                    data-booking-info-close="true">
+                </div>
+
+
+                <div
+                    class="booking-info-modal-dialog"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="bookingInfoModalTitle">
+
+                    <div class="booking-info-modal-header">
+
+                        <div>
+
+                            <span class="section-eyebrow">
+                                BOOKING INFORMATION
+                            </span>
+
+                            <h3 id="bookingInfoModalTitle">
+                                ${escapeHtml(title)}
+                            </h3>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="booking-info-modal-close"
+                            aria-label="Close">
+
+                            <i class="fa-solid fa-xmark"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="booking-info-modal-body">
+
+                        ${content}
+
+                    </div>
+
+
+                    <div class="booking-info-modal-footer">
+
+                        <button
+                            type="button"
+                            class="view-ride-button booking-info-close-button">
+
+                            Close
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            document.body.appendChild(
+                modal
+            );
+
+
+            document.body.classList.add(
+                "modal-open"
+            );
+
+
+            function closeModal() {
+
+                modal.remove();
+
+                document.body.classList.remove(
+                    "modal-open"
+                );
+            }
+
+
+            const closeButton =
+                modal.querySelector(
+                    ".booking-info-modal-close"
+                );
+
+
+            const footerCloseButton =
+                modal.querySelector(
+                    ".booking-info-close-button"
+                );
+
+
+            const backdrop =
+                modal.querySelector(
+                    ".booking-info-modal-backdrop"
+                );
+
+
+            closeButton.addEventListener(
+                "click",
+                closeModal
+            );
+
+
+            footerCloseButton.addEventListener(
+                "click",
+                closeModal
+            );
+
+
+            backdrop.addEventListener(
+                "click",
+                closeModal
+            );
+
+
+            function escapeHandler(event) {
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    closeModal();
+
+                    document.removeEventListener(
+                        "keydown",
+                        escapeHandler
+                    );
+                }
+            }
+
+
+            document.addEventListener(
+                "keydown",
+                escapeHandler
+            );
         }
 
 
@@ -1504,14 +1973,26 @@ document.addEventListener(
            OPEN CANCEL MODAL
         ===================================================== */
 
+        /* =====================================================
+           OPEN CANCEL MODAL
+        ===================================================== */
+
         function openCancelModal(
             bookingId,
-            button
+            button,
+            bookingStatus
         ) {
+
+            const normalizedStatus =
+                normalizeStatus(
+                    bookingStatus
+                );
+
 
             bookingPendingCancellation = {
                 bookingId: bookingId,
-                button: button
+                button: button,
+                bookingStatus: normalizedStatus
             };
 
 
@@ -1529,6 +2010,21 @@ document.addEventListener(
             document.body.classList.add(
                 "modal-open"
             );
+
+
+            if (confirmCancelBookingButton) {
+
+                confirmCancelBookingButton.innerHTML =
+                    normalizedStatus === "PENDING"
+                        ? `
+                            <i class="fa-solid fa-ban"></i>
+                            Cancel Request
+                          `
+                        : `
+                            <i class="fa-solid fa-ban"></i>
+                            Cancel Booking
+                          `;
+            }
         }
 
 
@@ -1569,6 +2065,80 @@ document.addEventListener(
                 `;
         }
 
+        /* =====================================================
+           BOOKING INFORMATION HELPERS
+        ===================================================== */
+
+        function getCancellationMessage(
+            reason
+        ) {
+
+            switch (reason) {
+
+                case "PASSENGER_CANCELLED_BOOKING":
+
+                    return "You cancelled this booking.";
+
+
+                case "DRIVER_CANCELLED_RIDE":
+
+                    return "The driver cancelled this ride.";
+
+
+                case "RIDE_EXPIRED":
+
+                    return "The ride expired before it was started.";
+
+
+                case "ADMIN_CANCELLED":
+
+                    return "This booking was cancelled by an administrator.";
+
+
+                case "SYSTEM_CANCELLED":
+
+                    return "This booking was cancelled automatically.";
+
+
+                default:
+
+                    return "This booking has been cancelled.";
+            }
+        }
+
+
+        function formatCancellationActor(
+            actor
+        ) {
+
+            switch (actor) {
+
+                case "PASSENGER":
+
+                    return "You";
+
+
+                case "DRIVER":
+
+                    return "Driver";
+
+
+                case "ADMIN":
+
+                    return "Admin";
+
+
+                case "SYSTEM":
+
+                    return "System";
+
+
+                default:
+
+                    return actor ||
+                        "Unknown";
+            }
+        }
 
         /* =====================================================
            CANCEL BOOKING

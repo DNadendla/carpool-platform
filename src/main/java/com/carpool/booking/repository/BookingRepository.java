@@ -30,8 +30,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
   List<Booking> findByRideId(Long rideId);
 
-  boolean existsByRideIdAndPassengerIdAndStatus(
-      Long rideId, Long passengerId, Booking.BookingStatus status);
+  boolean existsByRideIdAndPassengerIdAndStatusIn(
+      Long rideId, Long passengerId, List<Booking.BookingStatus> statuses);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("SELECT b FROM Booking b WHERE b.id = :id")
@@ -40,23 +40,42 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query(
       """
-        SELECT b
-        FROM Booking b
-        WHERE b.ride.id = :rideId
-          AND b.status = :status
-        """)
+            SELECT b
+            FROM Booking b
+            WHERE b.ride.id = :rideId
+              AND b.status = :status
+            """)
   List<Booking> findByRideIdAndStatusForUpdate(
       @Param("rideId") Long rideId, @Param("status") Booking.BookingStatus status);
 
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query(
       """
-        SELECT new com.carpool.booking.dto.BookingStatusCount(
-            b.status,
-            COUNT(b)
-        )
-        FROM Booking b
-        WHERE b.passenger.id = :passengerId
-        GROUP BY b.status
-        """)
+            SELECT b
+            FROM Booking b
+            WHERE b.ride.id = :rideId
+              AND b.status IN :statuses
+            """)
+  List<Booking> findByRideIdAndStatusInForUpdate(
+      @Param("rideId") Long rideId, @Param("statuses") List<Booking.BookingStatus> statuses);
+
+  @Query(
+      """
+            SELECT new com.carpool.booking.dto.BookingStatusCount(
+                b.status,
+                COUNT(b)
+            )
+            FROM Booking b
+            WHERE b.passenger.id = :passengerId
+            GROUP BY b.status
+            """)
   List<BookingStatusCount> countByPassengerGroupedByStatus(@Param("passengerId") Long passengerId);
+
+  @Query(
+      """
+    SELECT b.ride.id
+    FROM Booking b
+    WHERE b.id = :bookingId
+    """)
+  Optional<Long> findRideIdByBookingId(@Param("bookingId") Long bookingId);
 }

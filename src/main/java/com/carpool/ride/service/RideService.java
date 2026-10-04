@@ -1,5 +1,7 @@
 package com.carpool.ride.service;
 
+import com.carpool.booking.entity.Booking;
+import com.carpool.booking.service.BookingService;
 import com.carpool.exception.BusinessValidationException;
 import com.carpool.exception.ConflictException;
 import com.carpool.exception.OperationNotAllowedException;
@@ -16,6 +18,7 @@ import com.carpool.vehicle.entity.Vehicle;
 import com.carpool.vehicle.repository.VehicleRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,17 +34,30 @@ public class RideService {
 
   private final VehicleRepository vehicleRepository;
 
+  private final BookingService bookingService;
+
   private final AuthenticatedUserService authenticatedUserService;
+
+  /*
+   * Grace period after scheduled departure time.
+   *
+   * Example:
+   * departureTime = 10:00
+   * grace period   = 15 minutes
+   * expiry         = 10:15
+   */
+  @Value("${carpool.ride.start-grace-period-minutes:15}")
+  private long startGracePeriodMinutes;
 
   public RideService(
       RideRepository rideRepository,
       VehicleRepository vehicleRepository,
+      BookingService bookingService,
       AuthenticatedUserService authenticatedUserService) {
 
     this.rideRepository = rideRepository;
-
     this.vehicleRepository = vehicleRepository;
-
+    this.bookingService = bookingService;
     this.authenticatedUserService = authenticatedUserService;
   }
 
@@ -77,7 +93,7 @@ public class RideService {
 
     // Validate route
 
-    if (request.getSource().equalsIgnoreCase(request.getDestination())) {
+    if (request.getSource().trim().equalsIgnoreCase(request.getDestination().trim())) {
 
       throw new BusinessValidationException("Source and destination cannot be the same");
     }
@@ -86,8 +102,8 @@ public class RideService {
         Ride.builder()
             .driver(driver)
             .vehicle(vehicle)
-            .source(request.getSource())
-            .destination(request.getDestination())
+            .source(request.getSource().trim())
+            .destination(request.getDestination().trim())
             .departureTime(request.getDepartureTime())
             .availableSeats(request.getAvailableSeats())
             .sourceLatitude(request.getSourceLatitude())
@@ -188,6 +204,11 @@ public class RideService {
       throw new BusinessValidationException("Source and destination are required");
     }
 
+    if (normalizedSource.equalsIgnoreCase(normalizedDestination)) {
+
+      throw new BusinessValidationException("Source and destination cannot be the same");
+    }
+
     Pageable sortedPageable = buildRidePageable(pageable);
 
     Page<Ride> ridePage =
@@ -204,35 +225,170 @@ public class RideService {
   }
 
   // =====================================================
-  // CANCEL RIDE
+  // START RIDE
   // =====================================================
 
-  public RideResponse cancelRide(Long id) {
+  public RideResponse startRide(Long rideId) {
 
     User currentUser = authenticatedUserService.getCurrentUser();
 
     Ride ride =
         rideRepository
-            .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: " + id));
+            .findByIdForUpdate(rideId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: " + rideId));
 
-    // Ownership check
+    validateDriver(ride, currentUser);
 
-    if (!ride.getDriver().getId().equals(currentUser.getId())) {
+    /*
+     * Only SCHEDULED rides can be started.
+     */
 
-      throw new OperationNotAllowedException("You can only cancel your own rides");
+    validateTransition(ride.getStatus(), Ride.RideStatus.STARTED);
+
+    LocalDateTime now = LocalDateTime.now();
+
+    /*
+     * Driver cannot start before departure time.
+     */
+
+    if (now.isBefore(ride.getDepartureTime())) {
+
+      throw new ConflictException("Ride cannot be started before its departure time");
     }
 
-    // Status check
+    /*
+     * If the grace period has already expired,
+     * the scheduler may not have run yet.
+     *
+     * We must still prevent the driver from
+     * starting the ride.
+     */
 
-    if (ride.getStatus() != Ride.RideStatus.SCHEDULED) {
+    LocalDateTime expiryTime = ride.getDepartureTime().plusMinutes(startGracePeriodMinutes);
 
-      throw new ConflictException("Only scheduled rides can be cancelled");
+    if (!now.isBefore(expiryTime)) {
+
+      throw new ConflictException(
+          "Ride can no longer be started because the start grace period has expired");
     }
+
+    ride.setStatus(Ride.RideStatus.STARTED);
+
+    Ride savedRide = rideRepository.save(ride);
+
+    return mapToResponse(savedRide);
+  }
+
+  // =====================================================
+  // COMPLETE RIDE
+  // =====================================================
+
+  public RideResponse completeRide(Long rideId) {
+
+    User currentUser = authenticatedUserService.getCurrentUser();
+
+    Ride ride =
+        rideRepository
+            .findByIdForUpdate(rideId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: " + rideId));
+
+    validateDriver(ride, currentUser);
+
+    /*
+     * Only STARTED rides can be completed.
+     */
+
+    validateTransition(ride.getStatus(), Ride.RideStatus.COMPLETED);
+
+    ride.setStatus(Ride.RideStatus.COMPLETED);
+
+    Ride savedRide = rideRepository.save(ride);
+
+    return mapToResponse(savedRide);
+  }
+
+  // =====================================================
+  // CANCEL RIDE
+  // =====================================================
+
+  public RideResponse cancelRide(Long rideId, String reason) {
+    User currentUser = authenticatedUserService.getCurrentUser();
+    Ride ride =
+        rideRepository
+            .findByIdForUpdate(rideId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id: " + rideId));
+
+    validateDriver(ride, currentUser);
+
+    /*
+     * Only SCHEDULED rides can be cancelled.
+     *
+     * STARTED -> CANCELLED is intentionally NOT allowed.
+     */
+
+    validateTransition(ride.getStatus(), Ride.RideStatus.CANCELLED);
+
+    if (reason == null || reason.trim().isBlank()) {
+      throw new BusinessValidationException("Cancellation reason is required");
+    }
+
+    LocalDateTime cancellationTime = LocalDateTime.now();
 
     ride.setStatus(Ride.RideStatus.CANCELLED);
+    ride.setCancelledBy(Ride.CancellationActor.DRIVER);
+    ride.setCancelledAt(cancellationTime);
+    ride.setCancellationReason(getReason(reason));
 
-    return mapToResponse(rideRepository.save(ride));
+    Ride savedRide = rideRepository.save(ride);
+
+    // Keep active bookings synchronized with the ride lifecycle.
+    // No seat restoration is required because the ride is no longer bookable.
+    bookingService.cancelActiveBookingsForRide(
+        ride.getId(),
+        Booking.CancellationActor.DRIVER,
+        Booking.CancellationReason.DRIVER_CANCELLED_RIDE,
+        cancellationTime);
+
+    return mapToResponse(savedRide);
+  }
+
+  private static String getReason(String reason) {
+    String normalizedReason = reason.trim();
+
+    if (normalizedReason.length() > 500) {
+      throw new BusinessValidationException("Cancellation reason cannot exceed 500 characters");
+    }
+    return normalizedReason;
+  }
+
+  // =====================================================
+  // VALIDATE DRIVER
+  // =====================================================
+
+  private void validateDriver(Ride ride, User currentUser) {
+    if (!ride.getDriver().getId().equals(currentUser.getId())) {
+      throw new OperationNotAllowedException("You are not authorized to manage this ride");
+    }
+  }
+
+  // =====================================================
+  // VALIDATE STATUS TRANSITION
+  // =====================================================
+
+  private void validateTransition(Ride.RideStatus currentStatus, Ride.RideStatus targetStatus) {
+
+    boolean allowed =
+        (currentStatus == Ride.RideStatus.SCHEDULED && targetStatus == Ride.RideStatus.STARTED)
+            || (currentStatus == Ride.RideStatus.SCHEDULED
+                && targetStatus == Ride.RideStatus.CANCELLED)
+            || (currentStatus == Ride.RideStatus.STARTED
+                && targetStatus == Ride.RideStatus.COMPLETED);
+
+    if (!allowed) {
+
+      throw new ConflictException(
+          "Invalid ride status transition: " + currentStatus + " -> " + targetStatus);
+    }
   }
 
   // =====================================================
@@ -255,12 +411,10 @@ public class RideService {
   private RideCountsResponse buildRideCounts(Long driverId) {
 
     long scheduled = 0;
-
     long started = 0;
-
     long completed = 0;
-
     long cancelled = 0;
+    long expired = 0;
 
     List<Object[]> results = rideRepository.countByDriverIdGroupedByStatus(driverId);
 
@@ -278,10 +432,12 @@ public class RideService {
         case COMPLETED -> completed = count;
 
         case CANCELLED -> cancelled = count;
+
+        case EXPIRED -> expired = count;
       }
     }
 
-    long all = scheduled + started + completed + cancelled;
+    long all = scheduled + started + completed + cancelled + expired;
 
     return RideCountsResponse.builder()
         .all(all)
@@ -289,6 +445,7 @@ public class RideService {
         .started(started)
         .completed(completed)
         .cancelled(cancelled)
+        .expired(expired)
         .build();
   }
 
@@ -346,6 +503,7 @@ public class RideService {
         .status(ride.getStatus())
         .cancelledBy(ride.getCancelledBy())
         .cancelledAt(ride.getCancelledAt())
+        .cancellationReason(ride.getCancellationReason())
         .build();
   }
 }

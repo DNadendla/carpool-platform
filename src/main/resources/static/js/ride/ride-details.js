@@ -976,12 +976,39 @@ document.addEventListener(
                    BOOKING SUCCESS
                 ================================================= */
 
+                if (!response.ok) {
+
+                    messageElement.className =
+                        "booking-message error";
+
+
+                    messageElement.textContent =
+                        data.message ||
+                        "Booking failed. Please try again.";
+
+
+                    bookButton.disabled =
+                        false;
+
+                    bookButton.textContent =
+                        "Book This Ride";
+
+
+                    return;
+                }
+
+
+                /* =================================================
+                   BOOKING REQUEST SUCCESS
+                ================================================= */
+
                 messageElement.className =
                     "booking-message success";
 
 
                 messageElement.textContent =
-                    "Booking confirmed! " +
+                    "Booking request submitted. " +
+                    "Waiting for driver approval. " +
                     "Booking ID: " +
                     data.id;
 
@@ -990,11 +1017,12 @@ document.addEventListener(
                     true;
 
                 bookButton.textContent =
-                    "Booking Confirmed";
+                    "Request Submitted";
 
 
                 /*
-                 * Redirect after displaying confirmation.
+                 * Redirect to My Bookings after displaying
+                 * the request confirmation.
                  */
 
                 setTimeout(function () {
@@ -1002,7 +1030,7 @@ document.addEventListener(
                     window.location.href =
                         "/bookings";
 
-                }, 1000);
+                }, 1200);
 
 
             } catch (error) {

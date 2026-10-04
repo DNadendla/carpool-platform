@@ -85,4 +85,19 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             WHERE r.id = :id
             """)
   Optional<Ride> findByIdForUpdate(@Param("id") Long id);
+
+  // =====================================================
+  // RIDE EXPIRY
+  // =====================================================
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query(
+      """
+    SELECT r
+    FROM Ride r
+    WHERE r.status = :status
+      AND r.departureTime <= :expiryTime
+    """)
+  List<Ride> findScheduledRidesEligibleForExpiry(
+      @Param("status") Ride.RideStatus status, @Param("expiryTime") LocalDateTime expiryTime);
 }
