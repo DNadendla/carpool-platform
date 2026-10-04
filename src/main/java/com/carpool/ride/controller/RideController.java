@@ -1,9 +1,6 @@
 package com.carpool.ride.controller;
 
-import com.carpool.ride.dto.RideCancellationRequest;
-import com.carpool.ride.dto.RidePageResponse;
-import com.carpool.ride.dto.RideRequest;
-import com.carpool.ride.dto.RideResponse;
+import com.carpool.ride.dto.*;
 import com.carpool.ride.entity.Ride;
 import com.carpool.ride.service.RideService;
 import jakarta.validation.Valid;
@@ -112,5 +109,14 @@ public class RideController {
       @PathVariable Long id, @Valid @RequestBody RideCancellationRequest request) {
 
     return ResponseEntity.ok(rideService.cancelRide(id, request.getReason()));
+  }
+
+  @PostMapping("/search")
+  public ResponseEntity<RidePageResponse> searchRides(
+      @Valid @RequestBody RideSearchRequest request,
+      @PageableDefault(size = 10, sort = "departure_time", direction = Sort.Direction.ASC)
+          Pageable pageable) {
+
+    return ResponseEntity.ok(rideService.searchRides(request, pageable));
   }
 }

@@ -9,7 +9,7 @@ public class RidePageController {
 
   @GetMapping("/rides")
   public String ridesPage() {
-    return "ride/rides";
+    return "ride/rides-nearby";
   }
 
   @GetMapping("/rides/create")

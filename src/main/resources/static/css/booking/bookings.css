@@ -517,6 +517,17 @@
         18px;
 }
 
+.bookings-container.is-loading {
+    opacity: 0.55;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.pagination-container.is-loading {
+    opacity: 0.55;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
 
 /* =========================================================
    BOOKING CARD

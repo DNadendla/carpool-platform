@@ -10,6 +10,7 @@ import com.carpool.ride.dto.RideCountsResponse;
 import com.carpool.ride.dto.RidePageResponse;
 import com.carpool.ride.dto.RideRequest;
 import com.carpool.ride.dto.RideResponse;
+import com.carpool.ride.dto.RideSearchRequest;
 import com.carpool.ride.entity.Ride;
 import com.carpool.ride.repository.RideRepository;
 import com.carpool.security.service.AuthenticatedUserService;
@@ -222,6 +223,72 @@ public class RideService {
                 sortedPageable);
 
     return mapToPageResponse(ridePage);
+  }
+
+  public RidePageResponse searchRides(RideSearchRequest request, Pageable pageable) {
+
+    validateSearchRequest(request);
+
+    Page<Ride> rides =
+        rideRepository.searchNearbyRides(
+            Ride.RideStatus.SCHEDULED.name(),
+            LocalDateTime.now(),
+            request.getSourceLatitude(),
+            request.getSourceLongitude(),
+            request.getDestinationLatitude(),
+            request.getDestinationLongitude(),
+            request.getRadiusKm(),
+            pageable);
+
+    return mapToPageResponse(rides);
+  }
+
+  private void validateSearchRequest(RideSearchRequest request) {
+    if (request == null) {
+      throw new BusinessValidationException("Search request is required");
+    }
+
+    if (request.getSourceLatitude() == null || request.getSourceLongitude() == null) {
+
+      throw new BusinessValidationException("Source location coordinates are required");
+    }
+
+    if (request.getDestinationLatitude() == null || request.getDestinationLongitude() == null) {
+
+      throw new BusinessValidationException("Destination location coordinates are required");
+    }
+
+    if (request.getRadiusKm() == null || request.getRadiusKm() <= 0) {
+
+      throw new BusinessValidationException("Search radius must be greater than zero");
+    }
+
+    if (request.getRadiusKm() > 100) {
+
+      throw new BusinessValidationException("Search radius cannot exceed 100 km");
+    }
+
+    if (request.getSourceLatitude() < -90
+        || request.getSourceLatitude() > 90
+        || request.getDestinationLatitude() < -90
+        || request.getDestinationLatitude() > 90) {
+
+      throw new BusinessValidationException("Latitude must be between -90 and 90");
+    }
+
+    if (request.getSourceLongitude() < -180
+        || request.getSourceLongitude() > 180
+        || request.getDestinationLongitude() < -180
+        || request.getDestinationLongitude() > 180) {
+
+      throw new BusinessValidationException("Longitude must be between -180 and 180");
+    }
+
+    if (request.getSourceLatitude().equals(request.getDestinationLatitude())
+        && request.getSourceLongitude().equals(request.getDestinationLongitude())) {
+
+      throw new BusinessValidationException("Source and destination cannot be the same");
+    }
   }
 
   // =====================================================

@@ -962,20 +962,16 @@ document.addEventListener(
             }
 
 
-            myRidesContainer.innerHTML =
-                "";
-
-
             if (
                 !Array.isArray(rides) ||
                 rides.length === 0
             ) {
-
+                myRidesContainer.innerHTML = "";
                 showEmptyState();
-
                 return;
-
             }
+
+            myRidesContainer.innerHTML = "";
 
 
             hideEmptyState();
@@ -3208,59 +3204,70 @@ document.addEventListener(
         function showLoading() {
 
             hideError();
-
             hideSuccess();
-
             hideEmptyState();
 
+            /*
+             * Keep the existing rides and pagination
+             * visible while the next page/filter is loading.
+             *
+             * This prevents the page layout from collapsing
+             * and then expanding again.
+             */
+            if (myRidesContainer) {
+                myRidesContainer.classList.add(
+                    "is-loading"
+                );
+            }
 
             if (pagination) {
-
                 pagination.classList.add(
-                    "hidden"
+                    "is-loading"
                 );
-
             }
 
+            /*
+             * Only show the loading indicator when
+             * there is no existing ride content.
+             */
+            const hasExistingRides =
+                myRidesContainer &&
+                !myRidesContainer.classList.contains("hidden") &&
+                myRidesContainer.children.length > 0;
 
-            if (myRidesContainer) {
+            if (!hasExistingRides && loading) {
 
-                myRidesContainer.classList.add(
-                    "hidden"
-                );
-
-            }
-
-
-            if (loadingText) {
-
-                loadingText.textContent =
-                    "Please wait while we fetch your rides.";
-
-            }
-
-
-            if (loading) {
+                if (loadingText) {
+                    loadingText.textContent =
+                        "Please wait while we fetch your rides.";
+                }
 
                 loading.classList.remove(
                     "hidden"
                 );
-
             }
-
         }
 
 
         function hideLoading() {
 
             if (loading) {
-
                 loading.classList.add(
                     "hidden"
                 );
-
             }
 
+            if (myRidesContainer) {
+                myRidesContainer.classList.remove(
+                    "is-loading"
+                );
+            }
+
+            if (pagination) {
+                pagination.classList.remove(
+                    "is-loading"
+                );
+            }
         }
 
 

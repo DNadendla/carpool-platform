@@ -100,4 +100,112 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     """)
   List<Ride> findScheduledRidesEligibleForExpiry(
       @Param("status") Ride.RideStatus status, @Param("expiryTime") LocalDateTime expiryTime);
+
+  // =====================================================
+  // GEOGRAPHIC SEARCH - PAGINATION
+  // =====================================================
+
+  @Query(
+      value =
+          """
+        SELECT r.*
+        FROM rides r
+        WHERE r.status = :status
+          AND r.departure_time > :departureTime
+          AND r.available_seats > 0
+
+          AND (
+              6371 * ACOS(
+                  LEAST(
+                      1.0,
+                      GREATEST(
+                          -1.0,
+                          COS(RADIANS(:sourceLatitude))
+                          * COS(RADIANS(r.source_latitude))
+                          * COS(
+                              RADIANS(r.source_longitude)
+                              - RADIANS(:sourceLongitude)
+                          )
+                          + SIN(RADIANS(:sourceLatitude))
+                          * SIN(RADIANS(r.source_latitude))
+                      )
+                  )
+              )
+          ) <= :radiusKm
+
+          AND (
+              6371 * ACOS(
+                  LEAST(
+                      1.0,
+                      GREATEST(
+                          -1.0,
+                          COS(RADIANS(:destinationLatitude))
+                          * COS(RADIANS(r.destination_latitude))
+                          * COS(
+                              RADIANS(r.destination_longitude)
+                              - RADIANS(:destinationLongitude)
+                          )
+                          + SIN(RADIANS(:destinationLatitude))
+                          * SIN(RADIANS(r.destination_latitude))
+                      )
+                  )
+              )
+          ) <= :radiusKm
+
+        """,
+      countQuery =
+          """
+        SELECT COUNT(*)
+        FROM rides r
+        WHERE r.status = :status
+          AND r.departure_time > :departureTime
+          AND r.available_seats > 0
+
+          AND (
+              6371 * ACOS(
+                  LEAST(
+                      1.0,
+                      GREATEST(
+                          -1.0,
+                          COS(RADIANS(:sourceLatitude))
+                          * COS(RADIANS(r.source_latitude))
+                          * COS(
+                              RADIANS(r.source_longitude)
+                              - RADIANS(:sourceLongitude)
+                          )
+                          + SIN(RADIANS(:sourceLatitude))
+                          * SIN(RADIANS(r.source_latitude))
+                      )
+                  )
+              )
+          ) <= :radiusKm
+
+          AND (
+              6371 * ACOS(
+                  LEAST(
+                      1.0,
+                      GREATEST(
+                          -1.0,
+                          COS(RADIANS(:destinationLatitude))
+                          * COS(RADIANS(r.destination_latitude))
+                          * COS(
+                              RADIANS(r.destination_longitude)
+                              - RADIANS(:destinationLongitude)
+                          )
+                          + SIN(RADIANS(:destinationLatitude))
+                          * SIN(RADIANS(r.destination_latitude))
+                      )
+                  )
+              ) <= :radiusKm
+        """,
+      nativeQuery = true)
+  Page<Ride> searchNearbyRides(
+      @Param("status") String status,
+      @Param("departureTime") LocalDateTime departureTime,
+      @Param("sourceLatitude") Double sourceLatitude,
+      @Param("sourceLongitude") Double sourceLongitude,
+      @Param("destinationLatitude") Double destinationLatitude,
+      @Param("destinationLongitude") Double destinationLongitude,
+      @Param("radiusKm") Double radiusKm,
+      Pageable pageable);
 }

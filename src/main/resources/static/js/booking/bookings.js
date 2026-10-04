@@ -93,6 +93,8 @@ document.addEventListener(
 
         let currentPage = 0;
 
+        let isLoadingBookings = false;
+
         let currentStatus = null;
 
         let totalPages = 0;
@@ -225,6 +227,12 @@ document.addEventListener(
             page,
             status
         ) {
+
+            if (isLoadingBookings) {
+                return;
+            }
+
+            isLoadingBookings = true;
 
             hideMessage(
                 errorMessage
@@ -393,8 +401,8 @@ document.addEventListener(
 
 
             } finally {
-
-                hideLoading();
+               hideLoading();
+               isLoadingBookings = false;
             }
         }
 
@@ -2264,28 +2272,45 @@ document.addEventListener(
 
         function showLoading() {
 
-            loading.classList.remove(
-                "hidden"
-            );
-
-
             loadingText.textContent =
                 currentStatus
                     ? `Loading ${formatStatus(currentStatus).toLowerCase()} bookings...`
                     : "Loading your bookings...";
 
+            /*
+             * Keep existing bookings and pagination
+             * in the layout while the API request runs.
+             *
+             * This prevents the page from collapsing
+             * and expanding again.
+             */
+            const hasExistingBookings =
+                bookingsContainer &&
+                !bookingsContainer.classList.contains("hidden") &&
+                bookingsContainer.children.length > 0;
 
-            bookingsContainer.classList.add(
+            if (hasExistingBookings) {
+
+                bookingsContainer.classList.add(
+                    "is-loading"
+                );
+
+                pagination.classList.add(
+                    "is-loading"
+                );
+
+                return;
+            }
+
+            /*
+             * Initial page load:
+             * show the normal loading indicator.
+             */
+            loading.classList.remove(
                 "hidden"
             );
-
 
             emptyState.classList.add(
-                "hidden"
-            );
-
-
-            pagination.classList.add(
                 "hidden"
             );
         }
@@ -2295,6 +2320,14 @@ document.addEventListener(
 
             loading.classList.add(
                 "hidden"
+            );
+
+            bookingsContainer.classList.remove(
+                "is-loading"
+            );
+
+            pagination.classList.remove(
+                "is-loading"
             );
         }
 
